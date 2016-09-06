@@ -1,0 +1,8 @@
+pandas
+jupyter
+bokeh
+holoviews
+folio
+seaborn
+ggplot
+
