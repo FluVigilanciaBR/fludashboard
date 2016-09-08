@@ -5,4 +5,5 @@ holoviews
 folio
 seaborn
 ggplot
-
+numpy
+matplotlib
