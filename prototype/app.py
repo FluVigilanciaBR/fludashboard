@@ -1,17 +1,22 @@
-from flask import Flask, render_template
+from flask import Flask
+from flask import render_template
+
+import pandas as pd
 
 # local
-from map_chart import map_chart
-from curve_chart import curve_chart
-from distribution_chart import distribution_chart
-
+from curve_chart import get_curve_data
 
 app = Flask(__name__)
 
+
 @app.route("/")
-def hello():
-    # map_chart()
-    return render_template('index.html')
+def index():
+    return render_template("index.html")
+
+
+@app.route("/data/weekly-incidence-curve")
+def data__weekly_incidence_curve():
+    return get_curve_data()
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host='0.0.0.0',port=5000,debug=True)

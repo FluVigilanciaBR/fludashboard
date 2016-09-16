@@ -5,7 +5,7 @@ import matplotlib.font_manager as fm
 import numpy as np
 
 
-def curve_chart():
+def get_curve_data():
     # data
     dfincidence = pd.read_csv('../data/clean_data_filtro_sintomas_dtsin4mem-incidence-2013.csv')
     dftypical = pd.read_csv('../data/mem-typical-2016-uf.csv')
@@ -15,6 +15,7 @@ def curve_chart():
         dfincidence, dftypical, on=['UF', 'isoweek'], how='right'
     ).merge(dfthresholds.drop(['Unidade da Federação', 'População'], axis=1), on='UF')
 
+    '''
     season = 'SRAG2013'
     uf = 'Rio Grande do Sul'
     week = 32
@@ -71,6 +72,7 @@ def curve_chart():
     box = ax.get_position()
     ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
     ax.legend(prop=fontproplgd, loc='center left', bbox_to_anchor=(1,0.5))
+    '''
 
-    return
+    return df.to_json(orient='records')
 
