@@ -1,126 +1,92 @@
 queue()
     .defer(d3.json, "static/data/br-states.json")
+    .defer(d3.json, "/data/incidence-color-alerts/" + $('#interval').val())
     .defer(d3.json, "/data/weekly-incidence-curve")
     .await(makeGraphs);
 
-function makeGraphs(error, states_json, weekly_incidence_json) {
-	
-	//Clean projectsJson data
-    var weekly_incidence = weekly_incidence_json;
-    /*
-	var dateFormat = d3.time.format("%Y-%m-%d");
-	donorschooseProjects.forEach(function(d) {
-		d["date_posted"] = dateFormat.parse(d["date_posted"].substring(0, 10));
-		d["date_posted"].setDate(1);
-		d["total_donations"] = +d["total_donations"];
-	});
-    */
+function getColor(d) {
+    return d == 4 ? '#ff0000' :
+           d == 3 ? '#ff9900' :
+           d == 2 ? '#f0ff00' :
+                    '#30c130';
+}
 
-	//Create a Crossfilter instance
-	var ndx = crossfilter(weekly_incidence);
+function makeGraphs(
+    error, statesJson, incidenceColorAlerts, incidence
+) {
+    //Clean projectsJson data
+    var dateFormat = d3.time.format("%Y-%m-%d");
 
-	//Define Dimensions
-	//var totalDonationsDim  = ndx.dimension(function(d) { return d["total_donations"]; });
-    var state_dim = ndx.dimension(function(d) {return d['uf'];});
-    var week_dim = ndx.dimension(function(d) {return d['isoweek'];});
+    //Create a Crossfilter instance
+    var ndx = crossfilter(incidence);
 
-	//Calculate metrics
-	//var numProjectsByResourceType = resourceTypeDim.group();
-	/*var totalDonationsByState = stateDim.group().reduceSum(function(d) {
-		return d["total_donations"];
-	});*/
-    var max_state = 1000;
+    //Define Dimensions
+    var weekDim = ndx.dimension(function(d) { return d["isoweek"]; });
+    var stateDim = ndx.dimension(function(d) { return d["uf"]; });
+    var incidenceDim  = ndx.dimension(function(d) { return d["incidence"]; });
 
-	var all = ndx.groupAll();
 
-	//Define values (to be used in charts)
-	var min_week = week_dim.bottom(1)[0]["isoweek"];
-	var max_week = week_dim.top(1)[0]["isoweek"];
+    //Calculate metrics
+    var numIncidenceByWeek = weekDim.group(); 
+    var totalIncidenceByState = stateDim.group().reduceSum(function(d) {
+        return d["incidence"];
+    });
+
+    var all = ndx.groupAll();
+    var totalIncidence = ndx.groupAll().reduceSum(function(d) {return d["incidence"];});
+
+    var max_state = 4;
+
+    //Define values (to be used in charts)
+    var minWeek = weekDim.bottom(1)[0]["isoweek"];
+    var maxWeek = weekDim.top(1)[0]["isoweek"];
 
     //Charts
-	//var timeChart = dc.barChart("#time-chart");
-	//var resourceTypeChart = dc.rowChart("#resource-type-row-chart");
-	//var usChart = dc.geoChoroplethChart("#us-chart");
-	//var totalDonationsND = dc.numberDisplay("#total-donations-nd");
-    var br_chart = dc.geoChoroplethChart('#br-chart');
+    var weekChart = dc.barChart("#week-chart");
+    var brChart = dc.geoChoroplethChart("#br-chart");
+    var numberIncidenceND = dc.numberDisplay("#number-incidence-nd");
+    var totalIncidenceND = dc.numberDisplay("#total-incidence-nd");
 
-    /*
-	numberProjectsND
-		.formatNumber(d3.format("d"))
-		.valueAccessor(function(d){return d; })
-		.group(all);
+    numberIncidenceND
+        .formatNumber(d3.format("d"))
+        .valueAccessor(function(d){return d; })
+        .group(all);
 
-	totalDonationsND
-		.formatNumber(d3.format("d"))
-		.valueAccessor(function(d){return d; })
-		.group(totalDonations)
-		.formatNumber(d3.format(".3s"));
+    totalIncidenceND
+        .formatNumber(d3.format("d"))
+        .valueAccessor(function(d){return d; })
+        .group(totalIncidence)
+        .formatNumber(d3.format(".3s"));
 
-	timeChart
-		.width(600)
-		.height(160)
-		.margins({top: 10, right: 50, bottom: 30, left: 50})
-		.dimension(dateDim)
-		.group(numProjectsByDate)
-		.transitionDuration(500)
-		.x(d3.time.scale().domain([minDate, maxDate]))
-		.elasticY(true)
-		.xAxisLabel("Year")
-		.yAxis().ticks(4);
+    weekChart
+        .width(600)
+        .height(160)
+        .margins({top: 10, right: 50, bottom: 30, left: 50})
+        .dimension(weekDim)
+        .group(numIncidenceByWeek)
+        .transitionDuration(500)
+        .x(d3.time.scale().domain([minWeek, maxWeek]))
+        .elasticY(true)
+        .xAxisLabel("Week")
+        .yAxis().ticks(4);
 
-	resourceTypeChart
-        .width(300)
-        .height(250)
-        .dimension(resourceTypeDim)
-        .group(numProjectsByResourceType)
-        .xAxis().ticks(4);
-
-	povertyLevelChart
-		.width(300)
-		.height(250)
-        .dimension(povertyLevelDim)
-        .group(numProjectsByPovertyLevel)
-        .xAxis().ticks(4);
-
-
-	usChart.width(1000)
-		.height(330)
-		.dimension(stateDim)
-		.group(totalDonationsByState)
-		.colors(["#E2F2FF", "#C4E4FF", "#9ED2FF", "#81C5FF", "#6BBAFF", "#51AEFF", "#36A2FF", "#1E96FF", "#0089FF", "#0061B5"])
-		.colorDomain([0, max_state])
-		.overlayGeoJson(statesJson["features"], "state", function (d) {
-			return d.properties.name;
-		})
-		.projection(d3.geo.albersUsa()
-    				.scale(600)
-    				.translate([340, 150]))
-		.title(function (p) {
-			return "State: " + p["key"]
-					+ "\n"
-					+ "Total Donations: " + Math.round(p["value"]) + " $";
-		})
-    */
-
-    br_chart.width(1000)
-		.height(330)
-		.dimension(state_dim)
-		.group(100000)
-		.colors(["#E2F2FF", "#C4E4FF", "#9ED2FF", "#81C5FF", "#6BBAFF", "#51AEFF", "#36A2FF", "#1E96FF", "#0089FF", "#0061B5"])
-		.colorDomain([0, max_state])
-		.overlayGeoJson(states_json["features"], "state", function (d) {
-			return d.properties.name;
-		})
-		.projection(d3.geo.albersUsa()
-    				.scale(600)
-    				.translate([340, 150]))
-		.title(function (p) {
-            return 'State:';
-			return "State: " + p["key"]
-					+ "\n"
-					+ "Total Donations: " + Math.round(p["value"]) + " $";
-		})
+    brChart.width(1000)
+        .height(330)
+        .dimension(stateDim)
+        .group(totalIncidenceByState)
+        .colors(["#E2F2FF", "#C4E4FF", "#9ED2FF", "#81C5FF", "#6BBAFF", "#51AEFF", "#36A2FF", "#1E96FF", "#0089FF", "#0061B5"])
+        .colorDomain([0, max_state])
+        .overlayGeoJson(statesJson["features"], "state", function (d) {
+            return d.properties.name;
+        })
+        .projection(d3.geo.equirectangular()
+                    .scale(600)
+                    .translate([-10, -30]))
+        .title(function (p) {
+            return "State: " + p["key"]
+                    + "\n"
+                    + "Total Incidence: " + Math.round(p["value"]) + " $";
+        })
 
     dc.renderAll();
-
 };
