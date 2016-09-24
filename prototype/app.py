@@ -16,9 +16,9 @@ def index():
     return render_template("index.html", current_isoweek=isoweek)
 
 
-@app.route("/data/weekly-incidence-curve")
-def data__weekly_incidence_curve():
-    return get_curve_data()
+@app.route("/data/weekly-incidence-curve/<isoweek>")
+def data__weekly_incidence_curve(isoweek):
+    return get_curve_data(isoweek=isoweek)
 
 
 @app.route("/data/incidence-color-alerts/<isoweek>")

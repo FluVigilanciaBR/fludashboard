@@ -91,7 +91,7 @@ def get_incidence_color_alerts(season=2013, isoweek=None):
 
 
 
-def get_curve_data(season=2013, uf_name='Rio Grande do Sul'):
+def get_curve_data(season=2013, uf_name='Rio Grande do Sul', isoweek=1):
     """
 
     """
