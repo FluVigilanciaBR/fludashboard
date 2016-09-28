@@ -1,6 +1,7 @@
 from flask import Flask
 from flask import render_template
 
+import click
 import pandas as pd
 import datetime
 
@@ -26,5 +27,12 @@ def data__incidence_color_alerts(isoweek):
     return get_incidence_color_alerts(isoweek=isoweek)
 
 
+@click.command()
+@click.option('-p', default=5000, help='Port Number')
+def startup(p):
+    """
+    """
+    app.run(host='0.0.0.0', port=p, debug=True)
+
 if __name__ == "__main__":
-    app.run(host='0.0.0.0',port=5000,debug=True)
+    startup()
