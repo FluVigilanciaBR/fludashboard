@@ -37,6 +37,10 @@
 
 <style>
 
+.hidden {
+    display: none;
+}
+    
 .chart {
     margin-left:90px;
 }
@@ -84,15 +88,13 @@ Period (week):
         <tr class="header">
         <th>State</th>
         <th>Incidence</th>
-        <th>Age</th>
-        <th>Alert</th>
         </tr>
     </thead>
 </table>
 <div>
 
 <!-- A div anchor that can be identified by id -->
-<div id="linechart" class="dc-chart" style="display:none;">
+<div id="linechart" class="dc-chart hidden">
     <!-- Title or anything you want to add above the chart -->
     <strong>Series Chart</strong>
     <!--
@@ -100,24 +102,6 @@ Period (week):
         Clicking on the reset button will remove all filters.
      -->
     <a class="reset" href="javascript:void(0);" onclick="javascript:LineChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
-    <div class="clearfix"></div>
-    <!--
-        dc.js will also automatically inject applied current filter value into
-        any html element with css class set to "filter"
-    -->
-    <span class="reset" style="display: none;">Current filter: <span class="filter"></span></span>
-    <br/>
-    <br/>
-</div>
-
-<div id="rowchart" class="dc-chart" style="display:none;">
-    <!-- Title or anything you want to add above the chart -->
-    <strong>Age Chart</strong>
-    <!--
-        This will create a reset button when ever the user selects a filter.
-        Clicking on the reset button will remove all filters.
-     -->
-    <a class="reset" href="javascript:void(0);" onclick="javascript:RowChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
     <div class="clearfix"></div>
     <!--
         dc.js will also automatically inject applied current filter value into
@@ -156,8 +140,8 @@ function print_filter(filter){
 }
 
 // Create Global Variables
-/*var RowChart = dc.rowChart("#rowchart");
-var LineChart = dc.lineChart("#linechart");*/
+/*var RowChart = dc.rowChart("#rowchart");*/
+var LineChart = dc.lineChart("#linechart");
 var DataTable = dc.dataTable("#data-table");
 
 // Load data
@@ -224,10 +208,13 @@ function Graph(data) {
     //Here we will group by state
     var stateDim = ndx.dimension(dc.pluck('Unidade_da_Federação'));
     var weekDim = ndx.dimension(dc.pluck('isoweek'));
+    var allDim = ndx.dimension(function(d){d});
     
     var ufAlertDim = ndx.dimension(function (d) {
         //stringify() and later, parse() to get keyed objects
-        return JSON.stringify({'uf': d['Unidade_da_Federação'], 'alert': d['alert']});
+        return JSON.stringify({
+            'uf': d['Unidade_da_Federação'], 'alert': d['alert']
+        });
     });
 
     ufAlertGroup = ufAlertDim.group();
@@ -269,28 +256,37 @@ function Graph(data) {
         }
     });
     geojson_layer.addTo(map);
-    osm.addTo(map)
+    osm.addTo(map);
     
     d3.select('#week')
         .on('change', function(){ 
             isoweek = $('#week').val();
             
-            result = {
+            style_properties = {
                 fillColor: 'white',
                 color: '#333333',
                 opacity: 1,
                 weight: 1
             };
-        
+            
             weekDim.filterAll();
+            if(isoweek>0) {
+                $("#data-table").removeClass('hidden');
+                df = filter_apply(
+                    weekDim.filter(isoweek)
+                );
+            } else {
+                $("#data-table").addClass('hidden');
+                $("#linechart").addClass('hidden');
+                df = filter_apply(ufAlertGroup.all());
+            }
+            
             //print_filter(df);
             geojson_layer.eachLayer(function (layer) {  
                 l_name = layer.feature.properties.nome;
+                layer.setStyle(style_properties);
                 
                 if(isoweek>0) {
-                    df = filter_apply(
-                        weekDim.filter(isoweek)
-                    );
                     $(df).each(function(i){ 
                         if (l_name == df[i]['Unidade_da_Federação']){
                             layer.setStyle({
@@ -298,10 +294,10 @@ function Graph(data) {
                                 color: '#333333',
                                 opacity: 1
                             });
+                            return;
                         }
                     });
                 } else {
-                    df = filter_apply(ufAlertGroup.all());
                     alerts = {};
 
                     $(df).each(function(i){ 
@@ -321,9 +317,6 @@ function Graph(data) {
             dc.renderAll(); // render all charts on the page
     });
     
-    //Here we group by state and sum on column population
-    var stateGroup = stateDim.group().reduceSum(dc.pluck('incidence'));
-    
     /*
     //Lets create a row chart
     RowChart.dimension(stateDim)
@@ -341,6 +334,11 @@ function Graph(data) {
     };
     */
     
+    LineChart.dimension(allDim)
+        .group(ufAlertGroup)
+        .width(500)
+        .x(d3.scale.linear().domain([0,20]));
+    
     DataTable.dimension(weekDim)
         // data table does not use crossfilter group but rather a closure
         // as a grouping function
@@ -349,9 +347,7 @@ function Graph(data) {
         })
         .columns([
             dc.pluck('Unidade_da_Federação'),
-            dc.pluck('incidence'),
-            dc.pluck('age'),
-            dc.pluck('alert'),
+            dc.pluck('incidence')
         ])
         .size(100)
         .sortBy(dc.pluck('Unidade_da_Federação'))
