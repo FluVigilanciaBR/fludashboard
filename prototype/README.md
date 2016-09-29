@@ -18,6 +18,13 @@ source activate fludashboard
 
 *<sup>Use requirements.txt from root directory of FluDashboard project.</sup>*
 
+Optionally, the deployment can be done into a docker container. To create a new container with conda environment:
+
+```shell
+docker pull continuumio/anaconda3
+
+```
+
 ## Running the app
 
 To run the app just type in the terminal (in prototype directory):
