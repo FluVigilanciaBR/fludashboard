@@ -6,6 +6,17 @@
     rel="stylesheet" 
     type="text/css" 
     href="https://cdnjs.cloudflare.com/ajax/libs/dc/2.0.0-alpha.5/dc.css"/> 
+    
+<link
+    rel="stylesheet" 
+    href="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.css" 
+/>
+
+<link
+    rel="stylesheet" 
+    href="https://rawgit.com/c3js/c3/master/c3.min.css" 
+/>
+    
 <script 
     src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.13/d3.min.js"
 ></script> 
@@ -13,10 +24,6 @@
     src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.12/crossfilter.min.js"
 ></script> 
 
-<link
-    rel="stylesheet" 
-    href="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.css" 
-/>
 <script 
     src="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.js"
 ></script>
@@ -33,6 +40,10 @@
     
 <script
     src="https://rawgit.com/NickQiZhu/dc.js/master/web/js/dc.js"
+></script>
+    
+<script
+    src="https://rawgit.com/c3js/c3/master/c3.min.js"
 ></script>
 
 <style>
@@ -81,35 +92,23 @@ Period (week):
 
 <div id="map" style="height:250px;width:500px;"></div>
 
-<div>
-<table id="data-table" class='table'>
- <!-- create a custom header -->
+<div style="display:none;">
+  <table id="data-table" class='table'>
+    <!-- create a custom header -->
     <thead class="header">
-        <tr class="header">
+      <tr class="header">
         <th>State</th>
         <th>Incidence</th>
-        </tr>
+      </tr>
     </thead>
-</table>
-<div>
+  </table>
+</div>
 
 <!-- A div anchor that can be identified by id -->
-<div id="linechart" class="dc-chart hidden">
     <!-- Title or anything you want to add above the chart -->
-    <strong>Series Chart</strong>
-    <!--
-        This will create a reset button when ever the user selects a filter.
-        Clicking on the reset button will remove all filters.
-     -->
-    <a class="reset" href="javascript:void(0);" onclick="javascript:LineChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
-    <div class="clearfix"></div>
-    <!--
-        dc.js will also automatically inject applied current filter value into
-        any html element with css class set to "filter"
-    -->
-    <span class="reset" style="display: none;">Current filter: <span class="filter"></span></span>
-    <br/>
-    <br/>
+    <center><h2 id="incidence-chart-title"></h2></center>
+<div id="linechart">
+    
 </div>
     
 <script>
@@ -141,7 +140,7 @@ function print_filter(filter){
 
 // Create Global Variables
 /*var RowChart = dc.rowChart("#rowchart");*/
-var LineChart = dc.lineChart("#linechart");
+//var LineChart = dc.lineChart("#linechart");
 var DataTable = dc.dataTable("#data-table");
 
 // Load data
@@ -172,15 +171,57 @@ function Graph(data) {
                 // reset line weight
                 geojson_layer.eachLayer(function (_layer) {  
                     _layer.setStyle({
-                        weight: 1
+                        weight: 1,
                     });
                 });
                 // bold the selected state
                 layer.setStyle({
-                    weight: 2
+                    weight: 3,
                 });
                 
                 $('#selected_state').val(feature.properties.nome);
+                $('#incidence-chart-title').text(feature.properties.nome);
+                isoweek = $('#week').val();
+                
+                if(isoweek>0) {
+                    $("#data-table").removeClass('hidden');
+                    if ($('#selected_state').val() != "") {
+                        $("#linechart").removeClass('hidden');
+                    } else {
+                        $("#linechart").addClass('hidden');
+                    }
+                } else {
+                    $("#data-table").addClass('hidden');
+                    $("#linechart").addClass('hidden');
+                }
+                
+                dc.renderAll();
+                
+                var chart = c3.generate({
+                bindto: '#linechart',
+                data: {
+                  columns: [
+                      ['corredor_baixo', 30, 25, 15, 45, 25, 35],
+                      ['corredor_medio', 50, 20, 10, 40, 15, 25],
+                      ['corredor_alto', 60, 30, 20, 50, 25, 35],
+                      ['corredor_muito_alto', 60, 40, 30, 60, 35, 45],
+                      ['SRAG', 10, 10, 10, 10, 10, 10],
+                      ['limiar_pre_epidemico', 20, 20, 20, 20, 20, 20],
+                      ['intesidade_alta', 30, 30, 30, 30, 30, 30],
+                      ['intensidade_muito_alta', 40, 40, 40, 40, 40, 40]
+                  ],
+                  types: {
+                      corredor_baixo: 'area',
+                      corredor_medio: 'area',
+                      corredor_alto: 'area',
+                      corredor_muito_alto: 'area',
+                      SRAG: 'line',
+                      limiar_pre_epidemico: 'line',
+                      intesidade_alta: 'line',
+                      intensidade_muito_alta: 'line'
+                  }
+                }
+            });
             }
         });
     }
@@ -231,11 +272,11 @@ function Graph(data) {
             l_name = feature.properties.nome;
             isoweek = $('#week').val();
             
-            result = {
-                fillColor: 'white',
+            style_properties = {
+                fillColor: '#ffffff',
+                fillOpacity: 0.5,
                 color: '#333333',
-                opacity: 1,
-                weight: 1
+                weight: 1,
             };
             
             weekDim.filterAll();
@@ -243,16 +284,11 @@ function Graph(data) {
 
             $(df).each(function(i){ 
                 if (l_name == df[i]['Unidade_da_Federacao']){
-                    result = {
-                        fillColor: flu_colors[df[i]['alert']],
-                        color: '#333333',
-                        opacity: 1,
-                        weight: 1
-                    };
+                    style_properties['fillColor'] = flu_colors[df[i]['alert']];
                     return;
                 }
             });            
-            return result;
+            return style_properties;
         }
     });
     geojson_layer.addTo(map);
@@ -263,15 +299,19 @@ function Graph(data) {
             isoweek = $('#week').val();
             
             style_properties = {
-                fillColor: 'white',
-                color: '#333333',
-                opacity: 1,
-                weight: 1
+                fillColor: '#ffffff',
+                weight: 1,
             };
             
             weekDim.filterAll();
             if(isoweek>0) {
                 $("#data-table").removeClass('hidden');
+                if ($('#selected_state').val() != "") {
+                    $("#linechart").removeClass('hidden');
+                } else {
+                    $("#linechart").addClass('hidden');
+                }
+                
                 df = filter_apply(
                     weekDim.filter(isoweek)
                 );
@@ -284,6 +324,13 @@ function Graph(data) {
             //print_filter(df);
             geojson_layer.eachLayer(function (layer) {  
                 l_name = layer.feature.properties.nome;
+                
+                if (l_name == $('#selected_state').val()) {
+                    style_properties['weight'] = 3;
+                } else {
+                    style_properties['weight'] = 1;
+                }
+                
                 layer.setStyle(style_properties);
                 
                 if(isoweek>0) {
@@ -291,8 +338,6 @@ function Graph(data) {
                         if (l_name == df[i]['Unidade_da_Federacao']){
                             layer.setStyle({
                                 fillColor: flu_colors[df[i]['alert']],
-                                color: '#333333',
-                                opacity: 1
                             });
                             return;
                         }
@@ -308,9 +353,6 @@ function Graph(data) {
 
                     layer.setStyle({
                         fillColor: flu_colors[alert_level_for_whole_year(alerts)],
-                        color: '#333333',
-                        opacity: 1,
-                        weight: 1
                     });
                 }
             });
@@ -333,11 +375,6 @@ function Graph(data) {
         return flu_colors[d.alert];
     };
     */
-    
-    LineChart.dimension(allDim)
-        .group(ufAlertGroup)
-        .width(500)
-        .x(d3.scale.linear().domain([0,20]));
     
     DataTable.dimension(weekDim)
         // data table does not use crossfilter group but rather a closure
