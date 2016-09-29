@@ -16,7 +16,7 @@ source activate fludashboard
 
 ```
 
-Use requirements.txt from root directory of FluDashboard project.
+*<sup>Use requirements.txt from root directory of FluDashboard project.</sup>*
 
 ## Running the app
 

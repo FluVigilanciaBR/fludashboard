@@ -2,11 +2,11 @@
 <html>
 <head>
   <title>Dashboard</title>
-  <link rel="stylesheet" href="./static/lib/css//bootstrap.min.css">
-  <link rel="stylesheet" href="./static/lib/css/keen-dashboards.css">
-  <link rel="stylesheet" href="./static/lib/css/dc.css">
+  <link rel="stylesheet" href="./static/libs/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="./static/libs/keen/keen-dashboards.css">
+  <link rel="stylesheet" href="./static/libs/dc/dc.min.css">
   <link rel="stylesheet" href="./static/css/custom.css">
-
+  <link rel="stylesheet" href="./static/libs/leaflet/leaflet.css" />
 
 </head>
 <body class="application">
@@ -14,7 +14,7 @@
   <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
     <div class="container-fluid">
       <div class="navbar-header">
-        <a class="navbar-brand" href="./">Flu Dashboard</a>
+        <a class="navbar-brand" href="./">Flu Dashboard Prototype</a>
       </div>
     </div>
   </div>
@@ -23,28 +23,50 @@
 
     <div class="row">
 
-      <div class="col-sm-6">
+      <div class="col-sm-12">
         <div class="row">
 
           <!-- Time Chart --> 
           <div class="col-sm-12">
             <div class="chart-wrapper">
               <div class="chart-title">
-                Interval:
+                Filtro
               </div>
               <div class="chart-stage">
-                <select id='interval'>
-                    <option value=''>Whole Year</option>
-                  {%for w in range(1, 52):%}
+                Per&iacute;odo (semana):
+                <select id='week'>
+                    <option value=''>Ano inteiro</option>
+                  {%for w in range(1, 53):%}
                     <option value="{{w}}" 
                         {{'selected="selected"' if w==current_isoweek else ''}}
                     >{{w}}</option>
                   {%endfor%}  
                 </select>
+                <input type="hidden" id="selected_state" value=""/>
               </div>
             </div>
           </div>
           <!-- Time Chart --> 
+        </div>
+      </div>
+    </div>
+    <div class="row">
+
+      <!-- Map -->  
+      <div class="col-sm-6">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+            Mapa de incidencia de SRAG
+          </div>
+          <div class="chart-stage">
+            <div id="map" style="height:250px;width:500px;"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Map -->
+
+      <div class="col-sm-6">
+        <div class="row">
 
           <!-- Resources Pie -->
           <div class="col-sm-12">
@@ -61,30 +83,19 @@
 
         </div>
       </div>
-
-      <!-- Map -->  
-      <div class="col-sm-6">
-        <div class="chart-wrapper">
-          <div class="chart-title">
-            Distribution of Flu
-          </div>
-          <div class="chart-stage">
-            <div id="br-chart"></div>
-          </div>
-        </div>
-      </div>
-      <!-- Map -->
-
+    </div>
+    <div class="row">
       <!-- Metric 1 -->
-      <div class="col-sm-6">
-        <div class="chart-wrapper">
-          <div class="chart-title">
-            Total Number of Events
-          </div>
-          <div class="chart-stage">
-            <div id="number-flu-event"></div>
-          </div>
-        </div>
+      <div class="col-sm-12">
+        <table id="data-table" class='table'>
+         <!-- create a custom header -->
+            <thead class="header">
+                <tr class="header">
+                <th>State</th>
+                <th>Incidence</th>
+                </tr>
+            </thead>
+        </table>
       </div>
       <!-- Metric 1 -->
 
@@ -92,18 +103,262 @@
 
   </div>
 
-  <hr/> <h3>Prototype</h3>
-  
-  </div>
+  <script src="./static/libs/jquery/jquery.js"></script>
+  <script src="./static/libs/bootstrap/bootstrap.min.js"></script>
+  <script src="./static/libs/crossfilter/crossfilter.min.js"></script>
+  <script src="./static/libs/d3/d3.min.js"></script>
+  <script src="./static/libs/dc/dc.min.js"></script>
+  <script src="./static/libs/queue/queue.js"></script>
+  <script src="./static/libs/keen/keen.min.js"></script>
+  <script src="./static/libs/leaflet/leaflet.js"></script>
 
-  <script src="./static/lib/js/jquery.min.js"></script>
-  <script src="./static/lib/js/bootstrap.min.js"></script>
-  <script src="./static/lib/js/crossfilter.js"></script>
-  <script src="./static/lib/js/d3.js"></script>
-  <script src="./static/lib/js/dc.js"></script>
-  <script src="./static/lib/js/queue.js"></script>
+<script>
 
-  <script src="./static/lib/js/keen.min.js"></script>
-  <script src='./static/js/graphs.js' type='text/javascript'></script>
+function filter_apply(filter) {
+    var f=eval(filter);
+    
+    if (typeof(f.length) != "undefined") {} else {};
+    
+    if (typeof(f.top) != "undefined") {f=f.top(Infinity);} else {};
+    
+    if (typeof(f.dimension) != "undefined") {
+        f=f.dimension(function(d) { return "";}).top(Infinity);
+    } else {};
+    
+    return f;
+}
+
+
+function print_filter(filter){
+    f = filter_apply(filter);
+    
+    console.log(
+        filter + "(" + f.length + ") = " + 
+        JSON.stringify(f)
+    );
+}
+
+// Create Global Variables
+/*var RowChart = dc.rowChart("#rowchart");*/
+var LineChart = dc.lineChart("#linechart");
+var DataTable = dc.dataTable("#data-table");
+
+// Load data
+var dataset = {{ data|safe }};
+var br_states = {{ br_states|safe }};
+
+var flu_colors = {
+    1: 'green',
+    2: 'yellow',
+    3: 'orange',
+    4: 'red',
+};
+
+// Create function
+function Graph(data) {
+    var map = L.map('map');
+    map.setView([-16, -50.528742], 3);
+    
+    // create the tile layer with correct attribution
+    var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+    var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
+    var osm = new L.TileLayer(osmUrl, {minZoom: 1, maxZoom: 12, attribution: osmAttrib});
+    
+    function onEachFeature(feature, layer) {
+        //bind click
+        layer.on({
+            click: function(){
+                // reset line weight
+                geojson_layer.eachLayer(function (_layer) {  
+                    _layer.setStyle({
+                        weight: 1
+                    });
+                });
+                // bold the selected state
+                layer.setStyle({
+                    weight: 2
+                });
+                
+                $('#selected_state').val(feature.properties.nome);
+            }
+        });
+    }
+    
+    /**
+     * Red if the incidence was above the high threshold for at least 5 weeks;
+     * Orange if above the high threshold from 1 to 4 weeks;
+     * Yellow if crossed the epidemic threshold but not the high one;
+     * Green if it did not cross the epidemic threshold.
+    */
+    function alert_level_for_whole_year(d) {
+        if (d[4] >= 5) return 4;
+        if (d[4] >= 1 && d[4] < 5) return 3;
+        if (d[2] >= 1 || d[3] >= 1) return 2;
+        return 1;
+    }
+    
+    // Feed it through crossfilter  
+    var ndx = crossfilter(data);
+    
+    // for testing
+    //console.log(data);
+    
+    //define a dimension
+    //Here we will group by state
+    var stateDim = ndx.dimension(dc.pluck('Unidade_da_Federacao'));
+    var weekDim = ndx.dimension(dc.pluck('isoweek'));
+    var allDim = ndx.dimension(function(d){d});
+    
+    var ufAlertDim = ndx.dimension(function (d) {
+        //stringify() and later, parse() to get keyed objects
+        return JSON.stringify({
+            'uf': d['Unidade_da_Federacao'], 'alert': d['alert']
+        });
+    });
+
+    ufAlertGroup = ufAlertDim.group();
+    //this forEach method could be very expensive on write.
+    ufAlertGroup.all().forEach(function(d) {
+        //parse the json string created above
+        d.key = JSON.parse(d.key);
+    });
+    
+    // start the map in South-East England
+    geojson_layer = L.geoJson(br_states, {
+        onEachFeature: onEachFeature,
+        style: function(feature) {
+            l_name = feature.properties.nome;
+            isoweek = $('#week').val();
+            
+            result = {
+                fillColor: 'white',
+                color: '#333333',
+                opacity: 1,
+                weight: 1
+            };
+            
+            weekDim.filterAll();
+            df = filter_apply(weekDim.filter(isoweek));
+
+            $(df).each(function(i){ 
+                if (l_name == df[i]['Unidade_da_Federacao']){
+                    result = {
+                        fillColor: flu_colors[df[i]['alert']],
+                        color: '#333333',
+                        opacity: 1,
+                        weight: 1
+                    };
+                    return;
+                }
+            });            
+            return result;
+        }
+    });
+    geojson_layer.addTo(map);
+    osm.addTo(map);
+    
+    d3.select('#week')
+        .on('change', function(){ 
+            isoweek = $('#week').val();
+            
+            style_properties = {
+                fillColor: 'white',
+                color: '#333333',
+                opacity: 1,
+                weight: 1
+            };
+            
+            weekDim.filterAll();
+            if(isoweek>0) {
+                $("#data-table").removeClass('hidden');
+                df = filter_apply(
+                    weekDim.filter(isoweek)
+                );
+            } else {
+                $("#data-table").addClass('hidden');
+                $("#linechart").addClass('hidden');
+                df = filter_apply(ufAlertGroup.all());
+            }
+            
+            //print_filter(df);
+            geojson_layer.eachLayer(function (layer) {  
+                l_name = layer.feature.properties.nome;
+                layer.setStyle(style_properties);
+                
+                if(isoweek>0) {
+                    $(df).each(function(i){ 
+                        if (l_name == df[i]['Unidade_da_Federacao']){
+                            layer.setStyle({
+                                fillColor: flu_colors[df[i]['alert']],
+                                color: '#333333',
+                                opacity: 1
+                            });
+                            return;
+                        }
+                    });
+                } else {
+                    alerts = {};
+
+                    $(df).each(function(i){ 
+                        if (l_name == df[i].key['uf']){
+                            alerts[df[i].key['alert']] = df[i].value;
+                        }
+                    });
+
+                    layer.setStyle({
+                        fillColor: flu_colors[alert_level_for_whole_year(alerts)],
+                        color: '#333333',
+                        opacity: 1,
+                        weight: 1
+                    });
+                }
+            });
+            dc.renderAll(); // render all charts on the page
+    });
+    
+    /*
+    //Lets create a row chart
+    RowChart.dimension(stateDim)
+        .group(stateGroup)
+        .width(500);
+        
+    RowChart.getColor = function(d, i){
+        var flu_colors = {
+            1: '#dfdfdf',
+            2: '#ffcc00',
+            3: '#ff0000',
+            4: '#00ff00',
+        };
+        return flu_colors[d.alert];
+    };
+    */
+    
+    LineChart.dimension(allDim)
+        .group(ufAlertGroup)
+        .width(500)
+        .x(d3.scale.linear().domain([0,20]));
+    
+    DataTable.dimension(weekDim)
+        // data table does not use crossfilter group but rather a closure
+        // as a grouping function
+        .group(function(d) {
+            return '';
+        })
+        .columns([
+            dc.pluck('Unidade_da_Federacao'),
+            dc.pluck('incidence')
+        ])
+        .size(100)
+        .sortBy(dc.pluck('Unidade_da_Federacao'))
+        .order(d3.ascending);
+    
+    dc.renderAll(); // render all charts on the page
+    
+}; // end graph function    
+
+// Call function
+Graph(dataset);
+</script>
+
 </body>
 </html>

@@ -206,14 +206,14 @@ function Graph(data) {
     
     //define a dimension
     //Here we will group by state
-    var stateDim = ndx.dimension(dc.pluck('Unidade_da_Federação'));
+    var stateDim = ndx.dimension(dc.pluck('Unidade_da_Federacao'));
     var weekDim = ndx.dimension(dc.pluck('isoweek'));
     var allDim = ndx.dimension(function(d){d});
     
     var ufAlertDim = ndx.dimension(function (d) {
         //stringify() and later, parse() to get keyed objects
         return JSON.stringify({
-            'uf': d['Unidade_da_Federação'], 'alert': d['alert']
+            'uf': d['Unidade_da_Federacao'], 'alert': d['alert']
         });
     });
 
@@ -242,7 +242,7 @@ function Graph(data) {
             df = filter_apply(weekDim.filter(isoweek));
 
             $(df).each(function(i){ 
-                if (l_name == df[i]['Unidade_da_Federação']){
+                if (l_name == df[i]['Unidade_da_Federacao']){
                     result = {
                         fillColor: flu_colors[df[i]['alert']],
                         color: '#333333',
@@ -288,7 +288,7 @@ function Graph(data) {
                 
                 if(isoweek>0) {
                     $(df).each(function(i){ 
-                        if (l_name == df[i]['Unidade_da_Federação']){
+                        if (l_name == df[i]['Unidade_da_Federacao']){
                             layer.setStyle({
                                 fillColor: flu_colors[df[i]['alert']],
                                 color: '#333333',
@@ -346,11 +346,11 @@ function Graph(data) {
             return '';
         })
         .columns([
-            dc.pluck('Unidade_da_Federação'),
+            dc.pluck('Unidade_da_Federacao'),
             dc.pluck('incidence')
         ])
         .size(100)
-        .sortBy(dc.pluck('Unidade_da_Federação'))
+        .sortBy(dc.pluck('Unidade_da_Federacao'))
         .order(d3.ascending);
     
     dc.renderAll(); // render all charts on the page

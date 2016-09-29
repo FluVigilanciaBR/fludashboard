@@ -9,3 +9,4 @@ ggplot
 numpy
 matplotlib
 flask
+unidecode

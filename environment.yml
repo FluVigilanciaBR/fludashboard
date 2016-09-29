@@ -117,6 +117,7 @@ dependencies:
 - conda-forge::tk=8.5.19=0
 - conda-forge::tornado=4.4.1=py35_1
 - conda-forge::traitlets=4.3.0=py35_0
+- conda-forge::unidecode=0.04.19=py35_0
 - conda-forge::vincent=0.4.4=py35_0
 - conda-forge::wcwidth=0.1.7=py35_0
 - conda-forge::werkzeug=0.11.10=py35_0
@@ -199,8 +200,10 @@ dependencies:
   - terminado==0.6
   - tornado==4.4.1
   - traitlets==4.3.0
+  - unidecode==0.4.19
   - vincent==0.4.4
   - wcwidth==0.1.7
   - werkzeug==0.11.10
   - wheel==0.29.0
   - widgetsnbextension==1.2.6
+
