@@ -7,7 +7,21 @@
   <link rel="stylesheet" href="./static/libs/dc/dc.min.css">
   <link rel="stylesheet" href="./static/css/custom.css">
   <link rel="stylesheet" href="./static/libs/leaflet/leaflet.css" />
+  <link rel="stylesheet" href="./static/libs/c3/c3.min.css" />
 
+<style>
+.c3-line-srag {
+  stroke-width: 3px;
+}
+
+.c3-line-intensidade-muito-alta,
+.c3-line-intensidade-alta,
+.c3-line-limiar-pre-epidemico {
+  stroke-width: 3px!important;
+  stroke-dasharray: 10,10;
+}
+
+</style>
 </head>
 <body class="application">
 
@@ -33,15 +47,24 @@
                 Filtro
               </div>
               <div class="chart-stage">
-                Per&iacute;odo (semana):
-                <select id='week'>
-                    <option value=''>Ano inteiro</option>
-                  {%for w in range(1, 53):%}
-                    <option value="{{w}}" 
-                        {{'selected="selected"' if w==current_isoweek else ''}}
-                    >{{w}}</option>
-                  {%endfor%}  
-                </select>
+                <div style="display:inline;float:left;">
+                  <strong>Per&iacute;odo (ano)</strong>:
+                  <select id='year'>
+                    <option value=''>2013</option>
+                  </select>
+                </div>
+                <div style="display:inline;float:left;margin-left:20px;">
+                  <div data-role="main" class="ui-content">
+                    <label for="week">Per&iacute;odo (semana):</label>
+                    <output id="week_display" 
+                      style="display:inline;border:1px #dfdfdf solid;padding:3px;margin:3px;background:#ffffff;font-height:11px;font-size:12px;"
+                    >{{current_isoweek}}</output>
+                    <input type="range" id="week"
+                      oninput="week_display.value=week.value"
+                      value="{{current_isoweek}}" min="0" max="52" />
+                      <sup>**deixe como 0 para exibir dados referente ao ano inteiro.</sup>
+                  </div>
+                </div>
                 <input type="hidden" id="selected_state" value=""/>
               </div>
             </div>
@@ -59,7 +82,7 @@
             Mapa de incidencia de SRAG
           </div>
           <div class="chart-stage">
-            <div id="map" style="height:250px;width:500px;"></div>
+            <div id="map" style="height:350px;"></div>
           </div>
         </div>
       </div>
@@ -72,10 +95,10 @@
           <div class="col-sm-12">
             <div class="chart-wrapper">
               <div class="chart-title">
-                Weekly incidence curve
+                Curva de Incidencia<span id="incidence-chart-title"></span>
               </div>
               <div class="chart-stage">
-                <div id="weekly-incidence-curve-chart"></div>
+                <div id="weekly-incidence-curve-chart" style="height:350px;"></div>
               </div>
             </div>
           </div>
@@ -85,17 +108,24 @@
       </div>
     </div>
     <div class="row">
-      <!-- Metric 1 -->
+      <!-- Time Chart --> 
       <div class="col-sm-12">
-        <table id="data-table" class='table'>
-         <!-- create a custom header -->
-            <thead class="header">
-                <tr class="header">
-                <th>State</th>
-                <th>Incidence</th>
-                </tr>
-            </thead>
-        </table>
+        <div class="chart-wrapper">
+          <div class="chart-title">
+            Tabela de Dados
+          </div>
+          <div class="chart-stage">
+            <table id="data-table" class='table table-striped table-condensed'>
+             <!-- create a custom header -->
+                <thead class="header">
+                    <tr class="header">
+                    <th>Unidade da Federa&ccedil;&atilde;o</th>
+                    <th>Incidência (por 100 mil habitantes)</th>
+                    </tr>
+                </thead>
+            </table>
+          </div>
+        </div>
       </div>
       <!-- Metric 1 -->
 
@@ -111,6 +141,7 @@
   <script src="./static/libs/queue/queue.js"></script>
   <script src="./static/libs/keen/keen.min.js"></script>
   <script src="./static/libs/leaflet/leaflet.js"></script>
+  <script src="./static/libs/c3/c3.min.js"></script>
 
 <script>
 
@@ -154,6 +185,80 @@ var flu_colors = {
     4: 'red',
 };
 
+function plot_incidence_chart(state_name, isoweek) {
+    var chart = c3.generate({
+        bindto: '#weekly-incidence-curve-chart',
+        data: {
+          url: './data/weekly-incidence-curve/' + state_name,
+          names: {
+              corredor_baixo: null,
+              corredor_mediano: null,
+              corredor_alto: null,
+              srag: 'SRAG',
+              limiar_pre_epidemico: 'Limiar Pré epidêmico',
+              intensidade_alta: 'Intensidade Alta',
+              intensidade_muito_alta: 'Intensidade Muito Alta'
+          },
+          types: {
+              corredor_baixo: 'area',
+              corredor_mediano: 'area',
+              corredor_alto: 'area',
+              srag: 'line',
+              limiar_pre_epidemico: 'line',
+              intensidade_alta: 'line',
+              intensidade_muito_alta: 'line'
+          },
+          colors: {
+            corredor_baixo: '#00ff00',
+            corredor_mediano: '#ffff00',
+            corredor_alto: '#ff9900',
+            srag: '#000000',
+            limiar_pre_epidemico: '#0000ff',
+            intensidade_alta: '#00ff00',
+            intensidade_muito_alta: '#ff0000'
+          }
+        },
+        axis: {
+          x: {
+            label: {
+              text: 'SE',
+              position: 'outer-center'
+            }
+          },
+          y: {
+            label: {
+              text: 'Incidência (por 100 mil habitantes)',
+              position: 'outer-middle'
+            }
+          },
+        },
+        regions: [
+            {start:0, end:52, class: 'alert-red'}
+        ],
+        grid: {                 
+          x: {
+           lines: [
+              {value: isoweek, text: 'Semana Selecionada', position: 'middle'}
+            ], show: false
+          },
+          y: {show: false}
+        },/*
+        zoom: {
+          enabled: true
+        },*/ /*
+        subchart: {
+          show: true
+        },*/
+        tooltip: {
+          show: false
+        },
+        point: {
+          show: false
+        }
+    });
+
+}
+
 // Create function
 function Graph(data) {
     var map = L.map('map');
@@ -179,7 +284,14 @@ function Graph(data) {
                     weight: 2
                 });
                 
-                $('#selected_state').val(feature.properties.nome);
+                var state_name = feature.properties.nome;
+                var isoweek = $('#week').val();
+                $('#selected_state').val(state_name);
+                $('#incidence-chart-title').text(' - ' + state_name);
+
+                dc.renderAll();
+
+                plot_incidence_chart(state_name, isoweek);
             }
         });
     }
@@ -205,14 +317,14 @@ function Graph(data) {
     
     //define a dimension
     //Here we will group by state
-    var stateDim = ndx.dimension(dc.pluck('Unidade_da_Federacao'));
+    var stateDim = ndx.dimension(dc.pluck('unidade_da_federacao'));
     var weekDim = ndx.dimension(dc.pluck('isoweek'));
     var allDim = ndx.dimension(function(d){d});
     
     var ufAlertDim = ndx.dimension(function (d) {
         //stringify() and later, parse() to get keyed objects
         return JSON.stringify({
-            'uf': d['Unidade_da_Federacao'], 'alert': d['alert']
+            'uf': d['unidade_da_federacao'], 'alert': d['alert']
         });
     });
 
@@ -230,28 +342,23 @@ function Graph(data) {
             l_name = feature.properties.nome;
             isoweek = $('#week').val();
             
-            result = {
-                fillColor: 'white',
+            style_properties= {
+                fillColor: '#ffffff',
                 color: '#333333',
-                opacity: 1,
-                weight: 1
+                fillOpacity: 0.5,
+                weight: 1,
             };
             
             weekDim.filterAll();
             df = filter_apply(weekDim.filter(isoweek));
 
             $(df).each(function(i){ 
-                if (l_name == df[i]['Unidade_da_Federacao']){
-                    result = {
-                        fillColor: flu_colors[df[i]['alert']],
-                        color: '#333333',
-                        opacity: 1,
-                        weight: 1
-                    };
+                if (l_name == df[i]['unidade_da_federacao']){
+                    style_properties['fillColor'] = flu_colors[df[i]['alert']];
                     return;
                 }
             });            
-            return result;
+            return style_properties;
         }
     });
     geojson_layer.addTo(map);
@@ -263,8 +370,6 @@ function Graph(data) {
             
             style_properties = {
                 fillColor: 'white',
-                color: '#333333',
-                opacity: 1,
                 weight: 1
             };
             
@@ -284,14 +389,15 @@ function Graph(data) {
             geojson_layer.eachLayer(function (layer) {  
                 l_name = layer.feature.properties.nome;
                 layer.setStyle(style_properties);
+                if (l_name==$('#selected_state').val()) {
+                    layer.setStyle({'weight': 2});
+                }
                 
                 if(isoweek>0) {
                     $(df).each(function(i){ 
-                        if (l_name == df[i]['Unidade_da_Federacao']){
+                        if (l_name == df[i]['unidade_da_federacao']){
                             layer.setStyle({
-                                fillColor: flu_colors[df[i]['alert']],
-                                color: '#333333',
-                                opacity: 1
+                                fillColor: flu_colors[df[i]['alert']]
                             });
                             return;
                         }
@@ -306,14 +412,17 @@ function Graph(data) {
                     });
 
                     layer.setStyle({
-                        fillColor: flu_colors[alert_level_for_whole_year(alerts)],
-                        color: '#333333',
-                        opacity: 1,
-                        weight: 1
+                        fillColor: flu_colors[alert_level_for_whole_year(alerts)]
                     });
                 }
             });
+
             dc.renderAll(); // render all charts on the page
+            
+            state_name = $('#selected_state').val();
+
+            plot_incidence_chart(state_name, isoweek);
+
     });
     
     /*
@@ -345,11 +454,11 @@ function Graph(data) {
             return '';
         })
         .columns([
-            dc.pluck('Unidade_da_Federacao'),
+            dc.pluck('unidade_da_federacao'),
             dc.pluck('incidence')
         ])
         .size(100)
-        .sortBy(dc.pluck('Unidade_da_Federacao'))
+        .sortBy(dc.pluck('unidade_da_federacao'))
         .order(d3.ascending);
     
     dc.renderAll(); // render all charts on the page

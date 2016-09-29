@@ -32,3 +32,7 @@ user agent stylesheettd, th {
     display: table-cell;
     vertical-align: inherit;
 }
+
+.c3-region.alert-red {
+  fill: red;
+}

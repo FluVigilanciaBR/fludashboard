@@ -2,10 +2,10 @@
 
 ## Deployment
 
-To deploy FluDashboard Prototype use conda package:
+To deploy FluDashboard Prototype use conda package (that will create a conda environment called *fludashboard*):
 
 ```shell
-conda env create -n fludashboard -f environment.yml
+conda env create -f environment.yml
 
 ```
 

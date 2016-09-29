@@ -23,22 +23,22 @@ def index():
     )
     df_typical = pd.read_csv('../data/mem-typical-2016-uf.csv')
     df_thresholds = pd.read_csv('../data/mem-report-2016-uf.csv')
-    df_pop = pd.read_csv('../data/populacao_uf_regional_atual.csv')
+    df_population = pd.read_csv('../data/populacao_uf_regional_atual.csv')
 
     # prepare dataframe keys
-    for _df in [df_incidence, df_typical, df_thresholds, df_pop]:
+    for _df in [df_incidence, df_typical, df_thresholds, df_population]:
         for k in _df.keys():
             _df.rename(columns={
                 k: unidecode(
-                    k.replace(' ', '_').replace('-', '_')
+                    k.replace(' ', '_').replace('-', '_').lower()
                 ).encode('ascii').decode('utf8')
             }, inplace=True)
 
     df = pd.merge(
-        df_incidence, df_typical, on=['UF', 'isoweek'], how='right'
+        df_incidence, df_typical, on=['uf', 'isoweek'], how='right'
     ).merge(
-        df_thresholds.drop(['Unidade_da_Federacao', 'Populacao'], axis=1), 
-        on='UF'
+        df_thresholds.drop(['unidade_da_federacao', 'populacao'], axis=1), 
+        on='uf'
     )
 
     df_alert = apply_filter_alert_by_isoweek(df)
@@ -52,9 +52,13 @@ def index():
     )
 
 
-@app.route("/data/weekly-incidence-curve/<isoweek>")
-def data__weekly_incidence_curve(isoweek):
-    return get_curve_data(isoweek=isoweek)
+@app.route("/data/weekly-incidence-curve/<string:state>")
+def data__weekly_incidence_curve(state):
+    ks = [
+        'corredor_baixo', 'corredor_mediano', 'corredor_alto', 'srag',
+        'limiar_pre_epidemico', 'intensidade_alta', 'intensidade_muito_alta'
+    ]
+    return get_curve_data(uf_name=state)[ks].to_csv(index=None)
 
 
 @app.route("/data/incidence-color-alerts/<isoweek>")

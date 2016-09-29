@@ -10,7 +10,7 @@ def apply_filter_alert_by_isoweek(
         mask = df.keys()
 
     df_alert = df[mask].reset_index()
-    df_alert = df_alert.assign(incidence=df['SRAG{}'.format(year)])
+    df_alert = df_alert.assign(incidence=df['srag{}'.format(year)])
     
     # * Low: incidence < epidemic threshold | green
     df_alert = df_alert.assign(

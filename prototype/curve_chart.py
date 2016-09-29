@@ -1,3 +1,5 @@
+from unidecode import unidecode
+
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -20,14 +22,16 @@ def _prepare_srag_data(season=2013):
     for _df in [df_incidence, df_typical, df_thresholds, df_population]:
         for k in _df.keys():
             _df.rename(columns={
-                k: k.replace(' ', '_').replace('-', '_')
+                k: unidecode(
+                    k.replace(' ', '_').replace('-', '_').lower()
+                ).encode('ascii').decode('utf8')
             }, inplace=True)
 
     df = pd.merge(
-        df_incidence, df_typical, on=['UF', 'isoweek'], how='right'
+        df_incidence, df_typical, on=['uf', 'isoweek'], how='right'
     ).merge(
-        df_thresholds.drop(['Unidade_da_Federação', 'População'], axis=1), on='UF'
-    ).rename(columns={'SRAG{}'.format(season): 'incidence'})
+        df_thresholds.drop(['unidade_da_federacao', 'populacao'], axis=1), on='uf'
+    ).rename(columns={'srag{}'.format(season): 'srag'})
     
     return {
         'df_incidence': df_incidence,
@@ -52,13 +56,13 @@ def get_incidence_color_alerts(season=2013, isoweek=None):
     df_alert = df[mask].reset_index()
     # * Low: incidence < epidemic threshold | green
     df_alert = df_alert.assign(
-        low_incidence=lambda se: se.eval('incidence < limiar_pré_epidêmico')
+        low_incidence=lambda se: se.eval('incidence < limiar_pre_epidemico')
     )
 
     # * Medium: epi. thresh. < incidence < high thresh. | yellow
     df_alert = df_alert.assign(
         medium_incidence=lambda se: se.eval(
-            'limiar_pré_epidêmico <= incidence < intensidade_alta'
+            'limiar_pre_epidemico <= incidence < intensidade_alta'
     ))
 
     # * High: high thresh. < incidence < very high thresh. | orange
@@ -86,7 +90,7 @@ def get_incidence_color_alerts(season=2013, isoweek=None):
     df_alert = df_alert.assign(alert=alert_col)
 
     return df_alert[[
-        'UF', 'Unidade_da_Federação', 'alert'
+        'uf', 'unidade_da_federacao', 'alert'
     ]].to_json(orient='records')
 
 
@@ -96,8 +100,7 @@ def get_curve_data(season=2013, uf_name='Rio Grande do Sul', isoweek=1):
 
     """
     # data
-    result = _prepare_srag_data()
-    df = result['df']
-
-    return df.to_json(orient='records')
+    df = _prepare_srag_data(season=season)['df']
+    df = df[df.unidade_da_federacao==uf_name]
+    return df
 
