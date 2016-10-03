@@ -7,15 +7,15 @@ import matplotlib.font_manager as fm
 import numpy as np
 
 
-def _prepare_srag_data(season=2013):
+def _prepare_srag_data(year=2013):
     """
 
     """
     df_incidence = pd.read_csv(
-        '../data/clean_data_filtro_sintomas_dtsin4mem-incidence-{}.csv'.format(season)
-    )
-    df_typical = pd.read_csv('../data/mem-typical-2016-uf.csv')
-    df_thresholds = pd.read_csv('../data/mem-report-2016-uf.csv')
+        '../data/clean_data_filtro_sintomas_dtnotific4mem-incidence.csv'
+    )[['UF','isoweek','SRAG{}'.format(year)]]
+    df_typical = pd.read_csv('../data/mem-typical-clean_data_filtro_sintomas_dtnotific4mem-criterium-method.csv')
+    df_thresholds = pd.read_csv('../data/mem-report-clean_data_filtro_sintomas_dtnotific4mem-criterium-method.csv')
     df_population = pd.read_csv('../data/populacao_uf_regional_atual.csv')
     
     # prepare dataframe keys
@@ -31,7 +31,7 @@ def _prepare_srag_data(season=2013):
         df_incidence, df_typical, on=['uf', 'isoweek'], how='right'
     ).merge(
         df_thresholds.drop(['unidade_da_federacao', 'populacao'], axis=1), on='uf'
-    ).rename(columns={'srag{}'.format(season): 'srag'})
+    ).rename(columns={'srag{}'.format(year): 'srag'})
     
     return {
         'df_incidence': df_incidence,
@@ -42,11 +42,11 @@ def _prepare_srag_data(season=2013):
     }
 
 
-def get_incidence_color_alerts(season=2013, isoweek=None):
+def get_incidence_color_alerts(year=2013, isoweek=None):
     """
 
     """
-    result = _prepare_srag_data()
+    result = _prepare_srag_data(year=year)
     df = result['df']
 
     mask = df.keys()
@@ -95,12 +95,12 @@ def get_incidence_color_alerts(season=2013, isoweek=None):
 
 
 
-def get_curve_data(season=2013, uf_name='Rio Grande do Sul', isoweek=1):
+def get_curve_data(year=2013, uf_name='Rio Grande do Sul', isoweek=1):
     """
 
     """
     # data
-    df = _prepare_srag_data(season=season)['df']
+    df = _prepare_srag_data(year=year)['df']
     df = df[df.unidade_da_federacao==uf_name]
     return df
 
