@@ -1,9 +1,12 @@
 pandas
 jupyter
+jupyter_nbextensions_configurator
 bokeh
 holoviews
-folio
+folium
 seaborn
 ggplot
 numpy
 matplotlib
+flask
+unidecode
