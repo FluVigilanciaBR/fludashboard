@@ -36,3 +36,14 @@ user agent stylesheettd, th {
 .c3-region.alert-red {
   fill: red;
 }
+
+.c3-line-srag {
+  stroke-width: 3px;
+}
+
+.c3-line-intensidade-muito-alta,
+.c3-line-intensidade-alta,
+.c3-line-limiar-pre-epidemico {
+  stroke-width: 3px!important;
+  stroke-dasharray: 10,10;
+}
