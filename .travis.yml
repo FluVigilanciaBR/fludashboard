@@ -28,8 +28,9 @@ install:
   - conda info -a
 
   # Replace dep1 dep2 ... with your dependencies
-  - conda env create -f environment.yml
-  - source activate fludashboard
+  #- conda env create -f environment.yml
+  #- source activate fludashboard
+  pip install -r requirements.txt
   #- python setup.py install
 
 # command to run tests, e.g. python setup.py test

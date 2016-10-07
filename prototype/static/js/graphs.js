@@ -23,6 +23,24 @@ function init() {
     osm.addTo(map);
     
     load_graphs();
+    
+    columns = [
+        {'data': 'unidade_da_federacao'},
+        {'data': 'srag'},
+    ];
+    
+    $('#data-table').DataTable( {
+        "dom": 'Bfrtip',
+        "ajax": "/data/data-table/0",
+        "columns": columns,
+        "language": {
+            "url": "/static/libs/datatables/i18n/Portuguese-Brasil.json"
+        },
+        "buttons": [
+            'excelHtml5',
+            'csvHtml5'
+        ]
+    });
 }
 
 /**
@@ -175,6 +193,7 @@ function makeMap(br_states, srag_data) {
                 $('#incidence-chart-title').text(' - ' + state_name);
 
                 plot_incidence_chart(year, state_name, week);
+                makeTable(year, week, state_name);
             }
         });
     };
@@ -318,7 +337,41 @@ function changeWeek(srag_data) {
         state_name = $('#selected_state').val();
 
         plot_incidence_chart(year, state_name, week);
+        makeTable(year, week, state_name);
 
+    });
+}
+
+/**
+ * 
+ * 
+ */
+function makeTable(year, week, state_name) {
+    var columns = [];
+    var _tmp = '';
+    
+    if (state_name) {
+        _tmp = '/' + state_name;
+    } else {
+        columns.push({'data': 'unidade_da_federacao'})
+    }
+    
+    if (!week > 0) {
+        columns.push({'data': 'isoweek'});
+    }
+    
+    columns.push({'data': 'srag'});
+    
+    var datatable = $('#data-table').dataTable().api();
+    var url= "/data/data-table/" + year + '/' + week + _tmp
+
+    $.get(url, function(newDataArray) {
+        //alert(newDataArray);
+        //datatable.clear();
+        //datatable.rows.add(newDataArray);
+        //datatable.draw();
+        $('#data-table').dataTable().fnClearTable();
+        $('#data-table').dataTable().fnAddData(newDataArray);
     });
 }
 
@@ -335,10 +388,12 @@ function makeGraphs(
     var state_name = $('#selected_state').val();
     var week = parseInt($('#week').val() || 0);
     var year = parseInt($('#year').val() || 0);
-    
+
     if (state_name) {
         plot_incidence_chart(year, state_name, week);
     }
+    
+    makeTable(year, week, state_name);
 }
 
 $(document).ready(init);

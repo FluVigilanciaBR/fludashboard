@@ -88,6 +88,32 @@ def data__incidence_color_alerts(year, isoweek):
     return get_incidence_color_alerts(year=year, isoweek=isoweek)
 
 
+@app.route("/data/data-table/<int:year>")
+@app.route("/data/data-table/<int:year>/<int:isoweek>")
+@app.route("/data/data-table/<int:year>/<int:isoweek>/<string:state_name>")
+def data__data_table(year, isoweek=None, state_name=None):
+    """
+    1. Total number of cases in the selected year for each 
+       State + same data for the Country
+    2. Number of cases in the selected week for each 
+       State + same data for the Country
+    3. Total number of cases in the selected year for selected State
+    4. Number of cases in the selected week for selected State.
+    
+    """
+    if not year > 0:
+        return '{"data": []}'
+    
+    ks = [
+      'unidade_da_federacao',
+      'srag'
+    ]
+    
+    df = get_curve_data(year=year, uf_name=state_name   )[ks]
+    
+    return '{"data": %s}' % df.to_json(orient='records')
+
+
 @click.command()
 @click.option('-p', default=5000, help='Port Number')
 def startup(p):
