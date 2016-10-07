@@ -5,6 +5,26 @@ var flu_colors = {
     4: 'red',
 };
 
+var map = L.map('map');
+
+// create the tile layer with correct attribution
+var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
+var osm = new L.TileLayer(
+    osmUrl, {minZoom: 1, maxZoom: 12, attribution: osmAttrib}
+);
+
+/**
+ * 
+ * 
+ */
+function init() {
+    map.setView([-16, -50.528742], 3);
+    osm.addTo(map);
+    
+    load_graphs();
+}
+
 /**
  * 
  * 
@@ -124,15 +144,13 @@ function alert_level_for_whole_year(d) {
  * 
  */
 function makeMap(br_states, srag_data) {
-    var map = L.map('map');
     week = parseInt($('#week').val() || 0);
     
-    map.setView([-16, -50.528742], 3);
-    
-    // create the tile layer with correct attribution
-    var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-    var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
-    var osm = new L.TileLayer(osmUrl, {minZoom: 1, maxZoom: 12, attribution: osmAttrib});
+    map.eachLayer(function (layer) {
+        if ('feature' in layer) {
+            map.removeLayer(layer);
+        }
+    });
     
     function onEachFeature(feature, layer) {
         //bind click
@@ -161,6 +179,8 @@ function makeMap(br_states, srag_data) {
         });
     };
     
+    var selected_state = $('#selected_state').val();
+    
     // start the map in South-East England
     geojson_layer = L.geoJson(br_states, {
         onEachFeature: onEachFeature,
@@ -182,11 +202,15 @@ function makeMap(br_states, srag_data) {
             })[0];
             
             style_properties['fillColor'] = flu_colors[week_state['alert']];
+            
+            if (selected_state==l_name) {
+                style_properties['weight'] = 2;
+            }
             return style_properties;
         }
     });
     geojson_layer.addTo(map);
-    osm.addTo(map);
+    //osm.addTo(map);
 }
 
 
@@ -307,6 +331,15 @@ function makeGraphs(
 ) {    
     makeMap(br_states, srag_data);
     changeWeek(srag_data);
+    
+    var state_name = $('#selected_state').val();
+    var week = parseInt($('#week').val() || 0);
+    var year = parseInt($('#year').val() || 0);
+    
+    if (state_name) {
+        plot_incidence_chart(year, state_name, week);
+    }
 }
 
-$(document).ready(load_graphs);
+$(document).ready(init);
+$('#year').change(load_graphs);
