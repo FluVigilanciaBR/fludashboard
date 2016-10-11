@@ -35,7 +35,7 @@ def index():
     return render_template(
         "index.html", 
         current_isoweek=isoweek,
-        list_of_years=list_of_years,
+        list_of_years=sorted(list_of_years, reverse=True),
         last_year=year
     )
 
@@ -106,10 +106,17 @@ def data__data_table(year, isoweek=None, state_name=None):
     
     ks = [
       'unidade_da_federacao',
+      'isoweek',
       'srag'
     ]
     
-    df = get_curve_data(year=year, uf_name=state_name   )[ks]
+    df = get_curve_data(year=year, uf_name=state_name, isoweek=isoweek)[ks]
+    
+    if not isoweek > 0:
+        print(df[df.unidade_da_federacao=='Acre']['srag'])
+        print(df[df.unidade_da_federacao=='São Paulo']['srag'])
+        df = df.groupby('unidade_da_federacao', as_index=False).sum()
+        df.isoweek = None
     
     return '{"data": %s}' % df.to_json(orient='records')
 

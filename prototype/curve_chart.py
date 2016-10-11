@@ -95,12 +95,23 @@ def get_incidence_color_alerts(year=2013, isoweek=None):
 
 
 
-def get_curve_data(year=2013, uf_name='Rio Grande do Sul', isoweek=1):
+def get_curve_data(year, uf_name=None, isoweek=0):
     """
 
     """
     # data
     df = _prepare_srag_data(year=year)['df']
-    df = df[df.unidade_da_federacao==uf_name]
+    mask = df.keys()
+    
+    if uf_name:
+        mask = df.unidade_da_federacao==uf_name
+        
+    if isoweek:
+        if uf_name:
+            mask = mask & (df.isoweek==isoweek)
+        else:
+            mask = df.isoweek==isoweek
+            
+    df = df[mask]
     return df
 

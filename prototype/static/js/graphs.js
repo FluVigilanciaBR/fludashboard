@@ -1,3 +1,15 @@
+var divTableContent = '' +
+'<table id="data-table" class="display table table-striped table-condensed">' +
+'             <!-- create a custom header -->' +
+'                <thead class="header">' +
+'                    <tr class="header">' +
+'                    <th>Unidade da Federa&ccedil;&atilde;o</th>' +
+'                    <th>Semana</th>' +
+'                    <th>Incidência (por 100 mil habitantes)</th>' +
+'                    </tr>' +
+'                </thead>' +
+'            </table>';
+
 var flu_colors = {
     1: 'green',
     2: 'yellow',
@@ -14,6 +26,9 @@ var osm = new L.TileLayer(
     osmUrl, {minZoom: 1, maxZoom: 12, attribution: osmAttrib}
 );
 
+$('#divTable').html(divTableContent);
+var data_table = $('#data-table').DataTable();
+
 /**
  * 
  * 
@@ -24,23 +39,7 @@ function init() {
     
     load_graphs();
     
-    columns = [
-        {'data': 'unidade_da_federacao'},
-        {'data': 'srag'},
-    ];
-    
-    $('#data-table').DataTable( {
-        "dom": 'Bfrtip',
-        "ajax": "/data/data-table/0",
-        "columns": columns,
-        "language": {
-            "url": "/static/libs/datatables/i18n/Portuguese-Brasil.json"
-        },
-        "buttons": [
-            'excelHtml5',
-            'csvHtml5'
-        ]
-    });
+    $('.week-display').text($('#week').val());
 }
 
 /**
@@ -64,10 +63,11 @@ function load_graphs() {
  */
 function plot_incidence_chart(year, state_name, week) {
     if (state_name == '') {
-        $('#chart-stage').addClass('hidden');
+        $('.chart-incidence').addClass('hidden');
+        $('#vi .weekly-incidence-curve-chart').empty();
         return;
     } else {
-        $('#chart-stage').removeClass('hidden');
+        $('.chart-incidence').removeClass('hidden');
     }
     
     var chart = c3.generate({
@@ -180,17 +180,23 @@ function makeMap(br_states, srag_data) {
                         weight: 1
                     });
                 });
-                // bold the selected state
-                layer.setStyle({
-                    weight: 2
-                });
                 
                 var state_name = feature.properties.nome;
                 var week = parseInt($('#week').val() || 0);
                 var year = parseInt($('#year').val() || 0);
                 
+                if ($('#selected_state').val() == state_name) {
+                    state_name = '';
+                    $('.incidence-chart-title').text('');
+                } else {
+                    // bold the selected state
+                    layer.setStyle({
+                        weight: 2
+                    });
+                    $('.incidence-chart-title').text(' - ' + state_name);
+                }
+                
                 $('#selected_state').val(state_name);
-                $('#incidence-chart-title').text(' - ' + state_name);
 
                 plot_incidence_chart(year, state_name, week);
                 makeTable(year, week, state_name);
@@ -311,8 +317,7 @@ function changeWeek(srag_data) {
         week = parseInt($('#week').val() || 0);
         year = parseInt($('#year').val() || 0);
 
-        $('#table-week').text(week);
-        $('#week-filter-display').text(week);
+        $('.week-display').text(week);
         
         style_properties = {
             fillColor: 'white',
@@ -327,7 +332,7 @@ function changeWeek(srag_data) {
         } else {
             $("#data-table").addClass('hidden');
             $("#linechart").addClass('hidden');
-            $('#table-week').text('');
+            $('.week-display').text('');
             df = srag_data;
         }
         
@@ -349,30 +354,53 @@ function changeWeek(srag_data) {
 function makeTable(year, week, state_name) {
     var columns = [];
     var _tmp = '';
+    var table_settings = {
+        "dom": 'Bfrtip',
+        "language": {
+            "url": "/static/libs/datatables/i18n/Portuguese-Brasil.json"
+        },
+        "buttons": [
+            'excelHtml5',
+            'csvHtml5'
+        ],
+        "pageLength": 10
+    };
+    
+    table_settings['columnDefs'] = [];
     
     if (state_name) {
         _tmp = '/' + state_name;
-    } else {
-        columns.push({'data': 'unidade_da_federacao'})
+        table_settings['columnDefs'].push({
+            "targets": [ 0 ],
+            "visible": false,
+            "searchable": false
+        });
     }
     
-    if (!week > 0) {
-        columns.push({'data': 'isoweek'});
+    if (week > 0) {
+        table_settings['columnDefs'].push({
+            "targets": [ 1 ],
+            "visible": false,
+            "searchable": false
+        });
     }
     
-    columns.push({'data': 'srag'});
+    table_settings['ajax'] = '/data/data-table/' + year + '/' + week + _tmp;
+    table_settings['columns'] = [
+        {'data': 'unidade_da_federacao'},
+        {'data': 'isoweek'}, 
+        {'data': 'srag'}
+    ];
     
-    var datatable = $('#data-table').dataTable().api();
-    var url= "/data/data-table/" + year + '/' + week + _tmp
-
-    $.get(url, function(newDataArray) {
-        //alert(newDataArray);
-        //datatable.clear();
-        //datatable.rows.add(newDataArray);
-        //datatable.draw();
-        $('#data-table').dataTable().fnClearTable();
-        $('#data-table').dataTable().fnAddData(newDataArray);
-    });
+    // destroy old table
+    data_table.destroy();
+    $('#data-table').empty(); // empty in case the columns change
+    
+    delete data_tables;
+    
+    // create new table
+    $('#divTable').html(divTableContent);
+    data_table = $('#data-table').DataTable(table_settings);
 }
 
 /**

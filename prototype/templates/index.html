@@ -9,9 +9,9 @@
   <link rel="stylesheet" href="./static/libs/leaflet/leaflet.css" />
   <link rel="stylesheet" href="./static/libs/c3/c3.min.css" />
   <link rel="stylesheet" href="./static/libs/datatables/datatables.min.css" />
-  <link rel="stylesheet" href="./static/libs/datatables/DataTables-1.10.12/css/dataTables.bootstrap.min.css" />
+<!--  <link rel="stylesheet" href="./static/libs/datatables/DataTables-1.10.12/css/dataTables.bootstrap.min.css" />-->
   
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css" />
+<!--  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css" />-->
   <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.2.2/css/buttons.dataTables.min.css" />
 
 </head>
@@ -52,7 +52,7 @@
                 <div style="display:inline;float:left;margin-left:20px;">
                   <div data-role="main" class="ui-content">
                     <label for="week">Semana:</label>
-                    <span id="week-filter-display" 
+                    <span class="week-display" 
                       style="display:inline;border:1px #dfdfdf solid;padding:3px;margin:3px;background:#ffffff;font-height:11px;font-size:12px;"
                     >{{current_isoweek}}</span>
                     <input type="range" id="week"
@@ -90,9 +90,9 @@
           <div class="col-sm-12">
             <div class="chart-wrapper">
               <div class="chart-title">
-                Curva de Incidencia<span id="incidence-chart-title"></span>
+                Curva de Incidencia<span class="incidence-chart-title"></span>
               </div>
-              <div class="chart-stage">
+              <div class="chart-stage chart-incidence">
                 <div id="weekly-incidence-curve-chart" style="height:350px;"></div>
               </div>
             </div>
@@ -107,18 +107,12 @@
       <div class="col-sm-6">
         <div class="chart-wrapper">
           <div class="chart-title">
-            Incidência na semana epidemiológica <span id="table-week"></span>
+            Incidência na semana epidemiológica 
+            <span class="week-display"></span>
+            <span class="incidence-chart-title"></span>
           </div>
-          <div class="chart-stage">
-            <table id="data-table" class='display table table-striped table-condensed'>
-             <!-- create a custom header -->
-                <thead class="header">
-                    <tr class="header">
-                    <th>Unidade da Federa&ccedil;&atilde;o</th>
-                    <th>Incidência (por 100 mil habitantes)</th>
-                    </tr>
-                </thead>
-            </table>
+          <div class="chart-stage" id="divTable">
+            
           </div>
         </div>
       </div>
@@ -127,7 +121,10 @@
       <div class="col-sm-6">
         <div class="chart-wrapper">
           <div class="chart-title">
-            Distribui&ccedil;&atilde;o de G&ecirc;nero/Idade<span id="table-week"></span>
+            Distribui&ccedil;&atilde;o de G&ecirc;nero/Idade
+            na semana epidemiológica 
+            <span class="week-display"></span>
+            <span class="incidence-chart-title"></span>
           </div>
           <div class="chart-stage">
             &nbsp;
@@ -150,9 +147,9 @@
   <script src="./static/libs/datatables/datatables.min.js"></script>
   <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/buttons/1.2.2/js/dataTables.buttons.min.js"></script>
-  <script src="./static/libs/datatables/DataTables-1.10.12/js/dataTables.bootstrap.min.js"></script>
+<!--  <script src="./static/libs/datatables/DataTables-1.10.12/js/dataTables.bootstrap.min.js"></script>-->
   <script src="http://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
-  <script src="http://cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/pdfmake.min.js"></script>
+<!--  <script src="http://cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/pdfmake.min.js"></script>-->
   <script src="http://cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/vfs_fonts.js"></script>
   <script src="http://cdn.datatables.net/buttons/1.2.2/js/buttons.html5.min.js"></script>
   
