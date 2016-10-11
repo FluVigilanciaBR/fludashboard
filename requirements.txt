@@ -10,3 +10,5 @@ numpy
 matplotlib
 flask
 unidecode
+flake8
+click
