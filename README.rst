@@ -36,7 +36,10 @@ Deployment
 
 To deploy FluDashboard Prototype use conda package (that will create a conda environment called *fludashboard*):
 
-.. code-block:: shell
+.. highlight:: shell
+
+.. code:: shell
+
     conda config --set always_yes yes --set changeps1 no
 
     conda config --add channels conda-forge 
@@ -48,26 +51,32 @@ To deploy FluDashboard Prototype use conda package (that will create a conda env
 
 Change to the new environment created:
 
-.. code-block:: shell
+.. code:: shell
+
     source activate fludashboard
 
 
 Optionally, the deployment can be done into a docker container. To create a new container with conda environment:
 
-.. code-block:: shell
+.. code:: shell
+
     docker pull continuumio/anaconda3
 
-
-## Running the app
+===============
+Running the app
+===============
 
 To run the app just type in the terminal (in prototype directory):
 
-.. code-block:: shell
+.. code:: shell
+
     python app.py
 
 
 The application will be available on the port 5000. To set a custom port, use -p argument with the port number:
 
-.. code-block:: shell
+.. code:: shell
+
     python app.py -p 9000
+
 
