@@ -4,11 +4,14 @@ from flask import render_template
 import click
 import pandas as pd
 import datetime
+import sys
+import os
 
 # local
-from .curve_chart import get_curve_data  # get_incidence_color_alerts
-from .calc_alert import apply_filter_alert_by_isoweek
-from .utils import prepare_keys_name
+sys.path.insert(0, os.path.dirname(os.getcwd()))
+from fludashboard.curve_chart import get_curve_data  # get_incidence_color_alerts
+from fludashboard.calc_alert import apply_filter_alert_by_isoweek
+from fludashboard.utils import prepare_keys_name
 
 app = Flask(__name__)
 

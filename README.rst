@@ -30,11 +30,44 @@ Features
 
 * TODO
 
-Credits
----------
+==========
+Deployment
+==========
 
-<sup>This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.</sup>
+To deploy FluDashboard Prototype use conda package (that will create a conda environment called *fludashboard*):
 
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
+.. code-block:: shell
+    conda config --set always_yes yes --set changeps1 no
+
+    conda config --add channels conda-forge 
+
+    conda update --all
+
+    conda env create -f requirements -n fludashboard
+
+
+Change to the new environment created:
+
+.. code-block:: shell
+    source activate fludashboard
+
+
+Optionally, the deployment can be done into a docker container. To create a new container with conda environment:
+
+.. code-block:: shell
+    docker pull continuumio/anaconda3
+
+
+## Running the app
+
+To run the app just type in the terminal (in prototype directory):
+
+.. code-block:: shell
+    python app.py
+
+
+The application will be available on the port 5000. To set a custom port, use -p argument with the port number:
+
+.. code-block:: shell
+    python app.py -p 9000
 
