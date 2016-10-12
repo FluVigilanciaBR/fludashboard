@@ -66,7 +66,7 @@ Optionally, the deployment can be done into a docker container. To create a new 
 Running the app
 ===============
 
-To run the app just type in the terminal (in prototype directory):
+To run the app just type in the terminal (into fludashboard/fludashboard directory):
 
 .. code:: shell
 
