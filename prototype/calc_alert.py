@@ -1,6 +1,6 @@
 
 def apply_filter_alert_by_isoweek(
-    df, year=2013, isoweek=None, verbose=False
+    df, year, isoweek=None, verbose=False
 ):
     """
     """
@@ -9,30 +9,30 @@ def apply_filter_alert_by_isoweek(
     else:
         mask = df.keys()
 
-    df_alert = df[mask].reset_index()
-    df_alert = df_alert.assign(incidence=df['srag{}'.format(year)])
+    df_alert = df[mask].copy().reset_index()
+    df_alert = df_alert.assign(srag=df['srag{}'.format(year)])
     
     # * Low: incidence < epidemic threshold | green
     df_alert = df_alert.assign(
-        low_incidence=lambda se: se.eval('incidence < limiar_pre_epidemico')
+        low_incidence=lambda se: se.eval('srag < limiar_pre_epidemico')
     )
 
     # * Medium: epi. thresh. < incidence < high thresh. | yellow
     df_alert = df_alert.assign(
         medium_incidence=lambda se: se.eval(
-            'limiar_pre_epidemico <= incidence < intensidade_alta'
+            'limiar_pre_epidemico <= srag < intensidade_alta'
     ))
 
     # * High: high thresh. < incidence < very high thresh. | orange
     df_alert = df_alert.assign(
         high_incidence=lambda se: se.eval(
-            'intensidade_alta <= incidence < intensidade_muito_alta '
+            'intensidade_alta <= srag < intensidade_muito_alta '
     ))
 
     # * Very high: very high thresh. < incidence | red
     df_alert = df_alert.assign(
         very_high_incidence=lambda se: se.eval(
-            'intensidade_muito_alta <= incidence'
+            'intensidade_muito_alta <= srag'
     ))
     
     # alert
