@@ -9,15 +9,15 @@ import os
 
 # local
 sys.path.insert(0, os.path.dirname(os.getcwd()))
-from fludashboard.curve_chart import get_curve_data  # get_incidence_color_alerts
-from fludashboard.calc_alert import apply_filter_alert_by_isoweek
+from fludashboard.srag_data import get_srag_data  # get_incidence_color_alerts
+from fludashboard.calc_srag_alert import apply_filter_alert_by_isoweek
 from fludashboard.utils import prepare_keys_name
 
 app = Flask(__name__)
 
 
 @app.route("/")
-def index():
+def index_week():
     df_incidence = pd.read_csv(
         '../data/clean_data_filtro_sintomas_dtnotific4mem-incidence.csv'
     )
@@ -36,6 +36,32 @@ def index():
 
     return render_template(
         "index.html",
+        current_isoweek=isoweek,
+        list_of_years=sorted(list_of_years, reverse=True),
+        last_year=year
+    )
+
+
+@app.route("/year/")
+def index_year():
+    df_incidence = pd.read_csv(
+        '../data/clean_data_filtro_sintomas_dtnotific4mem-incidence.csv'
+    )
+    # prepare dataframe keys
+    prepare_keys_name(df_incidence)
+
+    # Here the code should recieve the user-requested year.
+    # By default should be the current or latest available
+    list_of_years = []
+    for col in df_incidence.columns:
+        if 'srag' in col:
+            list_of_years.append(int(col.replace('srag', '')))
+
+    year = max(list_of_years)
+    isoweek = datetime.datetime.now().isocalendar()[1]
+
+    return render_template(
+        "index-year.html",
         current_isoweek=isoweek,
         list_of_years=sorted(list_of_years, reverse=True),
         last_year=year
@@ -84,7 +110,7 @@ def data__weekly_incidence_curve(year, state=None):
         'srag',
         'limiar_pre_epidemico', 'intensidade_alta', 'intensidade_muito_alta'
     ]
-    return get_curve_data(year=year, uf_name=state)[ks].to_csv(index=False)
+    return get_srag_data(year=year, uf_name=state)[ks].to_csv(index=False)
 
 
 @app.route("/data/incidence-color-alerts/<int:year>/<int:isoweek>")
@@ -116,7 +142,7 @@ def data__data_table(year, isoweek=None, state_name=None):
         'srag'
     ]
 
-    df = get_curve_data(year=year, uf_name=state_name, isoweek=isoweek)[ks]
+    df = get_srag_data(year=year, uf_name=state_name, isoweek=isoweek)[ks]
 
     if not isoweek > 0:
         print(df[df.unidade_da_federacao == 'Acre']['srag'])

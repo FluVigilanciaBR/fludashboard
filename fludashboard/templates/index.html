@@ -9,10 +9,7 @@
   <link rel="stylesheet" href="./static/libs/leaflet/leaflet.css" />
   <link rel="stylesheet" href="./static/libs/c3/c3.min.css" />
   <link rel="stylesheet" href="./static/libs/datatables/datatables.min.css" />
-<!--  <link rel="stylesheet" href="./static/libs/datatables/DataTables-1.10.12/css/dataTables.bootstrap.min.css" />-->
-  
-<!--  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css" />-->
-  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.2.2/css/buttons.dataTables.min.css" />
+  <link rel="stylesheet" href="./static/libs/datatables/ext/buttons.dataTables.min.css" />
 
 </head>
 <body class="application">
@@ -31,16 +28,30 @@
 
       <div class="col-sm-12">
         <div class="row">
+          <!-- detailed/resumed -->
+          <div class="col-sm-12">
+            <input type="button" value="Detalhado (semana)" class="tab selected">
+            <input type="button" value="Resumido (ano)" class="tab">
+          </div>
+      </div>
+
+        <div class="row">
 
           <!-- Time Chart --> 
           <div class="col-sm-12">
             <div class="chart-wrapper">
               <div class="chart-title">
-                Filtro (Per&iacute;odo)
+                <strong>Crit&eacute;rios</strong>
               </div>
               <div class="chart-stage">
                 <div style="display:inline;float:left;">
+                  <input type="radio" id="radTypeState" name="radType[]" checked="checked"> Por UF
+                  <br/>
+                  <input type="radio" id="radTypeRegion" name="radType[]"> Por Região
+                </div>
+                <div style="display:inline;float:left;margin-left:20px;">
                   <strong>Ano:</strong>
+                  <br/>
                   <select id='year'>
                     {%for year in list_of_years:%}
                     <option value='{{year}}'
@@ -56,8 +67,7 @@
                       style="display:inline;border:1px #dfdfdf solid;padding:3px;margin:3px;background:#ffffff;font-height:11px;font-size:12px;"
                     >{{current_isoweek}}</span>
                     <input type="range" id="week"
-                      value="{{current_isoweek}}" min="0" max="52" />
-                      <sup>**deixe como 0 para exibir dados referente ao ano inteiro.</sup>
+                      value="{{current_isoweek}}" min="1" max="52" />
                   </div>
                 </div>
                 <input type="hidden" id="selected_state" value=""/>
@@ -74,7 +84,7 @@
       <div class="col-sm-6">
         <div class="chart-wrapper">
           <div class="chart-title">
-            Mapa de incidencia de SRAG
+            <strong>Mapa de incidencia de SRAG</strong>
           </div>
           <div class="chart-stage">
             <div id="map" style="height:350px;"></div>
@@ -90,7 +100,7 @@
           <div class="col-sm-12">
             <div class="chart-wrapper">
               <div class="chart-title">
-                Curva de Incidencia<span class="incidence-chart-title"></span>
+                <strong>Curva de Incidencia<span class="incidence-chart-title"></span></strong>
               </div>
               <div class="chart-stage chart-incidence">
                 <div id="weekly-incidence-curve-chart" style="height:350px;"></div>
@@ -107,9 +117,10 @@
       <div class="col-sm-6">
         <div class="chart-wrapper">
           <div class="chart-title">
-            Incidência na semana epidemiológica 
+            <strong>Incidência na semana epidemiológica
             <span class="week-display"></span>
             <span class="incidence-chart-title"></span>
+            </strong>
           </div>
           <div class="chart-stage" id="divTable">
             
@@ -121,10 +132,11 @@
       <div class="col-sm-6">
         <div class="chart-wrapper">
           <div class="chart-title">
-            Distribui&ccedil;&atilde;o de G&ecirc;nero/Idade
+            <strong>Distribui&ccedil;&atilde;o de G&ecirc;nero/Idade
             na semana epidemiológica 
             <span class="week-display"></span>
             <span class="incidence-chart-title"></span>
+            </strong>
           </div>
           <div class="chart-stage">
             &nbsp;
@@ -145,16 +157,12 @@
   <script src="./static/libs/leaflet/leaflet.js"></script>
   <script src="./static/libs/c3/c3.min.js"></script>
   <script src="./static/libs/datatables/datatables.min.js"></script>
-  <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
-  <script src="https://cdn.datatables.net/buttons/1.2.2/js/dataTables.buttons.min.js"></script>
-<!--  <script src="./static/libs/datatables/DataTables-1.10.12/js/dataTables.bootstrap.min.js"></script>-->
-  <script src="http://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
-<!--  <script src="http://cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/pdfmake.min.js"></script>-->
-  <script src="http://cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/vfs_fonts.js"></script>
-  <script src="http://cdn.datatables.net/buttons/1.2.2/js/buttons.html5.min.js"></script>
-  
-  
-  <script src="./static/js/graphs.js"></script>
+  <script src="./static/libs/datatables/ext/jquery.dataTables.min.js"></script>
+  <script src="./static/libs/datatables/ext/dataTables.buttons.min.js"></script>
+  <script src="./static/libs/datatables/ext/jszip.min.js"></script>
+  <script src="./static/libs/datatables/ext/vfs_fonts.js"></script>
+  <script src="./static/libs/datatables/ext/buttons.html5.min.js"></script>
+  <script src="./static/js/index.js"></script>
 
 
 </body>
