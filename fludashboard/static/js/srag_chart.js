@@ -29,7 +29,7 @@ class SRAGIncidenceChart{
       bindto: _this.bindTo,
       data: {
         url: './data/weekly-incidence-curve/' + year + '/' + state_name,
-        x: 'isoweek',
+        x: 'epiweek',
         names: {
           corredor_baixo: null,
           corredor_mediano: null,

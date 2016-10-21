@@ -10,7 +10,7 @@ import os
 # local
 sys.path.insert(0, os.path.dirname(os.getcwd()))
 from fludashboard.srag_data import get_srag_data  # get_incidence_color_alerts
-from fludashboard.calc_srag_alert import apply_filter_alert_by_isoweek
+from fludashboard.calc_srag_alert import apply_filter_alert_by_epiweek
 from fludashboard.utils import prepare_keys_name
 
 app = Flask(__name__)
@@ -32,11 +32,11 @@ def index_week():
             list_of_years.append(int(col.replace('srag', '')))
 
     year = max(list_of_years)
-    isoweek = datetime.datetime.now().isocalendar()[1]
+    epiweek = datetime.datetime.now().isocalendar()[1]
 
     return render_template(
         "index.html",
-        current_isoweek=isoweek,
+        current_epiweek=epiweek,
         list_of_years=sorted(list_of_years, reverse=True),
         last_year=year
     )
@@ -58,11 +58,11 @@ def index_year():
             list_of_years.append(int(col.replace('srag', '')))
 
     year = max(list_of_years)
-    isoweek = datetime.datetime.now().isocalendar()[1]
+    epiweek = datetime.datetime.now().isocalendar()[1]
 
     return render_template(
         "index-year.html",
-        current_isoweek=isoweek,
+        current_epiweek=epiweek,
         list_of_years=sorted(list_of_years, reverse=True),
         last_year=year
     )
@@ -74,27 +74,27 @@ def get_incidence_data(year):
         '../data/clean_data_filtro_sintomas_dtnotific4mem-incidence.csv'
     )
     df_typical = pd.read_csv(
-        '../data/mem-typical-clean_data_filtro_sintomas_dtnotific4mem-' +
-        'criterium-method.csv'
+        '../data/mem-typical.csv'
     )
     df_thresholds = pd.read_csv(
-        '../data/mem-report-clean_data_filtro_sintomas_dtnotific4mem-' +
-        'criterium-method.csv'
+        '../data/mem-report.csv'
     )
-    df_population = pd.read_csv('../data/populacao_uf_regional_atual.csv')
+    df_population = pd.read_csv(
+        '../data/PROJECOES_2013_POPULACAO-simples_agebracket.csv'
+    )
 
     # prepare dataframe keys
     for _df in [df_incidence, df_typical, df_thresholds, df_population]:
         prepare_keys_name(_df)
 
     df = pd.merge(
-        df_incidence, df_typical, on=['uf', 'isoweek'], how='right'
+        df_incidence, df_typical, on=['uf', 'epiweek'], how='right'
     ).merge(
         df_thresholds.drop(['unidade_da_federacao', 'populacao'], axis=1),
         on='uf'
     )
 
-    return apply_filter_alert_by_isoweek(
+    return apply_filter_alert_by_epiweek(
         df, year=year
     ).to_json(orient='records')
 
@@ -106,24 +106,24 @@ def data__weekly_incidence_curve(year, state=None):
         return '[]'
 
     ks = [
-        'isoweek', 'corredor_baixo', 'corredor_mediano', 'corredor_alto',
+        'epiweek', 'corredor_baixo', 'corredor_mediano', 'corredor_alto',
         'srag',
         'limiar_pre_epidemico', 'intensidade_alta', 'intensidade_muito_alta'
     ]
     return get_srag_data(year=year, uf_name=state)[ks].to_csv(index=False)
 
 
-@app.route("/data/incidence-color-alerts/<int:year>/<int:isoweek>")
-def data__incidence_color_alerts(year, isoweek):
-    # return get_incidence_color_alerts(year=year, isoweek=isoweek)
-    year, isoweek  # just to skip flake8 warnings
+@app.route("/data/incidence-color-alerts/<int:year>/<int:epiweek>")
+def data__incidence_color_alerts(year, epiweek):
+    # return get_incidence_color_alerts(year=year, epiweek=epiweek)
+    year, epiweek  # just to skip flake8 warnings
     return '[]'
 
 
 @app.route("/data/data-table/<int:year>")
-@app.route("/data/data-table/<int:year>/<int:isoweek>")
-@app.route("/data/data-table/<int:year>/<int:isoweek>/<string:state_name>")
-def data__data_table(year, isoweek=None, state_name=None):
+@app.route("/data/data-table/<int:year>/<int:epiweek>")
+@app.route("/data/data-table/<int:year>/<int:epiweek>/<string:state_name>")
+def data__data_table(year, epiweek=None, state_name=None):
     """
     1. Total number of cases in the selected year for eac
        State + same data for the Country
@@ -138,15 +138,15 @@ def data__data_table(year, isoweek=None, state_name=None):
 
     ks = [
         'unidade_da_federacao',
-        'isoweek',
+        'epiweek',
         'srag'
     ]
 
-    df = get_srag_data(year=year, uf_name=state_name, isoweek=isoweek)[ks]
+    df = get_srag_data(year=year, uf_name=state_name, epiweek=epiweek)[ks]
 
-    if not isoweek > 0:
+    if not epiweek > 0:
         df = df.groupby('unidade_da_federacao', as_index=False).sum()
-        df.isoweek = None
+        df.epiweek = None
 
     return '{"data": %s}' % df.to_json(orient='records')
 

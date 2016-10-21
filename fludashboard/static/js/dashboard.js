@@ -94,7 +94,7 @@ class Dashboard {
 
     if(week>0) {
       var df = $.grep(_this.sragData, function(n,i){
-          return n.isoweek==week
+          return n.epiweek==week
       });
     } else {
       $('.week-display').text('');

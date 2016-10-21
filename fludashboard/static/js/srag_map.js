@@ -98,7 +98,7 @@ class SRAGMap {
 
           return (
             n.unidade_da_federacao===layerName &&
-            (n.isoweek===week || week==0)
+            (n.epiweek===week || week==0)
           );
         })[0];
 
@@ -150,7 +150,7 @@ class SRAGMap {
     if(week>0) {
       // when by week criteria is selected
       var df_alert = $.grep(df, function(n,i){
-        return n.isoweek===week
+        return n.epiweek===week
       });
 
       this.geojsonLayer.eachLayer(function (layer) {

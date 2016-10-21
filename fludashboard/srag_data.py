@@ -9,14 +9,17 @@ def _prepare_srag_data(year=2013):
     """
     df_incidence = pd.read_csv(
         '../data/clean_data_filtro_sintomas_dtnotific4mem-incidence.csv'
-    )[['UF', 'isoweek', 'SRAG{}'.format(year)]]
-    df_typical = pd.read_csv(
-        '../data/mem-typical-clean_data_filtro_sintomas_dtnotific4mem-' +
-        'criterium-method.csv')
-    df_thresholds = pd.read_csv(
-        '../data/mem-report-clean_data_filtro_sintomas_dtnotific4mem-' +
-        'criterium-method.csv')
-    df_population = pd.read_csv('../data/populacao_uf_regional_atual.csv')
+    )[['UF', 'epiweek', 'SRAG{}'.format(year)]]
+    df_typical = pd.read_csv('../data/mem-typical.csv')
+    df_thresholds = pd.read_csv('../data/mem-report.csv')
+    df_population = pd.read_csv(
+        '../data/PROJECOES_2013_POPULACAO-simples_agebracket.csv'
+    )
+
+    level_dict = {
+        'L0': 'Baixa', 'L1': 'Epidêmica',
+        'L2': 'Alta', 'L3': 'Muito alta'
+    }
 
     # prepare dataframe keys
     for _df in [df_incidence, df_typical, df_thresholds, df_population]:
@@ -28,7 +31,7 @@ def _prepare_srag_data(year=2013):
             }, inplace=True)
 
     df = pd.merge(
-        df_incidence, df_typical, on=['uf', 'isoweek'], how='right'
+        df_incidence, df_typical, on=['uf', 'epiweek'], how='right'
     ).merge(
         df_thresholds.drop(['unidade_da_federacao', 'populacao'], axis=1),
         on='uf'
@@ -43,8 +46,7 @@ def _prepare_srag_data(year=2013):
     }
 
 
-
-def get_srag_data(year, uf_name=None, isoweek=0):
+def get_srag_data(year, uf_name=None, epiweek=0):
     """
 
     """
@@ -55,11 +57,11 @@ def get_srag_data(year, uf_name=None, isoweek=0):
     if uf_name:
         mask = df.unidade_da_federacao == uf_name
 
-    if isoweek:
+    if epiweek:
         if uf_name:
-            mask &= df.isoweek == isoweek
+            mask &= df.epiweek == epiweek
         else:
-            mask = df.isoweek == isoweek
+            mask = df.epiweek == epiweek
 
     df = df[mask]
     return df
