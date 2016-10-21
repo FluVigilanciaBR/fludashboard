@@ -22,7 +22,6 @@ class SRAGTable {
       '  <thead class="header">' +
       '    <tr class="header">' +
       '      <th>Unidade da Federa&ccedil;&atilde;o</th>' +
-      '      <th>Semana</th>' +
       '      <th>Incidência (por 100 mil habitantes)</th>' +
       '    </tr>' +
       '  </thead>' +
@@ -61,24 +60,15 @@ class SRAGTable {
       });
     }
 
-    if (week > 0) {
-      tableSettings['columnDefs'].push({
-        "targets": [ 1 ],
-        "visible": false,
-        "searchable": false
-      });
-    }
-
     tableSettings['ajax'] = '/data/data-table/' + year + '/' + week + _tmp;
     tableSettings['columns'] = [
       {'data': 'unidade_da_federacao'},
-      {'data': 'isoweek'},
       {'data': 'srag'}
     ];
 
     // destroy old table
     //this.dataTable.empty(); // empty in case the columns change
-    this.dataTable.destroy();
+    //this.dataTable.destroy();
 
     // create new table
     $('#divTable').html(this.getDataTableContent());

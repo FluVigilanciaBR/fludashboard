@@ -24,6 +24,7 @@ class SRAGMap {
 
     this.map.setView([-16, -50.528742], 3)  ;
     this.osm.addTo(this.map);
+    this.geojsonLayer = {};
   }
 
   /**
@@ -35,12 +36,12 @@ class SRAGMap {
   makeMap(
     geoJsonBr, sragData, year, week, clickExternalTrigger
   ) {
-    var fluColors = this.fluColors;
-    var map = this.map;
+    var _this = this;
+
     // remove existent layer from the map
     this.map.eachLayer(function (layer) {
       if ('feature' in layer) {
-        map.removeLayer(layer);
+        _this.map.removeLayer(layer);
       }
     });
 
@@ -50,7 +51,7 @@ class SRAGMap {
       layer.on({
         click: function(){
           // reset line weight
-          geojsonLayer.eachLayer(function (_layer) {
+          _this.geojsonLayer.eachLayer(function (_layer) {
             _layer.setStyle({
               weight: 1
             });
@@ -81,7 +82,7 @@ class SRAGMap {
     var selectedState = $('#selected-state').val();
 
     // show geojson on the map
-    var geojsonLayer = L.geoJson(geoJsonBr, {
+    this.geojsonLayer = L.geoJson(geoJsonBr, {
       onEachFeature: onEachFeature,
       style: function(feature) {
         var layerName = feature.properties.nome;
@@ -94,13 +95,14 @@ class SRAGMap {
         };
 
         var weekState = $.grep(sragData, function(n,i){
+
           return (
             n.unidade_da_federacao===layerName &&
-            n.isoweek===week
+            (n.isoweek===week || week==0)
           );
         })[0];
 
-        styleProperties['fillColor'] = fluColors[weekState['alert']];
+        styleProperties['fillColor'] = _this.fluColors[weekState['alert']];
 
         if (selectedState==layerName) {
           styleProperties['weight'] = 2;
@@ -108,9 +110,26 @@ class SRAGMap {
         return styleProperties;
       }
     });
-    geojsonLayer.addTo(map);
+    this.geojsonLayer.addTo(this.map);
   }
 
+  /**
+   * Get the alert level color using the follow criteria:
+   *
+   * Red (level 4) if the incidence was above the high threshold for at
+   *  least 5 weeks;
+   * Orange (level 3) if above the high threshold from 1 to 4 weeks;
+   * Yellow (level 2) if crossed the epidemic threshold but not the high one;
+   * Green (level 1) if it did not cross the epidemic threshold.
+   * @param {dict} d - total number of alert occurrence
+   * @return {number} alert level
+   */
+  getAlertLevelForWholeYear(d) {
+    if (d[4] >= 5) return 4;
+    if (d[4] >= 1 && d[4] < 5) return 3;
+    if (d[2] >= 1 || d[3] >= 1) return 2;
+    return 1;
+  }
 
   /**
    * Change the color of the map using the alerts criteria
@@ -118,6 +137,7 @@ class SRAGMap {
    * @param {dict} df - data frame object
    */
   changeColorMap(df) {
+    var _this = this;
     var state = $('#selected-state').val();
     var week = parseInt($('#week').val() || 0);
     var styleProperties= {
@@ -129,43 +149,44 @@ class SRAGMap {
 
     if(week>0) {
       // when by week criteria is selected
-      df_alert = $.grep(df, function(n,i){
+      var df_alert = $.grep(df, function(n,i){
         return n.isoweek===week
       });
-      geojsonLayer.eachLayer(function (layer) {
-        layerName = layer.feature.properties.nome;
+
+      this.geojsonLayer.eachLayer(function (layer) {
+        var layerName = layer.feature.properties.nome;
 
         layer.setStyle(styleProperties);
         if (layerName==state) {
           layer.setStyle({'weight': 2});
         }
 
-        df_alert_state = $.grep(df_alert, function(n,i){
+        var df_alert_state = $.grep(df_alert, function(n,i){
           return n.unidade_da_federacao===layerName
         })[0];
 
         layer.setStyle({
-          fillColor: fluColors[df_alert_state['alert']]
+          fillColor: _this.fluColors[df_alert_state['alert']]
         });
       });
     } else {
       // when whole year criteria is selected
-      geojsonLayer.eachLayer(function (layer) {
-        layerName = layer.feature.properties.nome;
+      this.geojsonLayer.eachLayer(function (layer) {
+        var layerName = layer.feature.properties.nome;
 
         layer.setStyle(styleProperties);
         if (layerName==state) {
           layer.setStyle({'weight': 2});
         }
 
-        alerts = {
+        var alerts = {
           1: 0,
           2: 0,
           3: 0,
           4: 0
         };
 
-        df_alert_state = $.grep(df, function(n,i){
+        var df_alert_state = $.grep(df, function(n,i){
           return n.unidade_da_federacao===layerName
         });
 
@@ -175,7 +196,7 @@ class SRAGMap {
         });
 
         layer.setStyle({
-          fillColor: fluColors[getAlertLevelForWholeYear(alerts)]
+          fillColor: _this.fluColors[_this.getAlertLevelForWholeYear(alerts)]
         });
       });
     }

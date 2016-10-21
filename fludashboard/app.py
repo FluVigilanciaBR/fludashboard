@@ -145,8 +145,6 @@ def data__data_table(year, isoweek=None, state_name=None):
     df = get_srag_data(year=year, uf_name=state_name, isoweek=isoweek)[ks]
 
     if not isoweek > 0:
-        print(df[df.unidade_da_federacao == 'Acre']['srag'])
-        print(df[df.unidade_da_federacao == 'São Paulo']['srag'])
         df = df.groupby('unidade_da_federacao', as_index=False).sum()
         df.isoweek = None
 

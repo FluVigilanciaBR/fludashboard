@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /** */
-class SRAGChart{
+class SRAGIncidenceChart{
   constructor(bindTo) {
     this.bindTo = bindTo;
   }
@@ -16,8 +16,15 @@ class SRAGChart{
    * @param {string} state_name - state_name to filter the data
    * @param {number} week- week to filter the data
    */
-  plot(year, state_name, week) {
+  plot(year, week, state_name) {
     var _this = this;
+
+    $(this.bindTo).empty();
+
+    if (state_name == '') {
+      return;
+    }
+
     return c3.generate({
       bindto: _this.bindTo,
       data: {
@@ -90,4 +97,8 @@ class SRAGChart{
       }
     });
   }
+}
+
+class SRAGAgeSexChart{
+
 }
