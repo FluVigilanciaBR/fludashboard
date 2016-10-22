@@ -49,13 +49,13 @@ class SRAGIncidenceChart{
           intensidade_muito_alta: 'line'
         },
         colors: {
-        corredor_baixo: '#00ff00',
-        corredor_mediano: '#ffff00',
-        corredor_alto: '#ff9900',
-        srag: '#000000',
-        limiar_pre_epidemico: '#0000ff',
-        intensidade_alta: '#00ff00',
-        intensidade_muito_alta: '#ff0000'
+          corredor_baixo: '#00ff00',
+          corredor_mediano: '#ffff00',
+          corredor_alto: '#ff9900',
+          srag: '#000000',
+          limiar_pre_epidemico: '#0000ff',
+          intensidade_alta: '#00ff00',
+          intensidade_muito_alta: '#ff0000'
         }
       },
       axis: {
@@ -99,6 +99,33 @@ class SRAGIncidenceChart{
   }
 }
 
-class SRAGAgeSexChart{
+class SRAGAgeChart{
+  constructor(bindTo) {
+    this.bindTo = bindTo;
+  }
 
+  /**
+   * Plot incidence chart using
+   * @param {number} year - year to filter the data
+   * @param {string} state_name - state_name to filter the data
+   * @param {number} week- week to filter the data
+   */
+  plot(year, week, state_name) {
+    var _this = this;
+
+    $(this.bindTo).empty();
+
+    if (state_name == '') {
+      return;
+    }
+
+    return c3.generate({
+      bindto: _this.bindTo,
+      data: {
+        url: './data/age-distribution/' + year + '/' +
+          week + '/' + state_name,
+        type: 'bar'
+      }
+    });
+  }
 }

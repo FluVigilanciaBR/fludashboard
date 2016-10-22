@@ -5,7 +5,7 @@
 
 
 def apply_filter_alert_by_epiweek(
-        df, year, epiweek=None, verbose=False
+        df, epiweek=None, verbose=False
 ):
     """
     """
@@ -15,7 +15,6 @@ def apply_filter_alert_by_epiweek(
         mask = df.keys()
 
     df_alert = df[mask].copy().reset_index()
-    df_alert = df_alert.assign(srag=df['srag{}'.format(year)])
 
     # * Low: incidence < epidemic threshold | green
     df_alert = df_alert.assign(

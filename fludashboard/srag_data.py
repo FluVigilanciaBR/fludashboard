@@ -3,13 +3,13 @@ from unidecode import unidecode
 import pandas as pd
 
 
-def _prepare_srag_data(year=2013):
+def prepare_srag_data(year=None):
     """
 
     """
     df_incidence = pd.read_csv(
-        '../data/clean_data_filtro_sintomas_dtnotific4mem-incidence.csv'
-    )[['UF', 'epiweek', 'SRAG{}'.format(year)]]
+        '../data/current_estimated_values.csv'
+    )
     df_typical = pd.read_csv('../data/mem-typical.csv')
     df_thresholds = pd.read_csv('../data/mem-report.csv')
     df_population = pd.read_csv(
@@ -33,9 +33,12 @@ def _prepare_srag_data(year=2013):
     df = pd.merge(
         df_incidence, df_typical, on=['uf', 'epiweek'], how='right'
     ).merge(
-        df_thresholds.drop(['unidade_da_federacao', 'populacao'], axis=1),
+        df_thresholds.drop(['unidade_da_federacao'], axis=1),
         on='uf'
-    ).rename(columns={'srag{}'.format(year): 'srag'})
+    )
+
+    if year:
+        df = df[df.epiyear == year]
 
     return {
         'df_incidence': df_incidence,
@@ -51,7 +54,7 @@ def get_srag_data(year, uf_name=None, epiweek=0):
 
     """
     # data
-    df = _prepare_srag_data(year=year)['df']
+    df = prepare_srag_data(year=year)['df']
     mask = df.keys()
 
     if uf_name:

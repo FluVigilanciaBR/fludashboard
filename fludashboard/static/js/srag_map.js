@@ -95,14 +95,15 @@ class SRAGMap {
         };
 
         var weekState = $.grep(sragData, function(n,i){
-
           return (
             n.unidade_da_federacao===layerName &&
             (n.epiweek===week || week==0)
           );
         })[0];
 
-        styleProperties['fillColor'] = _this.fluColors[weekState['alert']];
+        if (weekState != undefined) {
+          styleProperties['fillColor'] = _this.fluColors[weekState['alert']];
+        }
 
         if (selectedState==layerName) {
           styleProperties['weight'] = 2;
@@ -165,9 +166,11 @@ class SRAGMap {
           return n.unidade_da_federacao===layerName
         })[0];
 
-        layer.setStyle({
-          fillColor: _this.fluColors[df_alert_state['alert']]
-        });
+        if (df_alert_state != undefined) {
+          layer.setStyle({
+            fillColor: _this.fluColors[df_alert_state['alert']]
+          });
+        }
       });
     } else {
       // when whole year criteria is selected
@@ -189,7 +192,6 @@ class SRAGMap {
         var df_alert_state = $.grep(df, function(n,i){
           return n.unidade_da_federacao===layerName
         });
-
 
         $(df_alert_state).each(function(i){
           ++alerts[df_alert_state[i]['alert']];

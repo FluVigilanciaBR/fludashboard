@@ -9,7 +9,7 @@ import os
 
 # local
 sys.path.insert(0, os.path.dirname(os.getcwd()))
-from fludashboard.srag_data import get_srag_data  # get_incidence_color_alerts
+from fludashboard.srag_data import get_srag_data, prepare_srag_data
 from fludashboard.calc_srag_alert import apply_filter_alert_by_epiweek
 from fludashboard.utils import prepare_keys_name
 
@@ -17,21 +17,18 @@ app = Flask(__name__)
 
 
 @app.route("/")
-def index_week():
+def index():
     df_incidence = pd.read_csv(
-        '../data/clean_data_filtro_sintomas_dtnotific4mem-incidence.csv'
+        '../data/current_estimated_values.csv'
     )
     # prepare dataframe keys
     prepare_keys_name(df_incidence)
 
     # Here the code should recieve the user-requested year.
     # By default should be the current or latest available
-    list_of_years = []
-    for col in df_incidence.columns:
-        if 'srag' in col:
-            list_of_years.append(int(col.replace('srag', '')))
+    list_of_years = list(set(df_incidence.epiyear))
 
-    year = max(list_of_years)
+    year = max(list_of_years) if list_of_years else 0
     epiweek = datetime.datetime.now().isocalendar()[1]
 
     return render_template(
@@ -42,61 +39,11 @@ def index_week():
     )
 
 
-@app.route("/year/")
-def index_year():
-    df_incidence = pd.read_csv(
-        '../data/clean_data_filtro_sintomas_dtnotific4mem-incidence.csv'
-    )
-    # prepare dataframe keys
-    prepare_keys_name(df_incidence)
-
-    # Here the code should recieve the user-requested year.
-    # By default should be the current or latest available
-    list_of_years = []
-    for col in df_incidence.columns:
-        if 'srag' in col:
-            list_of_years.append(int(col.replace('srag', '')))
-
-    year = max(list_of_years)
-    epiweek = datetime.datetime.now().isocalendar()[1]
-
-    return render_template(
-        "index-year.html",
-        current_epiweek=epiweek,
-        list_of_years=sorted(list_of_years, reverse=True),
-        last_year=year
-    )
-
-
 @app.route('/data/incidence/<int:year>')
 def get_incidence_data(year):
-    df_incidence = pd.read_csv(
-        '../data/clean_data_filtro_sintomas_dtnotific4mem-incidence.csv'
-    )
-    df_typical = pd.read_csv(
-        '../data/mem-typical.csv'
-    )
-    df_thresholds = pd.read_csv(
-        '../data/mem-report.csv'
-    )
-    df_population = pd.read_csv(
-        '../data/PROJECOES_2013_POPULACAO-simples_agebracket.csv'
-    )
+    df = prepare_srag_data(year)['df']
 
-    # prepare dataframe keys
-    for _df in [df_incidence, df_typical, df_thresholds, df_population]:
-        prepare_keys_name(_df)
-
-    df = pd.merge(
-        df_incidence, df_typical, on=['uf', 'epiweek'], how='right'
-    ).merge(
-        df_thresholds.drop(['unidade_da_federacao', 'populacao'], axis=1),
-        on='uf'
-    )
-
-    return apply_filter_alert_by_epiweek(
-        df, year=year
-    ).to_json(orient='records')
+    return apply_filter_alert_by_epiweek(df).to_json(orient='records')
 
 
 @app.route('/data/weekly-incidence-curve/<int:year>/')
@@ -144,11 +91,35 @@ def data__data_table(year, epiweek=None, state_name=None):
 
     df = get_srag_data(year=year, uf_name=state_name, epiweek=epiweek)[ks]
 
+    mask = (
+        (~df.unidade_da_federacao.str.contains('Regi')) &
+        (~df.unidade_da_federacao.str.contains('Brasil'))
+    )
+    df = df[mask]
+
     if not epiweek > 0:
         df = df.groupby('unidade_da_federacao', as_index=False).sum()
         df.epiweek = None
 
     return '{"data": %s}' % df.to_json(orient='records')
+
+
+@app.route('/data/age-distribution/<int:year>/')
+@app.route('/data/age-distribution/<int:year>/<int:week>/')
+@app.route('/data/age-distribution/<int:year>/<int:week>/<string:state>')
+def data__age_distribution(year, week=None, state=None):
+    if not year > 0:
+        return '[]'
+
+    ks = [
+        '0_4_anos', '5_9_anos', '10_19_anos', '20_29_anos',
+        '30_39_anos', '40_49_anos', '50_59_anos', '60+_anos'
+    ]
+
+    df = pd.DataFrame(
+        get_srag_data(year=year, uf_name=state)[ks].sum()
+    ).T
+    return df.to_csv(index=False)
 
 
 @click.command()

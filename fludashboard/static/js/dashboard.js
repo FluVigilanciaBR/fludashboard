@@ -22,6 +22,10 @@ class Dashboard {
       '#weekly-incidence-curve-chart'
     );
 
+    this.sragAgeChart = new SRAGAgeChart(
+      '#age-chart'
+    );
+
     $('#year').change(function () {_this.load_graphs();});
 
     $('#btn-detailed').click(function(){
@@ -35,7 +39,12 @@ class Dashboard {
 
     $('#btn-resumed').click(function(){
       $('#div-week').addClass('hidden');
-      _this.lastWeek = $('#week').val() || 0;
+      var _week = parseInt($('#week').val() || 0);
+
+      if (_week > 0) {
+        _this.lastWeek = _week;
+      }
+
       $('#week').attr('min', 0);
       $('#week').val(0);
       $('#btn-detailed').removeClass('selected');
@@ -106,6 +115,7 @@ class Dashboard {
 
     _this.sragMap.changeColorMap(_this.sragData);
     _this.sragIncidenceChart.plot(year, week, stateName);
+    _this.sragAgeChart.plot(year, week, stateName);
     _this.sragTable.makeTable(year, week, stateName);
   }
 
@@ -125,6 +135,7 @@ class Dashboard {
         year, stateName, week
       ) {
         _this.sragIncidenceChart.plot(year, week, stateName);
+        _this.sragAgeChart.plot(year, week, stateName);
         _this.sragTable.makeTable(year, week, stateName);
       }
     );
@@ -133,6 +144,7 @@ class Dashboard {
 
     if (stateName) {
       this.sragIncidenceChart.plot(year, week, stateName);
+      this.sragAgeChart.plot(year, week, stateName);
     }
 
     this.sragTable.makeTable(year, week, stateName);
