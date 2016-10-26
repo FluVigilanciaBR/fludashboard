@@ -21,9 +21,9 @@ class SRAGIncidenceChart{
 
     $(this.bindTo).empty();
 
-    if (state_name == '') {
+    /*if (state_name == '') {
       return;
-    }
+    }*/
 
     return c3.generate({
       bindto: _this.bindTo,
@@ -81,7 +81,7 @@ class SRAGIncidenceChart{
           {value: week, text: 'Semana Selecionada', position: 'middle'}
         ], show: false
         },
-        y: {show: false}
+        y: {show: true}
       },/*
       zoom: {
         enabled: true
@@ -115,17 +115,49 @@ class SRAGAgeChart{
 
     $(this.bindTo).empty();
 
-    if (state_name == '') {
+    /*if (state_name == '') {
       return;
-    }
+    }*/
 
     return c3.generate({
       bindto: _this.bindTo,
       data: {
         url: './data/age-distribution/' + year + '/' +
           week + '/' + state_name,
-        type: 'bar'
-      }
+        type: 'bar',
+        names: {
+          '0_4_anos': '0-4 anos',
+          '5_9_anos': '5-9 anos',
+          '10_19_anos': '10-19 anos',
+          '20_29_anos': '20-29 anos',
+          '30_39_anos': '30-39 anos',
+          '40_49_anos': '40-49 anos',
+          '50_59_anos': '50-59 anos',
+          '60+_anos': '60+ anos'
+        },
+      },
+      axis: {
+        x: {
+          label: {
+            text: 'Faixa Etária',
+            position: 'outer-center'
+          },
+          type: 'category',
+          categories: [
+            ''
+          ]
+        },
+        y: {
+          label: {
+            text: 'Incidência (por 100 mil habitantes)',
+            position: 'outer-middle'
+          }
+        },
+      },
+      grid: {
+        x: { show: false },
+        y: {show: true }
+      },
     });
   }
 }

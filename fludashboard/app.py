@@ -52,6 +52,9 @@ def data__weekly_incidence_curve(year, state=None):
     if not year > 0:
         return '[]'
 
+    if not state:
+        state = 'Brasil'
+
     ks = [
         'epiweek', 'corredor_baixo', 'corredor_mediano', 'corredor_alto',
         'srag',
@@ -89,11 +92,10 @@ def data__data_table(year, epiweek=None, state_name=None):
         'srag'
     ]
 
-    df = get_srag_data(year=year, uf_name=state_name, epiweek=epiweek)[ks]
+    df = get_srag_data(year=year, uf_name=state_name, epiweek=epiweek)
 
     mask = (
-        (~df.unidade_da_federacao.str.contains('Regi')) &
-        (~df.unidade_da_federacao.str.contains('Brasil'))
+        (~df.unidade_da_federacao.str.contains('Regi'))
     )
     df = df[mask]
 
@@ -101,7 +103,22 @@ def data__data_table(year, epiweek=None, state_name=None):
         df = df.groupby('unidade_da_federacao', as_index=False).sum()
         df.epiweek = None
 
-    return '{"data": %s}' % df.to_json(orient='records')
+    # order by type
+    df = df.assign(type_unit=1)
+
+    try:
+        df.loc[df.uf == 'BR', 'type_unit'] = 0
+    except:
+        pass
+
+    df.sort_values(
+        by=['type_unit', 'unidade_da_federacao', 'epiyear', 'epiweek'],
+        inplace=True
+    )
+    df.reset_index(drop=True, inplace=True)
+    df.drop('type_unit', axis=1, inplace=True)
+
+    return '{"data": %s}' % df[ks].to_json(orient='records')
 
 
 @app.route('/data/age-distribution/<int:year>/')
@@ -116,8 +133,11 @@ def data__age_distribution(year, week=None, state=None):
         '30_39_anos', '40_49_anos', '50_59_anos', '60+_anos'
     ]
 
+    if not state:
+        state = 'Brasil'
+
     df = pd.DataFrame(
-        get_srag_data(year=year, uf_name=state)[ks].sum()
+        get_srag_data(year=year, uf_name=state, epiweek=week)[ks].sum()
     ).T
     return df.to_csv(index=False)
 

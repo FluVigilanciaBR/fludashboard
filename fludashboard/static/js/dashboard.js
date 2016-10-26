@@ -142,11 +142,13 @@ class Dashboard {
 
     this.changeWeek();
 
-    if (stateName) {
+    /*if (stateName) {
       this.sragIncidenceChart.plot(year, week, stateName);
       this.sragAgeChart.plot(year, week, stateName);
-    }
+    }*/
 
+    this.sragIncidenceChart.plot(year, week, stateName);
+    this.sragAgeChart.plot(year, week, stateName);
     this.sragTable.makeTable(year, week, stateName);
   }
 }
