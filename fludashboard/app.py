@@ -39,9 +39,18 @@ def index():
     )
 
 
-@app.route('/data/incidence/<int:year>')
-def get_incidence_data(year):
+@app.route('/data/incidence/<int:year>/<string:territory_type>')
+def get_incidence_data(year, territory_type):
+    """
+
+    :param territory_type: state or region
+    :param year:
+    :return:
+    """
     df = prepare_srag_data(year)['df']
+    df = df[
+        df.tipo == ('Estado' if territory_type == 'state' else 'Regional')
+    ]
 
     return apply_filter_alert_by_epiweek(df).to_json(orient='records')
 

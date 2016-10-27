@@ -25,6 +25,40 @@ class SRAGMap {
     this.map.setView([-16, -50.528742], 3)  ;
     this.osm.addTo(this.map);
     this.geojsonLayer = {};
+
+    this.regionIds = {
+      // 1
+      'Acre': 'RegN',
+      'Amapá': 'RegN',
+      'Amazonas': 'RegN',
+      'Pará': 'RegN',
+      'Rondônia': 'RegN',
+      'Roraima': 'RegN',
+      // 2
+      'Alagoas': 'RegL',
+      'Bahia': 'RegL',
+      'Ceará': 'RegL',
+      'Espírito Santo': 'RegL',
+      'Paraíba': 'RegL',
+      'Pernambuco': 'RegL',
+      'Rio de Janeiro': 'RegL',
+      'Rio Grande do Norte': 'RegL',
+      'Sergipe': 'RegL',
+      // 3
+      'Distrito Federal': 'RegC',
+      'Goiás': 'RegC',
+      'Maranhão': 'RegC',
+      'Mato Grosso': 'RegC',
+      'Mato Grosso do Sul': 'RegC',
+      'Piauí': 'RegC',
+      'Tocantins': 'RegC',
+      // 4
+      'Minas Gerais': 'RegS',
+      'Paraná': 'RegS',
+      'Rio Grande do Sul': 'RegS',
+      'Santa Catarina': 'RegS',
+      'São Paulo': 'RegS',
+    };
   }
 
   /**
@@ -60,16 +94,58 @@ class SRAGMap {
           var stateName = feature.properties.nome;
           var week = parseInt($('#week').val() || 0);
           var year = parseInt($('#year').val() || 0);
+          var delimitation = (
+            $('input[name="radType[]"]:checked').attr('id') == 'radTypeState' ?
+            'state' : 'region'
+          );
 
-          if ($('#selected-state').val() == stateName) {
-            stateName = '';
-            $('.incidence-chart-title').text('');
+          if (delimitation=='state') {
+            // state
+            if ($('#selected-state').val() == stateName) {
+              stateName = '';
+              $('.incidence-chart-title').text('');
+            } else {
+              // bold the selected state
+              layer.setStyle({
+                weight: 2
+              });
+              $('.incidence-chart-title').text(' - ' + stateName);
+            }
           } else {
-            // bold the selected state
-            layer.setStyle({
-              weight: 2
+            // regions
+            var rid = _this.regionIds[stateName];
+            var ridName = {
+              'RegC': 'Regional Central',
+              'RegN': 'Regional Norte',
+              'RegS': 'Regional Sul',
+              'RegL': 'Regional Leste',
+            }[rid];
+
+            _this.geojsonLayer.eachLayer(function (_layer) {
+              var _rid = _this.regionIds[_layer.feature.properties.nome];
+
+              if (_rid == rid) {
+                _layer.setStyle({weight: 2});
+                _layer.setStyle({color: '#333333'});
+                _layer.bringToFront();
+              } else {
+                _layer.setStyle({weight: 1});
+                _layer.setStyle({color: '#333333'});
+              }
             });
-            $('.incidence-chart-title').text(' - ' + stateName);
+
+            // state
+            if ($('#selected-state').val() == ridName) {
+              stateName = '';
+              $('.incidence-chart-title').text('');
+            } else {
+              // bold the selected state
+              layer.setStyle({
+                weight: 2
+              });
+              $('.incidence-chart-title').text(' - ' + ridName);
+              stateName = ridName;
+            }
           }
 
           $('#selected-state').val(stateName);
@@ -80,37 +156,69 @@ class SRAGMap {
     };
 
     var selectedState = $('#selected-state').val();
+    var delimitation = (
+      $('input[name="radType[]"]:checked').attr('id') == 'radTypeState' ?
+      'state' : 'region'
+    );
 
-    // show geojson on the map
-    this.geojsonLayer = L.geoJson(geoJsonBr, {
-      onEachFeature: onEachFeature,
-      style: function(feature) {
-        var layerName = feature.properties.nome;
+    if (delimitation=='state') {
+      // show geojson on the map
+      this.geojsonLayer = L.geoJson(geoJsonBr, {
+        onEachFeature: onEachFeature,
+        style: function(feature) {
+          var layerName = feature.properties.nome;
 
-        var styleProperties= {
-          fillColor: '#ffffff',
-          color: '#333333',
-          fillOpacity: 0.5,
-          weight: 1,
-        };
+          var styleProperties= {
+            fillColor: '#ffffff',
+            color: '#333333',
+            fillOpacity: 0.5,
+            weight: 1,
+          };
 
-        var weekState = $.grep(sragData, function(n,i){
-          return (
-            n.unidade_da_federacao===layerName &&
-            (n.epiweek===week || week==0)
-          );
-        })[0];
+          var weekState = $.grep(sragData, function(n,i){
+            return (
+              n.unidade_da_federacao===layerName &&
+              (n.epiweek===week || week==0)
+            );
+          })[0];
 
-        if (weekState != undefined) {
-          styleProperties['fillColor'] = _this.fluColors[weekState['alert']];
+          if (weekState != undefined) {
+            styleProperties['fillColor'] = _this.fluColors[weekState['alert']];
+          }
+
+          if (selectedState==layerName) {
+            styleProperties['weight'] = 2;
+          }
+          return styleProperties;
         }
+      });
+    } else {
+      this.geojsonLayer = L.geoJson(geoJsonBr, {
+        onEachFeature: onEachFeature,
+        style: function(feature) {
+            var layerName = feature.properties.nome;
 
-        if (selectedState==layerName) {
-          styleProperties['weight'] = 2;
-        }
-        return styleProperties;
-      }
-    });
+            var styleProperties= {
+                fillColor: '#fffff',
+                color: '#333333',
+                fillOpacity: 0.5,
+                weight: 1,
+            };
+            /*
+            var weekState = $.grep(sragData, function(n,i){
+              return (
+                n.unidade_da_federacao===layerName &&
+                (n.epiweek===week || week==0)
+              );
+            })[0];
+
+            if (weekState != undefined) {
+              styleProperties['fillColor'] = _this.fluColors[weekState['alert']];
+            }*/
+            return styleProperties;
+          }
+      });
+    }
     this.geojsonLayer.addTo(this.map);
   }
 

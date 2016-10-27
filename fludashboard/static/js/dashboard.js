@@ -11,7 +11,11 @@ class Dashboard {
   ) {
     var _this = this;
     this.group_by = 'week'; // year or week
-    this.separated_by = 'state'; // state or region
+    // state or region
+    this.delimitation = (
+      $('input[name="radType[]"]:checked').attr('id') == 'radTypeState' ?
+      'state' : 'region'
+    );
     this.lastWeek = $('#week').val() || 0;
     this.sragData = {};
 
@@ -53,6 +57,8 @@ class Dashboard {
     });
 
     d3.select('#week').on('change', function(){_this.changeWeek();});
+    $('#radTypeState').change(function(){_this.load_graphs();});
+    $('#radTypeRegion').change(function(){_this.load_graphs();});
   }
 
   /**
@@ -77,9 +83,15 @@ class Dashboard {
       _this.makeGraphs(error);
     };
 
+    var delimitation = (
+      $('input[name="radType[]"]:checked').attr('id') == 'radTypeState' ?
+      'state' : 'region'
+    );
+
     queue()
       .defer(d3.json, 'static/data/br-states.json')
-      .defer(d3.json, '/data/incidence/' + ($('#year').val() || 0))
+      .defer(d3.json, (
+        '/data/incidence/' + ($('#year').val() || 0) + '/' + delimitation))
       .await(fn);
   }
 
