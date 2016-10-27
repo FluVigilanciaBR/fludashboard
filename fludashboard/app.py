@@ -79,10 +79,14 @@ def data__incidence_color_alerts(year, epiweek):
     return '[]'
 
 
-@app.route("/data/data-table/<int:year>")
-@app.route("/data/data-table/<int:year>/<int:epiweek>")
-@app.route("/data/data-table/<int:year>/<int:epiweek>/<string:state_name>")
-def data__data_table(year, epiweek=None, state_name=None):
+@app.route('/data/data-table/<int:year>')
+@app.route('/data/data-table/<int:year>/<int:epiweek>')
+@app.route('/data/data-table/<int:year>/<int:epiweek>/<string:territory_type>')
+@app.route(
+    '/data/data-table/<int:year>/<int:epiweek>/' +
+    '<string:territory_type>/<string:state_name>'
+)
+def data__data_table(year, epiweek=None, territory_type=None, state_name=None):
     """
     1. Total number of cases in the selected year for eac
        State + same data for the Country
@@ -103,9 +107,11 @@ def data__data_table(year, epiweek=None, state_name=None):
 
     df = get_srag_data(year=year, uf_name=state_name, epiweek=epiweek)
 
-    mask = (
-        (~df.unidade_da_federacao.str.contains('Regi'))
-    )
+    if territory_type == 'state':
+        mask = ~(df.tipo=='Regional')
+    else:
+        mask = ~(df.tipo=='Estado')
+
     df = df[mask]
 
     if not epiweek > 0:

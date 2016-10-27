@@ -59,6 +59,13 @@ class SRAGMap {
       'Santa Catarina': 'RegS',
       'São Paulo': 'RegS',
     };
+
+    this.regionNames = {
+      'RegC': 'Regional Centro',
+      'RegN': 'Regional Norte',
+      'RegS': 'Regional Sul',
+      'RegL': 'Regional Leste',
+    };
   }
 
   /**
@@ -79,6 +86,8 @@ class SRAGMap {
       }
     });
 
+    $('.territory-display').text(' - Brasil');
+
     // apply onclick event on each region/state on the map
     function onEachFeature(feature, layer) {
       //bind click
@@ -94,56 +103,47 @@ class SRAGMap {
           var stateName = feature.properties.nome;
           var week = parseInt($('#week').val() || 0);
           var year = parseInt($('#year').val() || 0);
-          var delimitation = (
+          var territoryType = (
             $('input[name="radType[]"]:checked').attr('id') == 'radTypeState' ?
             'state' : 'region'
           );
 
-          if (delimitation=='state') {
+          if (territoryType=='state') {
             // state
             if ($('#selected-state').val() == stateName) {
               stateName = '';
-              $('.incidence-chart-title').text('');
+              $('.territory-display').text(' - Brasil');
             } else {
               // bold the selected state
               layer.setStyle({
                 weight: 2
               });
-              $('.incidence-chart-title').text(' - ' + stateName);
+              $('.territory-display').text(' - ' + stateName);
             }
           } else {
             // regions
             var rid = _this.regionIds[stateName];
-            var ridName = {
-              'RegC': 'Regional Central',
-              'RegN': 'Regional Norte',
-              'RegS': 'Regional Sul',
-              'RegL': 'Regional Leste',
-            }[rid];
+            var ridName = _this.regionNames[rid];
 
             _this.geojsonLayer.eachLayer(function (_layer) {
               var _rid = _this.regionIds[_layer.feature.properties.nome];
 
-              if (_rid == rid) {
+              _layer.setStyle({color: '#333333'});
+
+              if (_rid == rid && $('#selected-state').val() != ridName) {
                 _layer.setStyle({weight: 2});
-                _layer.setStyle({color: '#333333'});
                 _layer.bringToFront();
               } else {
                 _layer.setStyle({weight: 1});
-                _layer.setStyle({color: '#333333'});
               }
             });
 
             // state
             if ($('#selected-state').val() == ridName) {
               stateName = '';
-              $('.incidence-chart-title').text('');
+              $('.territory-display').text(' - Brasil');
             } else {
-              // bold the selected state
-              layer.setStyle({
-                weight: 2
-              });
-              $('.incidence-chart-title').text(' - ' + ridName);
+              $('.territory-display').text(' - ' + ridName);
               stateName = ridName;
             }
           }
@@ -156,12 +156,12 @@ class SRAGMap {
     };
 
     var selectedState = $('#selected-state').val();
-    var delimitation = (
+    var territoryType = (
       $('input[name="radType[]"]:checked').attr('id') == 'radTypeState' ?
       'state' : 'region'
     );
 
-    if (delimitation=='state') {
+    if (territoryType=='state') {
       // show geojson on the map
       this.geojsonLayer = L.geoJson(geoJsonBr, {
         onEachFeature: onEachFeature,
@@ -193,10 +193,12 @@ class SRAGMap {
         }
       });
     } else {
+      // region
       this.geojsonLayer = L.geoJson(geoJsonBr, {
         onEachFeature: onEachFeature,
         style: function(feature) {
             var layerName = feature.properties.nome;
+            var _rid = _this.regionIds[layerName];
 
             var styleProperties= {
                 fillColor: '#fffff',
@@ -204,8 +206,8 @@ class SRAGMap {
                 fillOpacity: 0.5,
                 weight: 1,
             };
-            /*
-            var weekState = $.grep(sragData, function(n,i){
+
+            /*var weekState = $.grep(sragData, function(n,i){
               return (
                 n.unidade_da_federacao===layerName &&
                 (n.epiweek===week || week==0)
@@ -215,6 +217,10 @@ class SRAGMap {
             if (weekState != undefined) {
               styleProperties['fillColor'] = _this.fluColors[weekState['alert']];
             }*/
+
+            if (selectedState==_rid) {
+              styleProperties['weight'] = 2;
+            }
             return styleProperties;
           }
       });
@@ -256,6 +262,11 @@ class SRAGMap {
       weight: 1,
     };
 
+    var territoryType = (
+      $('input[name="radType[]"]:checked').attr('id') == 'radTypeState' ?
+      'state' : 'region'
+    );
+
     if(week>0) {
       // when by week criteria is selected
       var df_alert = $.grep(df, function(n,i){
@@ -264,14 +275,21 @@ class SRAGMap {
 
       this.geojsonLayer.eachLayer(function (layer) {
         var layerName = layer.feature.properties.nome;
+        var territoryName = '';
+
+        if (territoryType=='state') {
+          territoryName = layerName;
+        } else {
+          territoryName = _this.regionNames[_this.regionIds[layerName]];
+        }
 
         layer.setStyle(styleProperties);
-        if (layerName==state) {
+        if (territoryName==state) {
           layer.setStyle({'weight': 2});
         }
 
         var df_alert_state = $.grep(df_alert, function(n,i){
-          return n.unidade_da_federacao===layerName
+          return n.unidade_da_federacao===territoryName
         })[0];
 
         if (df_alert_state != undefined) {
@@ -284,9 +302,16 @@ class SRAGMap {
       // when whole year criteria is selected
       this.geojsonLayer.eachLayer(function (layer) {
         var layerName = layer.feature.properties.nome;
+        var territoryName = '';
+
+        if (territoryType=='state') {
+          territoryName = layerName;
+        } else {
+          territoryName = _this.regionNames[_this.regionIds[layerName]];
+        }
 
         layer.setStyle(styleProperties);
-        if (layerName==state) {
+        if (territoryName==state) {
           layer.setStyle({'weight': 2});
         }
 
@@ -298,7 +323,7 @@ class SRAGMap {
         };
 
         var df_alert_state = $.grep(df, function(n,i){
-          return n.unidade_da_federacao===layerName
+          return n.unidade_da_federacao===territoryName;
         });
 
         $(df_alert_state).each(function(i){

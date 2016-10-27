@@ -31,6 +31,10 @@ class SRAGTable {
   makeTable(year, week, stateName) {
     var columns = [];
     var _tmp = '';
+    var territoryType = (
+      $('input[name="radType[]"]:checked').attr('id') == 'radTypeState' ?
+      'state' : 'region'
+    );
     var tableSettings = {
       "dom": 'Bfrtip',
       "language": {
@@ -51,8 +55,10 @@ class SRAGTable {
 
     tableSettings['columnDefs'] = [];
 
+    var _tmp = '/' + territoryType;
+
     if (stateName) {
-      var _tmp = '/' + stateName;
+      _tmp = _tmp + '/' + stateName;
       tableSettings['columnDefs'].push({
         "targets": [ 0 ],
         "visible": false,

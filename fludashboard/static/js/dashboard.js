@@ -38,6 +38,8 @@ class Dashboard {
       $('#div-week').removeClass('hidden');
       $('#btn-resumed').removeClass('selected');
       $('#btn-detailed').addClass('selected');
+      $('.period-display').text('na semana epidemiológica');
+
       _this.changeWeek();
     });
 
@@ -53,12 +55,20 @@ class Dashboard {
       $('#week').val(0);
       $('#btn-detailed').removeClass('selected');
       $('#btn-resumed').addClass('selected');
+      $('.period-display').text('no ano epidemiológico');
+
       _this.changeWeek();
     });
 
     d3.select('#week').on('change', function(){_this.changeWeek();});
-    $('#radTypeState').change(function(){_this.load_graphs();});
-    $('#radTypeRegion').change(function(){_this.load_graphs();});
+    $('#radTypeState').change(function(){
+      $('#selected-state').val('');
+      _this.load_graphs();
+    });
+    $('#radTypeRegion').change(function(){
+      $('#selected-state').val('');
+      _this.load_graphs();
+    });
   }
 
   /**
