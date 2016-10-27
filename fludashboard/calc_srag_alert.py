@@ -4,18 +4,17 @@
 """
 
 
-def apply_filter_alert_by_isoweek(
-        df, year, isoweek=None, verbose=False
+def apply_filter_alert_by_epiweek(
+        df, epiweek=None, verbose=False
 ):
     """
     """
-    if isoweek is not None:
-        mask = df.eval('isoweek=={}'.format(isoweek))
+    if epiweek is not None:
+        mask = df.eval('epiweek=={}'.format(epiweek))
     else:
         mask = df.keys()
 
     df_alert = df[mask].copy().reset_index()
-    df_alert = df_alert.assign(srag=df['srag{}'.format(year)])
 
     # * Low: incidence < epidemic threshold | green
     df_alert = df_alert.assign(

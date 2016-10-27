@@ -45,7 +45,8 @@ articles, and such.
 Submit Feedback
 ~~~~~~~~~~~~~~~
 
-The best way to send feedback is to file an issue at https://github.com/xmnlab/fludashboard/issues.
+The best way to send feedback is to file an issue at
+https://github.com/xmnlab/fludashboard/issues.
 
 If you are proposing a feature:
 
@@ -53,6 +54,15 @@ If you are proposing a feature:
 * Keep the scope as narrow as possible, to make it easier to implement.
 * Remember that this is a volunteer-driven project, and that contributions
   are welcome :)
+
+Coding Style
+------------
+
+For JavaScript, see:
+https://developer.mozilla.org/en-US/docs/Mozilla/Developer_guide/Coding_Style
+
+For Python: see:
+https://www.python.org/dev/peps/pep-0008/
 
 Get Started!
 ------------
@@ -102,7 +112,7 @@ Before you submit a pull request, check that it meets these guidelines:
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
 3. The pull request should work for Python 2.6, 2.7, 3.3, 3.4 and 3.5, and for PyPy. Check
-   https://travis-ci.org/xmnlab/fludashboard/pull_requests
+   https://travis-ci.org/FluVigilanciaBR/fludashboard/pull_requests
    and make sure that the tests pass for all supported Python versions.
 
 Tips

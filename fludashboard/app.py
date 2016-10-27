@@ -9,8 +9,8 @@ import os
 
 # local
 sys.path.insert(0, os.path.dirname(os.getcwd()))
-from fludashboard.curve_chart import get_curve_data  # get_incidence_color_alerts
-from fludashboard.calc_alert import apply_filter_alert_by_isoweek
+from fludashboard.srag_data import get_srag_data, prepare_srag_data
+from fludashboard.calc_srag_alert import apply_filter_alert_by_epiweek
 from fludashboard.utils import prepare_keys_name
 
 app = Flask(__name__)
@@ -19,58 +19,40 @@ app = Flask(__name__)
 @app.route("/")
 def index():
     df_incidence = pd.read_csv(
-        '../data/clean_data_filtro_sintomas_dtnotific4mem-incidence.csv'
+        '../data/current_estimated_values.csv'
     )
     # prepare dataframe keys
     prepare_keys_name(df_incidence)
 
     # Here the code should recieve the user-requested year.
     # By default should be the current or latest available
-    list_of_years = []
-    for col in df_incidence.columns:
-        if 'srag' in col:
-            list_of_years.append(int(col.replace('srag', '')))
+    list_of_years = list(set(df_incidence.epiyear))
 
-    year = max(list_of_years)
-    isoweek = datetime.datetime.now().isocalendar()[1]
+    year = max(list_of_years) if list_of_years else 0
+    epiweek = datetime.datetime.now().isocalendar()[1]
 
     return render_template(
         "index.html",
-        current_isoweek=isoweek,
+        current_epiweek=epiweek,
         list_of_years=sorted(list_of_years, reverse=True),
         last_year=year
     )
 
 
-@app.route('/data/incidence/<int:year>')
-def get_incidence_data(year):
-    df_incidence = pd.read_csv(
-        '../data/clean_data_filtro_sintomas_dtnotific4mem-incidence.csv'
-    )
-    df_typical = pd.read_csv(
-        '../data/mem-typical-clean_data_filtro_sintomas_dtnotific4mem-' +
-        'criterium-method.csv'
-    )
-    df_thresholds = pd.read_csv(
-        '../data/mem-report-clean_data_filtro_sintomas_dtnotific4mem-' +
-        'criterium-method.csv'
-    )
-    df_population = pd.read_csv('../data/populacao_uf_regional_atual.csv')
+@app.route('/data/incidence/<int:year>/<string:territory_type>')
+def get_incidence_data(year, territory_type):
+    """
 
-    # prepare dataframe keys
-    for _df in [df_incidence, df_typical, df_thresholds, df_population]:
-        prepare_keys_name(_df)
+    :param territory_type: state or region
+    :param year:
+    :return:
+    """
+    df = prepare_srag_data(year)['df']
+    df = df[
+        df.tipo == ('Estado' if territory_type == 'state' else 'Regional')
+    ]
 
-    df = pd.merge(
-        df_incidence, df_typical, on=['uf', 'isoweek'], how='right'
-    ).merge(
-        df_thresholds.drop(['unidade_da_federacao', 'populacao'], axis=1),
-        on='uf'
-    )
-
-    return apply_filter_alert_by_isoweek(
-        df, year=year
-    ).to_json(orient='records')
+    return apply_filter_alert_by_epiweek(df).to_json(orient='records')
 
 
 @app.route('/data/weekly-incidence-curve/<int:year>/')
@@ -79,25 +61,32 @@ def data__weekly_incidence_curve(year, state=None):
     if not year > 0:
         return '[]'
 
+    if not state:
+        state = 'Brasil'
+
     ks = [
-        'isoweek', 'corredor_baixo', 'corredor_mediano', 'corredor_alto',
+        'epiweek', 'corredor_baixo', 'corredor_mediano', 'corredor_alto',
         'srag',
         'limiar_pre_epidemico', 'intensidade_alta', 'intensidade_muito_alta'
     ]
-    return get_curve_data(year=year, uf_name=state)[ks].to_csv(index=False)
+    return get_srag_data(year=year, uf_name=state)[ks].to_csv(index=False)
 
 
-@app.route("/data/incidence-color-alerts/<int:year>/<int:isoweek>")
-def data__incidence_color_alerts(year, isoweek):
-    # return get_incidence_color_alerts(year=year, isoweek=isoweek)
-    year, isoweek  # just to skip flake8 warnings
+@app.route("/data/incidence-color-alerts/<int:year>/<int:epiweek>")
+def data__incidence_color_alerts(year, epiweek):
+    # return get_incidence_color_alerts(year=year, epiweek=epiweek)
+    year, epiweek  # just to skip flake8 warnings
     return '[]'
 
 
-@app.route("/data/data-table/<int:year>")
-@app.route("/data/data-table/<int:year>/<int:isoweek>")
-@app.route("/data/data-table/<int:year>/<int:isoweek>/<string:state_name>")
-def data__data_table(year, isoweek=None, state_name=None):
+@app.route('/data/data-table/<int:year>')
+@app.route('/data/data-table/<int:year>/<int:epiweek>')
+@app.route('/data/data-table/<int:year>/<int:epiweek>/<string:territory_type>')
+@app.route(
+    '/data/data-table/<int:year>/<int:epiweek>/' +
+    '<string:territory_type>/<string:state_name>'
+)
+def data__data_table(year, epiweek=None, territory_type=None, state_name=None):
     """
     1. Total number of cases in the selected year for eac
        State + same data for the Country
@@ -112,19 +101,60 @@ def data__data_table(year, isoweek=None, state_name=None):
 
     ks = [
         'unidade_da_federacao',
-        'isoweek',
+        'epiweek',
         'srag'
     ]
 
-    df = get_curve_data(year=year, uf_name=state_name, isoweek=isoweek)[ks]
+    df = get_srag_data(year=year, uf_name=state_name, epiweek=epiweek)
 
-    if not isoweek > 0:
-        print(df[df.unidade_da_federacao == 'Acre']['srag'])
-        print(df[df.unidade_da_federacao == 'São Paulo']['srag'])
+    if territory_type == 'state':
+        mask = ~(df.tipo=='Regional')
+    else:
+        mask = ~(df.tipo=='Estado')
+
+    df = df[mask]
+
+    if not epiweek > 0:
         df = df.groupby('unidade_da_federacao', as_index=False).sum()
-        df.isoweek = None
+        df.epiweek = None
 
-    return '{"data": %s}' % df.to_json(orient='records')
+    # order by type
+    df = df.assign(type_unit=1)
+
+    try:
+        df.loc[df.uf == 'BR', 'type_unit'] = 0
+    except:
+        pass
+
+    df.sort_values(
+        by=['type_unit', 'unidade_da_federacao', 'epiyear', 'epiweek'],
+        inplace=True
+    )
+    df.reset_index(drop=True, inplace=True)
+    df.drop('type_unit', axis=1, inplace=True)
+
+    return '{"data": %s}' % df[ks].to_json(orient='records')
+
+
+@app.route('/data/age-distribution/<int:year>/')
+@app.route('/data/age-distribution/<int:year>/<int:week>/')
+@app.route('/data/age-distribution/<int:year>/<int:week>/<string:state>')
+def data__age_distribution(year, week=None, state=None):
+    if not year > 0:
+        return '[]'
+
+    ks = [
+        '0_4_anos', '5_9_anos', '10_19_anos', '20_29_anos',
+        '30_39_anos', '40_49_anos', '50_59_anos', '60+_anos'
+    ]
+
+    if not state:
+        state = 'Brasil'
+
+    df = pd.DataFrame(
+        get_srag_data(year=year, uf_name=state, epiweek=week)[ks].sum()
+    ).T
+    return df.to_csv(index=False)
 
 
 @click.command()

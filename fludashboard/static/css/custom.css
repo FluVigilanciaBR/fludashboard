@@ -27,7 +27,7 @@
     border-top: 1px solid #ddd;
 }
 .table td {
-    padding: 2px!important;
+    padding: 2px 2px 2px 20px!important;
     line-height: 12px!important;
     font-size: 12px!important;
 }
@@ -56,4 +56,18 @@ user agent stylesheettd, th {
   stroke-dasharray: 10,10;
 }
 
+input.tab{
+    margin: 0!important;
+    font-size: 12px;
+    padding: 5px;
+    vertical-align: bottom;
+    color: #666666;
+    font-size: 12px!important;
+}
 
+
+input.tab.selected {
+    font-weight: bold;
+    color: #333333;
+    font-size: 14px!important;
+}
