@@ -14,6 +14,7 @@ with open('HISTORY.rst') as history_file:
 install_reqs = parse_requirements('requirements.txt', session=PipSession())
 
 requirements = [str(ir.req) for ir in install_reqs]
+requirements.append('sphinxcontrib-autoanysrc')  # readthedocs
 
 test_requirements = [
     # TODO: put package test requirements here
