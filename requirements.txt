@@ -12,3 +12,4 @@ flask
 unidecode
 flake8
 click
+sphinxcontrib-autoanysrc
