@@ -1,3 +1,4 @@
+// definitions
 var divTableContent = '' +
 '<table id="data-table" class="display table table-striped table-condensed">' +
 '             <!-- create a custom header -->' +
@@ -21,7 +22,8 @@ var map = L.map('map');
 
 // create the tile layer with correct attribution
 var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
+var osmAttrib='Map data © <a href="http://openstreetmap.org">' +
+    'OpenStreetMap</a> contributors';
 var osm = new L.TileLayer(
     osmUrl, {minZoom: 1, maxZoom: 12, attribution: osmAttrib}
 );
@@ -30,7 +32,7 @@ $('#divTable').html(divTableContent);
 var data_table = $('#data-table').DataTable();
 
 /**
- * 
+ * start up the charts
  * 
  */
 function init() {
@@ -43,23 +45,32 @@ function init() {
 }
 
 /**
- * 
+ * load data and build charts
  * 
  */
 function load_graphs() {
     var year = $('#year').val() || 0;
     var week = $('#week').val() || 0;
     var state = $('#selected_state').val() || '';
+    var geoJsonUrl = '';
+
+    if ($('#radTypeState').attr('checked')) {
+        geoJsonUrl = 'static/data/br-states.json';
+    } else {
+        geoJsonUrl = 'static/data/br-regions.json';
+    }
     
     queue()
-        .defer(d3.json, 'static/data/br-states.json')
+        .defer(d3.json, geoJsonUrl)
         .defer(d3.json, '/data/incidence/' + year)
         .await(makeGraphs);
 }
 
 /**
- * 
- * 
+ * Plot incidence chart using
+ * @param {number} year - year to filter the data
+ * @param {string} state_name - state_name to filter the data
+ * @param {number} week- week to filter the data
  */
 function plot_incidence_chart(year, state_name, week) {
     if (state_name == '') {
@@ -145,12 +156,17 @@ function plot_incidence_chart(year, state_name, week) {
 }
 
 /**
- * Red if the incidence was above the high threshold for at least 5 weeks;
- * Orange if above the high threshold from 1 to 4 weeks;
- * Yellow if crossed the epidemic threshold but not the high one;
- * Green if it did not cross the epidemic threshold.
+ * Get the alert level color using the follow criteria:
+ *
+ * Red (level 4) if the incidence was above the high threshold for at
+ *  least 5 weeks;
+ * Orange (level 3) if above the high threshold from 1 to 4 weeks;
+ * Yellow (level 2) if crossed the epidemic threshold but not the high one;
+ * Green (level 1) if it did not cross the epidemic threshold.
+ * @param {dict} d - total number of alert occurrence
+ * @return {number} alert level
  */
-function alert_level_for_whole_year(d) {
+function getAlertLevelForWholeYear(d) {
     if (d[4] >= 5) return 4;
     if (d[4] >= 1 && d[4] < 5) return 3;
     if (d[2] >= 1 || d[3] >= 1) return 2;
@@ -158,18 +174,22 @@ function alert_level_for_whole_year(d) {
 }
 
 /**
- * 
- * 
+ * Build a map
+ *
+ * @param {dict} geoJsonBr - geoJson data about Brazilian territory
+ * @param {dict} srag_data - srag data
  */
-function makeMap(br_states, srag_data) {
+function makeMap(geoJsonBr, srag_data) {
     week = parseInt($('#week').val() || 0);
-    
+
+    // remove existent layer from the map
     map.eachLayer(function (layer) {
         if ('feature' in layer) {
             map.removeLayer(layer);
         }
     });
-    
+
+    // apply onclick event on each region/state on the map
     function onEachFeature(feature, layer) {
         //bind click
         layer.on({
@@ -206,7 +226,7 @@ function makeMap(br_states, srag_data) {
     
     var selected_state = $('#selected_state').val();
     
-    // start the map in South-East England
+    // show geojson on the map
     geojson_layer = L.geoJson(br_states, {
         onEachFeature: onEachFeature,
         style: function(feature) {
@@ -235,13 +255,13 @@ function makeMap(br_states, srag_data) {
         }
     });
     geojson_layer.addTo(map);
-    //osm.addTo(map);
 }
 
 
 /**
- * 
- * 
+ * Change the color of the map using the alerts criteria
+ *
+ * @param {dict} df - data frame object
  */
 function changeColorMap(df) {
     var state = $('#selected_state').val();
@@ -252,13 +272,12 @@ function changeColorMap(df) {
         fillOpacity: 0.5,
         weight: 1,
     };
-    
-    
+
     if(week>0) {
+        // when by week criteria is selected
         df_alert = $.grep(df, function(n,i){
             return n.isoweek===week
         });
-        
         geojson_layer.eachLayer(function (layer) {  
             l_name = layer.feature.properties.nome;
             
@@ -276,6 +295,7 @@ function changeColorMap(df) {
             });
         });
     } else {
+        // when whole year criteria is selected
         geojson_layer.eachLayer(function (layer) {  
             l_name = layer.feature.properties.nome;
             
@@ -301,7 +321,7 @@ function changeColorMap(df) {
             });
             
             layer.setStyle({
-                fillColor: flu_colors[alert_level_for_whole_year(alerts)]
+                fillColor: flu_colors[getAlertLevelForWholeYear(alerts)]
             });
         
         });
@@ -309,8 +329,9 @@ function changeColorMap(df) {
 }
 
 /**
- * 
- * 
+ * When a week mark is changed, this function should update and trigger
+ * some information and chart
+ * @param {dict} srag_data - srag data
  */
 function changeWeek(srag_data) {
     d3.select('#week').on('change', function(){ 

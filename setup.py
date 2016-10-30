@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from setuptools import setup
+from pip.req import parse_requirements
+from pip.download import PipSession
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
@@ -9,10 +11,10 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = [
-    'Click>=6.0',
-    # TODO: put package requirements here
-]
+install_reqs = parse_requirements('requirements.txt', session=PipSession())
+
+requirements = [str(ir.req) for ir in install_reqs]
+requirements.append('sphinxcontrib-autoanysrc')  # readthedocs
 
 test_requirements = [
     # TODO: put package test requirements here
