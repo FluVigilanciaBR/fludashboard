@@ -1,0 +1,6 @@
+-r requirements.txt
+
+# documentation
+sphinx
+sphinxcontrib-autoanysrc
+sphinx_rtd_theme
