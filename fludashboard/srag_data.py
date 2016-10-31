@@ -12,9 +12,6 @@ def prepare_srag_data(year=None):
     )
     df_typical = pd.read_csv('../data/mem-typical.csv')
     df_thresholds = pd.read_csv('../data/mem-report.csv')
-    df_population = pd.read_csv(
-        '../data/PROJECOES_2013_POPULACAO-simples_agebracket.csv'
-    )
 
     level_dict = {
         'L0': 'Baixa', 'L1': 'Epidêmica',
@@ -22,7 +19,7 @@ def prepare_srag_data(year=None):
     }
 
     # prepare dataframe keys
-    for _df in [df_incidence, df_typical, df_thresholds, df_population]:
+    for _df in [df_incidence, df_typical, df_thresholds]:
         for k in _df.keys():
             _df.rename(columns={
                 k: unidecode(
@@ -44,7 +41,6 @@ def prepare_srag_data(year=None):
         'df_incidence': df_incidence,
         'df_typical': df_typical,
         'df_thresholds': df_thresholds,
-        'df_population': df_population,
         'df': df
     }
 
