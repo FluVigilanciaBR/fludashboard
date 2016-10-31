@@ -28,21 +28,21 @@ install:
   - conda info -a
 
   # Replace dep1 dep2 ... with your dependencies
-  - conda env create -f requirements.txt -n fludashboard
-  - source activate fludashboard 
-  #- python setup.py install
+  - conda env create -n fludashboard -f requirements.txt
+  - source activate fludashboard
+  - python setup.py install
 
 # command to run tests, e.g. python setup.py test
 script: python setup.py test
 
 # After you create the Github repo and add it to Travis, run the
 # travis_pypi_setup.py script to finish PyPI deployment setup
-deploy:
-  provider: pypi
-  distributions: sdist bdist_wheel
-  user: fludashboard
-  password:
-    secure: PLEASE_REPLACE_ME
-  on:
-    tags: true
-    repo: FluVigilanciaBR/fludashboard
+#deploy:
+#  provider: pypi
+#  distributions: sdist bdist_wheel
+#  user: fludashboard
+#  password:
+#    secure: PLEASE_REPLACE_ME
+#  on:
+#    tags: true
+#    repo: FluVigilanciaBR/fludashboard
