@@ -10,9 +10,9 @@ class SRAGMap {
     this.fluColors = {
       1: 'green',
       2: 'yellow',
-      3: 'orange',
+      3: '#ff7700',
       4: 'red',
-      };
+    };
     // create the tile layer with correct attribution
     this.map = L.map('map');
     this.osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
@@ -240,9 +240,11 @@ class SRAGMap {
    * @return {number} alert level
    */
   getAlertLevelForWholeYear(d) {
-    if (d[4] >= 5) return 4;
-    if (d[4] >= 1 && d[4] < 5) return 3;
-    if (d[2] >= 1 || d[3] >= 1) return 2;
+    var high_threshold = d[4] + d[3];
+
+    if (high_threshold >= 5) return 4;
+    if (high_threshold > 1) return 3;
+    if (d[2] >= 1) return 2;
     return 1;
   }
 
