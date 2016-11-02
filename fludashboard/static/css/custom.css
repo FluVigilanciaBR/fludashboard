@@ -71,3 +71,23 @@ input.tab.selected {
     color: #333333;
     font-size: 14px!important;
 }
+
+.alert-red {
+  background: red;
+  fill: red;
+}
+
+.alert-orange {
+  background: #ff7700;
+  fill: #ff7700;
+}
+
+.alert-yellow {
+  background: yellow;
+  fill: yellow;
+}
+
+.alert-green {
+  background: green;
+  fill: green;
+}

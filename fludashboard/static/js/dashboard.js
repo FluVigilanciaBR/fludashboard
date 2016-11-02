@@ -60,7 +60,24 @@ class Dashboard {
       _this.changeWeek();
     });
 
+    // week
     d3.select('#week').on('change', function(){_this.changeWeek();});
+    $('#week').on('input', function(){
+      $('#week-display').val($('#week').val());
+    });
+    $('#week-display').change(function(){
+      var _week = $('#week-display').val();
+
+      if (!(_week >= 1 && _week <= 52)) {
+        $('#week-display').val($('#week').val());
+        return;
+      }
+
+      $('#week').val($('#week-display').val());
+      _this.changeWeek();
+    });
+
+    // selection type
     $('#radTypeState').change(function(){
       $('#selected-state').val('');
       _this.load_graphs();

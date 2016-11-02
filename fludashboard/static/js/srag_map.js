@@ -66,6 +66,18 @@ class SRAGMap {
       'RegS': 'Regional Sul',
       'RegL': 'Regional Leste',
     };
+
+    this.Legend = new L.Control.Legend({
+      position: 'topleft',
+      collapsed: true,
+      controlButton: {
+        title: "Legend"}
+    });
+
+    this.map.addControl(this.Legend);
+      
+    $(".legend-container").append( $("#legend") );
+    $(".legend-toggle").append( "<i class='legend-toggle-icon fa fa-info fa-2x' style='color: #000'>i</i>" );
   }
 
   /**
