@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="./static/libs/c3/c3.min.css" />
   <link rel="stylesheet" href="./static/libs/datatables/datatables.min.css" />
   <link rel="stylesheet" href="./static/libs/datatables/ext/buttons.dataTables.min.css" />
-
+  <link rel="stylesheet" href="./static/libs/leaflet/legend/leaflet-legend.css" />
   <link rel="icon"
       type="image/png"
       href="/static/img/favicon.ico">
@@ -72,10 +72,10 @@
                      style="display:inline;float:left;margin-left:20px;">
                   <div data-role="main" class="ui-content">
                     <label for="week">Semana:</label>
-		    <input type id="week-display" value="{{current_epiweek}}" 
+        <input type id="week-display" value="{{current_epiweek}}" 
                       style="width:30px;text-align:center;padding:1px;"
-		      maxlength="2"
-		    />
+          maxlength="2"
+        />
                     <input type="range" id="week"
                       value="{{current_epiweek}}" min="1" max="52" />
                   </div>
@@ -99,6 +99,22 @@
           <div class="chart-stage">
             <div id="map" style="height:350px;"></div>
           </div>
+        </div>
+        <div id="legend">
+          <strong>N&iacute;vel de atividade</strong><br/>
+          <svg width="120" height="90">
+            <rect x="10" y="15" class="legend-square alert-green" />
+            <text x="20" y="20" transform="translate(8,4)">Baixa</text>
+
+            <rect x="10" y="35" class="legend-square alert-yellow" />
+            <text x="20" y="40"transform="translate(8,4)">Epid&ecirc;mica</text>
+
+            <rect x="10" y="55" class="legend-square alert-orange" />
+            <text x="20" y="60" transform="translate(8,4)">Alta</text>
+
+            <rect x="10" y="75" class="legend-square alert-red" />
+            <text x="20" y="80" transform="translate(8,4)">Muito Alta</text>
+          </svg>
         </div>
       </div>
       <!-- Map -->
@@ -168,6 +184,7 @@
   <script src="./static/libs/queue/queue.js"></script>
   <script src="./static/libs/keen/keen.min.js"></script>
   <script src="./static/libs/leaflet/leaflet.js"></script>
+  <script src="./static/libs/leaflet/legend/leaflet-legend.js"></script>
   <script src="./static/libs/c3/c3.min.js"></script>
   <script src="./static/libs/datatables/datatables.min.js"></script>
   <script src="./static/libs/datatables/ext/jquery.dataTables.min.js"></script>
