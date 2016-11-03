@@ -13,11 +13,6 @@ def prepare_srag_data(year=None):
     df_typical = pd.read_csv('../data/mem-typical.csv')
     df_thresholds = pd.read_csv('../data/mem-report.csv')
 
-    level_dict = {
-        'L0': 'Baixa', 'L1': 'Epidêmica',
-        'L2': 'Alta', 'L3': 'Muito alta'
-    }
-
     # prepare dataframe keys
     for _df in [df_incidence, df_typical, df_thresholds]:
         for k in _df.keys():
@@ -45,7 +40,7 @@ def prepare_srag_data(year=None):
     }
 
 
-def get_srag_data(year, uf_name=None, epiweek=0):
+def get_srag_data(year, state_name=None, epiweek=0):
     """
 
     """
@@ -53,11 +48,11 @@ def get_srag_data(year, uf_name=None, epiweek=0):
     df = prepare_srag_data(year=year)['df']
     mask = df.keys()
 
-    if uf_name:
-        mask = df.unidade_da_federacao == uf_name
+    if state_name:
+        mask = df.unidade_da_federacao == state_name
 
     if epiweek:
-        if uf_name:
+        if state_name:
             mask &= df.epiweek == epiweek
         else:
             mask = df.epiweek == epiweek

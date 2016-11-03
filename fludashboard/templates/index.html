@@ -131,17 +131,36 @@
                 </strong>
               </div>
               <div class="chart-stage chart-incidence">
-                <div id="chart-incidence-activity-level-panel"
-                     style="position:absolute; z-index: 10000;padding:10px;margin-left:80px;">
-                  <p>
-                    <strong class="chart-extra-text">Probabilidade do nível de atividade:</strong><br/>
-                    <span class="chart-extra-text">Baixa: 25%</span> <br/>
-                    <span class="chart-extra-text">Epidêmica: 25%</span> <br/>
-                    <span class="chart-extra-text">Alta: 25%</span> <br/>
-                    <span class="chart-extra-text">Muito Alta: 25%</span>
+                <!-- info panel -->
+                <div id="chart-incidence-activity-level-panel">
+                  <p class="prob hidden">
+                    <strong class="chart-extra-text">
+                      Probabilidade do n&iacute;vel de atividade:
+                    </strong><br/>
+                    <span class="chart-extra-text">
+                      Baixa: <span class="low"></span>%
+                    </span> <br/>
+                    <span class="chart-extra-text">
+                      Epidêmica: <span class="epidemic"></span>%
+                    </span> <br/>
+                    <span class="chart-extra-text">
+                      Alta: <span class="high"></span>%
+                    </span> <br/>
+                    <span class="chart-extra-text">
+                      Muito Alta: <span class="very-high"></span>%
+                    </span>
+                  </p>
+
+                  <p class="level hidden">
+                    <strong class="chart-extra-text">N&iacute;vel de atividade:</strong><br/>
+                    <span class="chart-extra-text classification"></span> <br/>
                   </p>
                 </div>
+                <!-- info panel:end -->
+
+                <!-- chart -->
                 <div id="weekly-incidence-curve-chart" style="height:350px"></div>
+                <!-- chart:end -->
               </div>
             </div>
           </div>

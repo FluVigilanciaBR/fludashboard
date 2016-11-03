@@ -10,7 +10,10 @@ import os
 # local
 sys.path.insert(0, os.path.dirname(os.getcwd()))
 from fludashboard.srag_data import get_srag_data, prepare_srag_data
-from fludashboard.calc_srag_alert import apply_filter_alert_by_epiweek
+from fludashboard.calc_srag_alert import (
+    apply_filter_alert_by_epiweek,
+    calc_alert_rank_whole_year
+)
 from fludashboard.utils import prepare_keys_name
 
 app = Flask(__name__)
@@ -18,6 +21,10 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
+    """
+
+    :return:
+    """
     df_incidence = pd.read_csv(
         '../data/current_estimated_values.csv'
     )
@@ -69,14 +76,59 @@ def data__weekly_incidence_curve(year, state=None):
         'srag',
         'limiar_pre_epidemico', 'intensidade_alta', 'intensidade_muito_alta'
     ]
-    return get_srag_data(year=year, uf_name=state)[ks].to_csv(index=False)
+    return get_srag_data(year=year, state_name=state)[ks].to_csv(index=False)
 
 
-@app.route("/data/incidence-color-alerts/<int:year>/<int:epiweek>")
-def data__incidence_color_alerts(year, epiweek):
-    # return get_incidence_color_alerts(year=year, epiweek=epiweek)
-    year, epiweek  # just to skip flake8 warnings
-    return '[]'
+@app.route('/data/incidence-levels/<int:year>')
+@app.route('/data/incidence-levels/<int:year>/<int:epiweek>/')
+@app.route(
+    '/data/incidence-levels/<int:year>/<int:epiweek>/<string:state_name>')
+def data__incidence_levels(
+    year, epiweek=None, state_name=None
+):
+    """
+    When epiweek==None, the system will assume the whole year view.
+    When state_name==None, the system will assume state_name=='Brasil'
+
+    :param year:
+    :param epiweek:
+    :param state_name:
+    :return:
+    """
+    if not year > 0:
+        return '[]'
+
+    if not state_name:
+        state_name = 'Brasil'
+
+    df = get_srag_data(year=year, state_name=state_name, epiweek=epiweek)
+
+    if epiweek is not None and epiweek > 0:
+        ks = ['l0', 'l1', 'l2', 'l3', 'situation']
+        return df[ks].to_json(orient='records')
+
+    # prepare data for the whole year
+    df = apply_filter_alert_by_epiweek(df=df)
+
+    se = pd.Series({
+        'l0': df[df.alert == 1].count().l0,
+        'l1': df[df.alert == 2].count().l1,
+        'l2': df[df.alert == 3].count().l2,
+        'l3': df[df.alert == 4].count().l3
+    })
+
+    rank = calc_alert_rank_whole_year(se)
+
+    se.l0 = 0
+    se.l1 = 0
+    se.l2 = 0
+    se.l3 = 0
+    se['l%s' % (rank-1)] = 1
+    se['situation'] = ''
+
+    return pd.DataFrame(se).T.to_json(orient='records')
+
+
 
 
 @app.route('/data/data-table/<int:year>')
@@ -84,8 +136,7 @@ def data__incidence_color_alerts(year, epiweek):
 @app.route('/data/data-table/<int:year>/<int:epiweek>/<string:territory_type>')
 @app.route(
     '/data/data-table/<int:year>/<int:epiweek>/' +
-    '<string:territory_type>/<string:state_name>'
-)
+    '<string:territory_type>/<string:state_name>')
 def data__data_table(year, epiweek=None, territory_type=None, state_name=None):
     """
     1. Total number of cases in the selected year for eac
@@ -94,6 +145,12 @@ def data__data_table(year, epiweek=None, territory_type=None, state_name=None):
        State + same data for the Country
     3. Total number of cases in the selected year for selected State
     4. Number of cases in the selected week for selected State.
+
+    :param year:
+    :param epiweek:
+    :param territory_type:
+    :param state_name:
+    :return:
 
     """
     if not year > 0:
@@ -105,7 +162,7 @@ def data__data_table(year, epiweek=None, territory_type=None, state_name=None):
         'srag'
     ]
 
-    df = get_srag_data(year=year, uf_name=state_name, epiweek=epiweek)
+    df = get_srag_data(year=year, state_name=state_name, epiweek=epiweek)
 
     if territory_type == 'state':
         mask = ~(df.tipo=='Regional')
@@ -140,6 +197,13 @@ def data__data_table(year, epiweek=None, territory_type=None, state_name=None):
 @app.route('/data/age-distribution/<int:year>/<int:week>/')
 @app.route('/data/age-distribution/<int:year>/<int:week>/<string:state>')
 def data__age_distribution(year, week=None, state=None):
+    """
+
+    :param year:
+    :param week:
+    :param state:
+    :return:
+    """
     if not year > 0:
         return '[]'
 
@@ -152,7 +216,7 @@ def data__age_distribution(year, week=None, state=None):
         state = 'Brasil'
 
     df = pd.DataFrame(
-        get_srag_data(year=year, uf_name=state, epiweek=week)[ks].sum()
+        get_srag_data(year=year, state_name=state, epiweek=week)[ks].sum()
     ).T
     return df.to_csv(index=False)
 
@@ -161,6 +225,9 @@ def data__age_distribution(year, week=None, state=None):
 @click.option('-p', default=5000, help='Port Number')
 def startup(p):
     """
+
+    :param p:
+    :return:
     """
     app.run(host='0.0.0.0', port=p, debug=True)
 

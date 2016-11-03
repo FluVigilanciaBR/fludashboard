@@ -4,6 +4,39 @@
 """
 
 
+def calc_alert_rank(se):
+    """
+
+    :param se: pd.Series
+    :return: int
+    """
+    _max = max([se.l3, se.l2, se.l1, se.l0])
+
+    return (
+        4 if se.l3 == _max else
+        3 if se.l2 == _max else
+        2 if se.l1 == _max else
+        1
+    )
+
+
+def calc_alert_rank_whole_year(se):
+    """
+    calculate the alert rank for the whole year
+
+    :param se: pd.Series
+    :return:
+    """
+    high_threshold = se.l3 + se.l2
+
+    return (
+        4 if high_threshold >= 5 else
+        3 if high_threshold > 1 else
+        2 if se.l1 >= 1 else
+        1
+    )
+
+
 def apply_filter_alert_by_epiweek(
         df, epiweek=None, verbose=False
 ):
@@ -16,39 +49,8 @@ def apply_filter_alert_by_epiweek(
 
     df_alert = df[mask].copy().reset_index()
 
-    # * Low: incidence < epidemic threshold | green
-    df_alert = df_alert.assign(
-        low_incidence=lambda se: se.eval('srag < limiar_pre_epidemico')
-    )
-
-    # * Medium: epi. thresh. < incidence < high thresh. | yellow
-    df_alert = df_alert.assign(
-        medium_incidence=lambda se: se.eval(
-            'limiar_pre_epidemico <= srag < intensidade_alta'
-        ))
-
-    # * High: high thresh. < incidence < very high thresh. | orange
-    df_alert = df_alert.assign(
-        high_incidence=lambda se: se.eval(
-            'intensidade_alta <= srag < intensidade_muito_alta '
-        ))
-
-    # * Very high: very high thresh. < incidence | red
-    df_alert = df_alert.assign(
-        very_high_incidence=lambda se: se.eval(
-            'intensidade_muito_alta <= srag'
-        ))
-
     # alert
-    alert_col = df_alert.T.apply(
-        lambda se: (
-            4 if se.very_high_incidence else
-            3 if se.high_incidence else
-            2 if se.medium_incidence else
-            1
-        )
-    )
-
+    alert_col = df_alert.T.apply(calc_alert_rank)
     df_alert = df_alert.assign(alert=alert_col)
 
     return df_alert
