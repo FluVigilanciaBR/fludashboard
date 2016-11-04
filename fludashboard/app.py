@@ -10,7 +10,9 @@ import os
 # local
 sys.path.insert(0, os.path.dirname(os.getcwd()))
 from fludashboard.srag_data import (
-    get_srag_data, prepare_srag_data, report_incidence)
+    get_srag_data, prepare_srag_data, report_incidence,
+    group_data_by_season
+)
 from fludashboard.calc_srag_alert import (
     apply_filter_alert_by_epiweek,
     calc_alert_rank_whole_year)
@@ -173,14 +175,9 @@ def data__data_table(year, epiweek=None, territory_type=None, state_name=None):
     df = df[mask]
 
     # for a whole year view
-    # @TODO: see at incidence_and_age_weekly_panel.ipynb/Summary panel
     if epiweek is None or not epiweek > 0:
-        df = df.groupby('unidade_da_federacao', as_index=False).sum()
-        df.epiweek = None
-        df['situation'] = ''
-        df['50%'] = 0
-        df['2.5%'] = 0
-        df['97.5%'] = 0
+        df = group_data_by_season(df, year)
+        return '{"data": %s}' % df[ks].to_json(orient='records')
 
     # order by type
     df = df.assign(type_unit=1)
