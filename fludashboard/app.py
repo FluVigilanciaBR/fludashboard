@@ -9,11 +9,11 @@ import os
 
 # local
 sys.path.insert(0, os.path.dirname(os.getcwd()))
-from fludashboard.srag_data import get_srag_data, prepare_srag_data
+from fludashboard.srag_data import (
+    get_srag_data, prepare_srag_data, report_incidence)
 from fludashboard.calc_srag_alert import (
     apply_filter_alert_by_epiweek,
-    calc_alert_rank_whole_year
-)
+    calc_alert_rank_whole_year)
 from fludashboard.utils import prepare_keys_name
 
 app = Flask(__name__)
@@ -159,6 +159,7 @@ def data__data_table(year, epiweek=None, territory_type=None, state_name=None):
     ks = [
         'unidade_da_federacao',
         'epiweek',
+        'situation',
         'srag'
     ]
 
@@ -171,9 +172,15 @@ def data__data_table(year, epiweek=None, territory_type=None, state_name=None):
 
     df = df[mask]
 
-    if not epiweek > 0:
+    # for a whole year view
+    # @TODO: see at incidence_and_age_weekly_panel.ipynb/Summary panel
+    if epiweek is None or not epiweek > 0:
         df = df.groupby('unidade_da_federacao', as_index=False).sum()
         df.epiweek = None
+        df['situation'] = ''
+        df['50%'] = 0
+        df['2.5%'] = 0
+        df['97.5%'] = 0
 
     # order by type
     df = df.assign(type_unit=1)
@@ -189,6 +196,23 @@ def data__data_table(year, epiweek=None, territory_type=None, state_name=None):
     )
     df.reset_index(drop=True, inplace=True)
     df.drop('type_unit', axis=1, inplace=True)
+
+    # add more information into srag field
+    if df.shape[0]:
+        df.srag = df[['50%', '2.5%', '97.5%', 'situation']].apply(
+            lambda row: report_incidence(
+                row['50%'], row['2.5%'], row['97.5%'], row['situation']
+        ), axis=1)
+
+        # change situation value by a informative text
+        situation_dict = {
+            'stable': 'Dado estável. Sujeito a pequenas alterações',
+            'estimated': 'Estimado. Sujeito a alterações',
+            'unknown': 'Dados incompletos. Sujeito a grandes alterações'
+        }
+        df.situation = df.situation.map(
+            lambda x: situation_dict[x] if x else ''
+        )
 
     return '{"data": %s}' % df[ks].to_json(orient='records')
 

@@ -3,6 +3,25 @@ from unidecode import unidecode
 import pandas as pd
 
 
+def report_incidence(x, low, high, situation):
+    """
+    original name: report_inc
+
+    :param x:
+    :param low:
+    :param high:
+    :param situation:
+    :return:
+    """
+    if situation == 'stable':
+        y = '%.2f' % x
+    elif situation == 'estimated':
+        y = '%.2f [%.2f - %.2f]' % (x, low, high)
+    else:
+        y = '*%.2f' % x
+    return y
+
+
 def prepare_srag_data(year=None):
     """
 
