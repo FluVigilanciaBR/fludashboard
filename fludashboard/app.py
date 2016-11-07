@@ -17,6 +17,7 @@ from fludashboard.calc_srag_alert import (
     apply_filter_alert_by_epiweek,
     calc_alert_rank_whole_year)
 from fludashboard.utils import prepare_keys_name
+from fludashboard.episem import episem
 
 app = Flask(__name__)
 
@@ -38,7 +39,7 @@ def index():
     list_of_years = list(set(df_incidence.epiyear))
 
     year = max(list_of_years) if list_of_years else 0
-    epiweek = datetime.datetime.now().isocalendar()[1]
+    epiweek = episem(datetime.datetime.now().strftime('%Y-%m-%d'))[-2:]
 
     return render_template(
         "index.html",
