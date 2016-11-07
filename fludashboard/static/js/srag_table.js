@@ -22,6 +22,7 @@ class SRAGTable {
       '  <thead class="header">' +
       '    <tr class="header">' +
       '      <th>Unidade da Federa&ccedil;&atilde;o</th>' +
+      '      <th>Situa&ccedil;&atilde;o</th>' +
       '      <th>Incidência (por 100 mil habitantes)</th>' +
       '    </tr>' +
       '  </thead>' +
@@ -44,31 +45,35 @@ class SRAGTable {
         'excelHtml5',
         'csvHtml5'
       ],
-      "pageLength": 10
+      "pageLength": 10,
+      "fixedColumns": true,
+      "ordering": false
     };
 
-    if(week>0) {
+    /*if(week>0) {
       $("#data-table").removeClass('hidden');
     } else {
       $("#data-table").addClass('hidden');
-    }
+    }*/
 
-    tableSettings['columnDefs'] = [];
+    tableSettings['columnDefs'] = [{width: '50%', targets: 1}];
 
     var _tmp = '/' + territoryType;
 
     if (stateName) {
       _tmp = _tmp + '/' + stateName;
+      /*
       tableSettings['columnDefs'].push({
         "targets": [ 0 ],
         "visible": false,
         "searchable": false
-      });
+      });*/
     }
 
     tableSettings['ajax'] = '/data/data-table/' + year + '/' + week + _tmp;
     tableSettings['columns'] = [
       {'data': 'unidade_da_federacao'},
+      {'data': 'situation'},
       {'data': 'srag'}
     ];
 

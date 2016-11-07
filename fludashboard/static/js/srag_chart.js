@@ -11,6 +11,53 @@ class SRAGIncidenceChart{
   }
 
   /**
+   *
+   *
+   */
+  displayInfo(year, week, state_name) {
+    $.getJSON({
+      url: '/data/incidence-levels/' + year + '/' + week + '/' +  state_name,
+      success: function(d) {
+        // hidden  all
+        var _prob = $('#chart-incidence-activity-level-panel .prob');
+        var _level = $('#chart-incidence-activity-level-panel .level');
+
+        if (!_prob.hasClass('hidden')) {
+          _prob.addClass('hidden');
+        }
+
+        if (!_level.hasClass('hidden')) {
+          _level.addClass('hidden');
+        }
+
+        // if no data returned
+        if (d.length <1) {
+          return;
+        }
+
+        var data = d[0];
+
+        if (data['situation'] == 'stable') {
+          $('.classification', _level).text(
+            data['l0'] == 1 ?
+              'Baixa' : data['l1'] == 1 ?
+              'Epidêmica' : data['l2'] == 1 ?
+              'Alta' : data['l3'] == 1 ?
+              'Muito Alta' : '(Não encontrada.)'
+          );
+          _level.removeClass('hidden');
+        } else {
+          $('.low', _prob).text(data['l0']);
+          $('.epidemic', _prob).text(data['l1']);
+          $('.high', _prob).text(data['l2']);
+          $('.very-high', _prob).text(data['l3']);
+          _prob.removeClass('hidden');
+        }
+      }
+    });
+  }
+
+  /**
    * Plot incidence chart using
    * @param {number} year - year to filter the data
    * @param {string} state_name - state_name to filter the data
@@ -25,7 +72,7 @@ class SRAGIncidenceChart{
       return;
     }*/
 
-    return c3.generate({
+    var chart = c3.generate({
       bindto: _this.bindTo,
       data: {
         url: './data/weekly-incidence-curve/' + year + '/' + state_name,
@@ -96,6 +143,10 @@ class SRAGIncidenceChart{
         show: false
       }
     });
+
+    this.displayInfo(year, week, state_name);
+
+    return chart;
   }
 }
 

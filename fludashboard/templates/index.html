@@ -13,8 +13,8 @@
   <link rel="stylesheet" href="./static/libs/leaflet/legend/leaflet-legend.css" />
   <link rel="icon"
       type="image/png"
-      href="/static/img/favicon.ico">
-
+      href="/static/img/favicon.ico"
+  />
 </head>
 <body class="application">
 
@@ -108,7 +108,7 @@
             <text x="20" y="20" transform="translate(8,4)">Baixa</text>
 
             <rect x="10" y="35" class="legend-square alert-yellow" />
-            <text x="20" y="40"transform="translate(8,4)">Epid&ecirc;mica</text>
+            <text x="20" y="40" transform="translate(8,4)">Epid&ecirc;mica</text>
 
             <rect x="10" y="55" class="legend-square alert-orange" />
             <text x="20" y="60" transform="translate(8,4)">Alta</text>
@@ -132,7 +132,36 @@
                 </strong>
               </div>
               <div class="chart-stage chart-incidence">
-                <div id="weekly-incidence-curve-chart" style="height:350px;"></div>
+                <!-- info panel -->
+                <div id="chart-incidence-activity-level-panel">
+                  <p class="prob hidden">
+                    <strong class="chart-extra-text">
+                      Probabilidade do n&iacute;vel de atividade:
+                    </strong><br/>
+                    <span class="chart-extra-text">
+                      Baixa: <span class="low"></span>%
+                    </span> <br/>
+                    <span class="chart-extra-text">
+                      Epidêmica: <span class="epidemic"></span>%
+                    </span> <br/>
+                    <span class="chart-extra-text">
+                      Alta: <span class="high"></span>%
+                    </span> <br/>
+                    <span class="chart-extra-text">
+                      Muito Alta: <span class="very-high"></span>%
+                    </span>
+                  </p>
+
+                  <p class="level hidden">
+                    <strong class="chart-extra-text">N&iacute;vel de atividade:</strong><br/>
+                    <span class="chart-extra-text classification"></span> <br/>
+                  </p>
+                </div>
+                <!-- info panel:end -->
+
+                <!-- chart -->
+                <div id="weekly-incidence-curve-chart" style="height:350px"></div>
+                <!-- chart:end -->
               </div>
             </div>
           </div>
@@ -152,7 +181,8 @@
               <span class="territory-display"></span>
             </strong>
           </div>
-          <div class="chart-stage" id="divTable" style="height:350px;">
+          <div class="chart-stage" id="divTable"
+               style="height:350px; overflow-y:auto;">
             
           </div>
         </div>
