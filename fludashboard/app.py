@@ -175,8 +175,24 @@ def data__data_table(year, epiweek=None, territory_type=None, state_name=None):
     df = df[mask]
 
     # for a whole year view
-    if epiweek is None or not epiweek > 0:
+    if not epiweek:
         df = group_data_by_season(df, year)
+
+        # order by type
+        df = df.assign(type_unit=1)
+
+        try:
+            df.loc[df.uf == 'BR', 'type_unit'] = 0
+        except:
+            pass
+
+        df.sort_values(
+            by=['type_unit', 'unidade_da_federacao', 'epiyear', 'epiweek'],
+            inplace=True
+        )
+        df.reset_index(drop=True, inplace=True)
+        df.drop('type_unit', axis=1, inplace=True)
+
         return '{"data": %s}' % df[ks].to_json(orient='records')
 
     # order by type
@@ -203,9 +219,9 @@ def data__data_table(year, epiweek=None, territory_type=None, state_name=None):
 
         # change situation value by a informative text
         situation_dict = {
-            'stable': 'Dado estável. Sujeito a pequenas alterações',
-            'estimated': 'Estimado. Sujeito a alterações',
-            'unknown': 'Dados incompletos. Sujeito a grandes alterações'
+            'stable': 'Dado estável. Sujeito a pequenas alterações.',
+            'estimated': 'Estimado. Sujeito a alterações.',
+            'unknown': 'Dados incompletos. Sujeito a grandes alterações.'
         }
         df.situation = df.situation.map(
             lambda x: situation_dict[x] if x else ''

@@ -50,11 +50,11 @@ class SRAGTable {
       "ordering": false
     };
 
-    if(week>0) {
+    /*if(week>0) {
       $("#data-table").removeClass('hidden');
     } else {
       $("#data-table").addClass('hidden');
-    }
+    }*/
 
     tableSettings['columnDefs'] = [{width: '50%', targets: 1}];
 
@@ -62,11 +62,12 @@ class SRAGTable {
 
     if (stateName) {
       _tmp = _tmp + '/' + stateName;
+      /*
       tableSettings['columnDefs'].push({
         "targets": [ 0 ],
         "visible": false,
         "searchable": false
-      });
+      });*/
     }
 
     tableSettings['ajax'] = '/data/data-table/' + year + '/' + week + _tmp;
