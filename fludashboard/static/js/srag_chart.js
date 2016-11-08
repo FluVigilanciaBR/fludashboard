@@ -81,10 +81,14 @@ class SRAGIncidenceChart{
           corredor_baixo: null,
           corredor_mediano: null,
           corredor_alto: null,
-          srag: 'SRAG',
+          srag: 'Casos notificados',
           limiar_pre_epidemico: 'Limiar Pré epidêmico',
           intensidade_alta: 'Intensidade Alta',
-          intensidade_muito_alta: 'Intensidade Muito Alta'
+          intensidade_muito_alta: 'Intensidade Muito Alta',
+          estimated_cases: 'Casos estimados',
+          ci_lower: 'Intervalo de confiança (2,5%)',
+          ci_upper: 'Intervalo de confiança (97,5%)',
+          incomplete_data: 'Dados Incompletos'
         },
         types: {
           corredor_baixo: 'area',
@@ -102,7 +106,11 @@ class SRAGIncidenceChart{
           srag: '#000000',
           limiar_pre_epidemico: '#0000ff',
           intensidade_alta: '#00ff00',
-          intensidade_muito_alta: '#ff0000'
+          intensidade_muito_alta: '#ff0000',
+          estimated_cases: '#ff0000',
+          ci_lower: '#ff0000',
+          ci_upper: '#ff0000',
+          incomplete_data: '#ff0000',
         }
       },
       axis: {
@@ -129,10 +137,10 @@ class SRAGIncidenceChart{
         ], show: false
         },
         y: {show: true}
-      },/*
+      },
       zoom: {
         enabled: true
-      },*/ /*
+      },/*
       subchart: {
         show: true
       },*/

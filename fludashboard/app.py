@@ -17,6 +17,7 @@ from fludashboard.calc_srag_alert import (
     apply_filter_alert_by_epiweek,
     calc_alert_rank_whole_year)
 from fludashboard.utils import prepare_keys_name
+from fludashboard.episem import episem
 
 app = Flask(__name__)
 
@@ -38,7 +39,7 @@ def index():
     list_of_years = list(set(df_incidence.epiyear))
 
     year = max(list_of_years) if list_of_years else 0
-    epiweek = datetime.datetime.now().isocalendar()[1]
+    epiweek = episem(datetime.datetime.now().strftime('%Y-%m-%d'))[-2:]
 
     return render_template(
         "index.html",
@@ -78,7 +79,40 @@ def data__weekly_incidence_curve(year, state=None):
         'srag',
         'limiar_pre_epidemico', 'intensidade_alta', 'intensidade_muito_alta'
     ]
-    return get_srag_data(year=year, state_name=state)[ks].to_csv(index=False)
+
+    df = get_srag_data(year=year, state_name=state)
+
+    try:
+        min_week = int(df.loc[df['situation'] == 'estimated', 'epiweek'].min())
+
+        df['estimated_cases'] = None
+        df['ci_lower'] = None
+        df['ci_upper'] = None
+
+        mask = df['epiweek'] >= min_week
+
+        df.loc[mask, 'estimated_cases'] = df.loc[mask, '50%']
+        df.loc[mask, 'ci_lower'] = df.loc[mask, '2.5%']
+        df.loc[mask, 'ci_upper'] = df.loc[mask, '97.5%']
+
+        ks += ['estimated_cases', 'ci_lower', 'ci_upper']
+
+    except:
+        pass
+
+    try:
+        min_week = int(df.loc[df['situation'] == 'unknown', 'epiweek'].min())
+
+        df['incomplete_data'] = None
+
+        df_est = df[df['epiweek'] >= min_week]
+        df_est['incomplete_data'] = df_est['97.5%']
+
+        ks += ['incomplete_data']
+    except:
+        pass
+
+    return df[ks].to_csv(index=False, na_rep='null')
 
 
 @app.route('/data/incidence-levels/<int:year>')
