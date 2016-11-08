@@ -20,6 +20,14 @@ fludashboard.calc_srag_alert module
     :undoc-members:
     :show-inheritance:
 
+fludashboard.episem module
+--------------------------
+
+.. automodule:: fludashboard.episem
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 fludashboard.srag_data module
 -----------------------------
 

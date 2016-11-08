@@ -5,4 +5,3 @@ fludashboard
    :maxdepth: 4
 
    fludashboard
-
