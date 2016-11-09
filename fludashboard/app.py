@@ -141,7 +141,7 @@ def data__incidence_levels(
 
     if epiweek is not None and epiweek > 0:
         ks = ['l0', 'l1', 'l2', 'l3', 'situation']
-        return df[ks].to_json(orient='records')
+        return (df[ks]*100).round(2).to_json(orient='records')
 
     # prepare data for the whole year
     df = apply_filter_alert_by_epiweek(df=df)
@@ -162,9 +162,7 @@ def data__incidence_levels(
     se['l%s' % (rank-1)] = 1
     se['situation'] = ''
 
-    return pd.DataFrame(se).T.to_json(orient='records')
-
-
+    return (pd.DataFrame(se).T*100).round(2).to_json(orient='records')
 
 
 @app.route('/data/data-table/<int:year>')
@@ -202,9 +200,9 @@ def data__data_table(year, epiweek=None, territory_type=None, state_name=None):
     df = get_srag_data(year=year, state_name=state_name, epiweek=epiweek)
 
     if territory_type == 'state':
-        mask = ~(df.tipo=='Regional')
+        mask = ~(df.tipo == 'Regional')
     else:
-        mask = ~(df.tipo=='Estado')
+        mask = ~(df.tipo == 'Estado')
 
     df = df[mask]
 
@@ -227,7 +225,9 @@ def data__data_table(year, epiweek=None, territory_type=None, state_name=None):
         df.reset_index(drop=True, inplace=True)
         df.drop('type_unit', axis=1, inplace=True)
 
-        return '{"data": %s}' % df[ks].to_json(orient='records')
+        return '{"data": %s}' % df[ks].round({
+            'srag': 2
+        }).to_json(orient='records')
 
     # order by type
     df = df.assign(type_unit=1)
@@ -261,7 +261,9 @@ def data__data_table(year, epiweek=None, territory_type=None, state_name=None):
             lambda x: situation_dict[x] if x else ''
         )
 
-    return '{"data": %s}' % df[ks].to_json(orient='records')
+    return '{"data": %s}' % df[ks].round({
+        'srag': 2
+    }).to_json(orient='records')
 
 
 @app.route('/data/age-distribution/<int:year>/')
@@ -288,7 +290,7 @@ def data__age_distribution(year, week=None, state=None):
 
     df = pd.DataFrame(
         get_srag_data(year=year, state_name=state, epiweek=week)[ks].sum()
-    ).T
+    ).T.round(2)
     return df.to_csv(index=False)
 
 
