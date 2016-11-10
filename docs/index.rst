@@ -17,6 +17,20 @@ Contents:
    contributing
    authorshistory
 
+Front-end contents:
+==================
+
+.. toctree::
+   :maxdepth: 1
+
+
+   jsdoc/Dashboard
+   jsdoc/SRAGIncidenceChart
+   jsdoc/SRAGAgeChart
+   jsdoc/SRAGMap
+   jsdoc/SRAGTable
+
+
 Indices and tables
 ==================
 

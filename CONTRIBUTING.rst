@@ -42,6 +42,10 @@ fludashboard could always use more documentation, whether as part of the
 official fludashboard docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
+To update sphinx documentation, at /docs/ directory, do:a:
+
+    $ sphinx-apidoc -o . ../fludashboard
+
 Submit Feedback
 ~~~~~~~~~~~~~~~
 
