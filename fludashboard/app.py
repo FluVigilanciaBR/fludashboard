@@ -29,7 +29,7 @@ def index():
     :return:
     """
     df_incidence = pd.read_csv(
-        '../data/current_estimated_values.csv'
+        '../data/current_estimated_values.csv', encode='utf-8'
     )
     # prepare dataframe keys
     prepare_keys_name(df_incidence)
