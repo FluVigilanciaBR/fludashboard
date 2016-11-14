@@ -1,11 +1,26 @@
-/* -*- Mode: JavaScript; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* -*- Mode: JavaScript; tab-width: 8; indent-tabs-mode: nil;
+ c-basic-offset: 2 -*- */
 /* vim: set ts=8 sts=2 et sw=2 tw=80: */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/** */
+/**
+ * SRAG Map allows create a map divided by federal states or regions and
+ * colored by alert criteria.
+ * @property {Object.<string, number>} fluColors - Correspondent color for each
+ *   alert level.
+ * @property {object} map - Leaflet map object.
+ * @property {object} osm - Open Street Map Tile object.
+ * @property {object} geojsonLayer - GeoJson object.
+ * @property {Object.<string, string>} regionIds.
+ * @property {Object.<string, string>} regionNames.
+ * @property {object} legend - Leaflet Legend Object.
+ */
 class SRAGMap {
+  /**
+   * @constructs
+   */
   constructor() {
     this.fluColors = {
       1: 'green',
@@ -15,11 +30,13 @@ class SRAGMap {
     };
     // create the tile layer with correct attribution
     this.map = L.map('map');
-    this.osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-    this.osmAttrib='Map data © <a href="http://openstreetmap.org">' +
+
+    var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+    var osmAttrib='Map data © <a href="http://openstreetmap.org">' +
       'OpenStreetMap</a> contributors';
+
     this.osm = new L.TileLayer(
-      this.osmUrl, {minZoom: 1, maxZoom: 12, attribution: this.osmAttrib}
+      osmUrl, {minZoom: 1, maxZoom: 12, attribution: osmAttrib}
     );
 
     this.map.setView([-16, -50.528742], 3)  ;
@@ -67,24 +84,23 @@ class SRAGMap {
       'RegL': 'Regional Leste',
     };
 
-    this.Legend = new L.Control.Legend({
+    this.legend = new L.Control.Legend({
       position: 'topleft',
       collapsed: true,
       controlButton: {
         title: "Legend"}
     });
 
-    this.map.addControl(this.Legend);
+    this.map.addControl(this.legend);
       
     $(".legend-container").append( $("#legend") );
     $(".legend-toggle").append( "<i class='legend-toggle-icon fa fa-info fa-2x' style='color: #000'>i</i>" );
   }
 
   /**
-   * Build a map
-   *
+   * Builds a Brazilian map
    * @param {dict} geoJsonBr - geoJson data about Brazilian territory
-   * @param {dict} sragData - srag data
+   * @param {dict} sragData - SRAG data
    */
   makeMap(
     geoJsonBr, sragData, year, week, clickExternalTrigger
@@ -241,15 +257,15 @@ class SRAGMap {
   }
 
   /**
-   * Get the alert level color using the follow criteria:
+   * Gets the alert level color using the follow criteria:
    *
-   * Red (level 4) if the incidence was above the high threshold for at
-   *  least 5 weeks;
-   * Orange (level 3) if above the high threshold from 1 to 4 weeks;
-   * Yellow (level 2) if crossed the epidemic threshold but not the high one;
-   * Green (level 1) if it did not cross the epidemic threshold.
-   * @param {dict} d - total number of alert occurrence
-   * @return {number} alert level
+   * - Red (level 4) if the incidence was above the high threshold for at
+   *   least 5 weeks;
+   * - Orange (level 3) if above the high threshold from 1 to 4 weeks;
+   * - Yellow (level 2) if crossed the epidemic threshold but not the high one;
+   * - Green (level 1) if it did not cross the epidemic threshold.
+   * @param {dict} d - Total number of alert occurrence
+   * @returns {number} - Alert level (1-4)
    */
   getAlertLevelForWholeYear(d) {
     var high_threshold = d[4] + d[3];
@@ -261,9 +277,8 @@ class SRAGMap {
   }
 
   /**
-   * Change the color of the map using the alerts criteria
-   *
-   * @param {dict} df - data frame object
+   * Changes the color of the map using the alerts criteria
+   * @param {dict} df - Data frame object
    */
   changeColorMap(df) {
     var _this = this;

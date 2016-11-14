@@ -1,22 +1,31 @@
-/* -*- Mode: JavaScript; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* -*- Mode: JavaScript; tab-width: 8; indent-tabs-mode: nil;
+   c-basic-offset: 2 -*- */
 /* vim: set ts=8 sts=2 et sw=2 tw=80: */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/** */
+/**
+ * SRAGIncidenceChart is used to show Incidence Flu Chart.
+  */
 class SRAGIncidenceChart{
+  /**
+   * @constructs
+   * @param {string} bindTo - DOM ID of the chart container (e.g. "#container").
+   */
   constructor(bindTo) {
     this.bindTo = bindTo;
   }
 
   /**
-   *
-   *
+   * Shows activity information about the criteria established on the chart.
+   * @param {number} year - SRAG incidence year (e.g. 2013).
+   * @param {number} week - SRAG incidence week (e.g. 2).
+   * @param {string} stateName - Federal state name (e.g. "Acre").
    */
-  displayInfo(year, week, state_name) {
+  displayInfo(year, week, stateName) {
     $.getJSON({
-      url: '/data/incidence-levels/' + year + '/' + week + '/' +  state_name,
+      url: '/data/incidence-levels/' + year + '/' + week + '/' +  stateName,
       success: function(d) {
         // hidden  all
         var _prob = $('#chart-incidence-activity-level-panel .prob');
@@ -58,24 +67,25 @@ class SRAGIncidenceChart{
   }
 
   /**
-   * Plot incidence chart using
-   * @param {number} year - year to filter the data
-   * @param {string} state_name - state_name to filter the data
-   * @param {number} week- week to filter the data
+   * Plots SRAG incidence chart
+   * @param {number} year - SRAG incidence year (e.g. 2013).
+   * @param {number} week - SRAG incidence week (e.g. 2).
+   * @param {string} stateName- Federal state name (e.g. "Acre").
+   * @return {object} - Chart object.
    */
-  plot(year, week, state_name) {
+  plot(year, week, stateName) {
     var _this = this;
 
     $(this.bindTo).empty();
 
-    /*if (state_name == '') {
+    /*if (stateName == '') {
       return;
     }*/
 
     var chart = c3.generate({
       bindto: _this.bindTo,
       data: {
-        url: './data/weekly-incidence-curve/' + year + '/' + state_name,
+        url: './data/weekly-incidence-curve/' + year + '/' + stateName,
         x: 'epiweek',
         names: {
           corredor_baixo: null,
@@ -152,29 +162,37 @@ class SRAGIncidenceChart{
       }
     });
 
-    this.displayInfo(year, week, state_name);
+    this.displayInfo(year, week, stateName);
 
     return chart;
   }
 }
 
+/**
+ * SRAG Incidence Chart by Age
+ * @class
+ */
 class SRAGAgeChart{
+  /**
+   * @constructs
+   * @param {string} bindTo - DOM ID of the chart container (e.g. "#container").
+   */
   constructor(bindTo) {
     this.bindTo = bindTo;
   }
 
   /**
-   * Plot incidence chart using
-   * @param {number} year - year to filter the data
-   * @param {string} state_name - state_name to filter the data
-   * @param {number} week- week to filter the data
+   * Plots SRAG incidence chart by age
+   * @param {number} year - SRAG incidence year.
+   * @param {number} week - SRAG incidence week.
+   * @param {string} stateName- Federal state name (e.g. "Acre").
    */
-  plot(year, week, state_name) {
+  plot(year, week, stateName) {
     var _this = this;
 
     $(this.bindTo).empty();
 
-    /*if (state_name == '') {
+    /*if (stateName == '') {
       return;
     }*/
 
@@ -182,7 +200,7 @@ class SRAGAgeChart{
       bindto: _this.bindTo,
       data: {
         url: './data/age-distribution/' + year + '/' +
-          week + '/' + state_name,
+          week + '/' + stateName,
         type: 'bar',
         names: {
           '0_4_anos': '0-4 anos',
