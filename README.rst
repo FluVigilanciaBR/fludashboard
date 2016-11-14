@@ -2,7 +2,6 @@
 fludashboard
 ===============================
 
-
 .. image:: https://img.shields.io/pypi/v/fludashboard.svg
         :target: https://pypi.python.org/pypi/fludashboard
 
@@ -20,6 +19,14 @@ fludashboard
 
 Flu Dashboard
 
+Flu Dahsboard is an initiative to monitor and provide alert levels for Severe Acute Respiratory Infections (SARI)
+notifications registered at SINAN, the Brazilian Notifiable Diseases Information System (www.saude.gov.br/sinan).
+Data is provided for each Brazilian State as well as by influenza-like illnessess (ILI) regions.
+
+This is a product of the joint work between researchers at the Scientific Computation Program at Oswaldo Cruz
+Foundation (Fiocruz, PROCC), School of Applied Mathematics at Fundação Getúlio Vargas (EMAp-FGV), both from Rio de
+Janeiro, Brazil, and the Inluenza Work Force at the Health Surveillance Secretariat of the Brazilian Ministry of
+Health (GT-Influenza, SVS, MS).
 
 * Free software: GNU General Public License v3
 * Documentation: https://fludashboard.readthedocs.io.
@@ -28,7 +35,12 @@ Flu Dashboard
 Features
 --------
 
-* TODO
+* Nowcast of weekly incidence;
+* Activity thresholds;
+* Age distribution of notified cases;
+* Seasonal activity level;
+* Historical incidence curves.
+
 
 ==========
 Deployment
