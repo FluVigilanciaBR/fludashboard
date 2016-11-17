@@ -6,7 +6,6 @@ import pandas as pd
 import datetime
 import sys
 import os
-import mpld3
 
 # local
 sys.path.insert(0, os.path.dirname(os.getcwd()))
