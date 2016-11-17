@@ -3,6 +3,23 @@ from unidecode import unidecode
 import pandas as pd
 
 
+def prepare_keys_name(df):
+    """
+    Standardises data frame keys
+
+    :param df:
+    :type df: pd.DataFrame
+    :return: pd.DataFrame
+    """
+    for k in df.keys():
+        df.rename(columns={
+            k: unidecode(
+                k.replace(' ', '_').replace('-', '_').lower()
+            ).encode('ascii').decode('utf8')
+        }, inplace=True)
+    return df
+
+
 def get_season_situation(df):
     def _fn(se):
         return df[
@@ -38,9 +55,7 @@ def group_data_by_season(df, season):
         'l2': 'Alta', 'l3': 'Muito alta'
     }
     season_basic_cols = [
-        'uf', 'unidade_da_federacao', 'epiyear', 'srag',
-        '0_4_anos', '5_9_anos', '10_19_anos', '20_29_anos', '30_39_anos',
-        '40_49_anos', '50_59_anos', '60+_anos'
+        'uf', 'unidade_da_federacao', 'epiyear', 'srag'
     ]
     season_cols = season_basic_cols + ['tipo', 'situation', 'level']
 
@@ -92,6 +107,7 @@ def group_data_by_season(df, season):
 
     return df_by_season
 
+
 def report_incidence(x, low, high, situation):
     """
     original name: report_inc
@@ -123,12 +139,7 @@ def prepare_srag_data(year=None):
 
     # prepare dataframe keys
     for _df in [df_incidence, df_typical, df_thresholds]:
-        for k in _df.keys():
-            _df.rename(columns={
-                k: unidecode(
-                    k.replace(' ', '_').replace('-', '_').lower()
-                ).encode('ascii').decode('utf8')
-            }, inplace=True)
+        prepare_keys_name(_df)
 
     df = pd.merge(
         df_incidence, df_typical, on=['uf', 'epiweek'], how='right'
@@ -166,4 +177,35 @@ def get_srag_data(year, state_name=None, epiweek=0):
             mask = df.epiweek == epiweek
 
     df = df[mask]
+    return df
+
+
+def get_srag_data_age_sex(year, state_name=None, epiweek=0):
+    """
+
+    """
+    # data
+    df = pd.read_csv(
+        '../data/clean_data_epiweek-weekly-incidence_w_situation.csv',
+        low_memory=False, encoding='utf-8'
+    )
+
+    prepare_keys_name(df)
+
+    age_cols = [
+        '0_4_anos', '5_9_anos', '10_19_anos', '20_29_anos', '30_39_anos',
+        '40_49_anos', '50_59_anos', '60+_anos'
+    ]
+
+    df = df[df.epiyear == year]
+
+    if state_name:
+        df = df[df.unidade_da_federacao == state_name]
+
+    if epiweek:
+        df = df[df.epiweek == epiweek]
+
+    df = df[age_cols + ['sexo']].set_index('sexo').transpose()
+    df.rename(columns={'F': 'Mulheres', 'M': 'Homens'}, inplace=True)
+
     return df

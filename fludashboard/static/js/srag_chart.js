@@ -201,17 +201,8 @@ class SRAGAgeChart{
       data: {
         url: './data/age-distribution/' + year + '/' +
           week + '/' + stateName,
-        type: 'bar',
-        names: {
-          '0_4_anos': '0-4 anos',
-          '5_9_anos': '5-9 anos',
-          '10_19_anos': '10-19 anos',
-          '20_29_anos': '20-29 anos',
-          '30_39_anos': '30-39 anos',
-          '40_49_anos': '40-49 anos',
-          '50_59_anos': '50-59 anos',
-          '60+_anos': '60+ anos'
-        },
+        x: 'index',
+        type: 'bar'
       },
       axis: {
         x: {
@@ -220,9 +211,7 @@ class SRAGAgeChart{
             position: 'outer-center'
           },
           type: 'category',
-          categories: [
-            ''
-          ]
+
         },
         y: {
           label: {
