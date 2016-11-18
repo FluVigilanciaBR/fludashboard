@@ -10,13 +10,14 @@ import os
 # local
 sys.path.insert(0, os.path.dirname(os.getcwd()))
 from fludashboard.srag_data import (
-    get_srag_data, prepare_srag_data, report_incidence,
-    group_data_by_season
+    get_srag_data, get_srag_data_age_sex,
+    prepare_srag_data, report_incidence,
+    group_data_by_season, prepare_keys_name
 )
 from fludashboard.calc_srag_alert import (
     apply_filter_alert_by_epiweek,
     calc_alert_rank_whole_year)
-from fludashboard.utils import prepare_keys_name
+from fludashboard.utils import crossdomain
 from fludashboard.episem import episem
 
 app = Flask(__name__)
@@ -29,7 +30,7 @@ def index():
     :return:
     """
     df_incidence = pd.read_csv(
-        '../data/current_estimated_values.csv', encode='utf-8'
+        '../data/current_estimated_values.csv', encoding='utf-8'
     )
     # prepare dataframe keys
     prepare_keys_name(df_incidence)
@@ -269,6 +270,7 @@ def data__data_table(year, epiweek=None, territory_type=None, state_name=None):
 @app.route('/data/age-distribution/<int:year>/')
 @app.route('/data/age-distribution/<int:year>/<int:week>/')
 @app.route('/data/age-distribution/<int:year>/<int:week>/<string:state>')
+@crossdomain(origin='*')
 def data__age_distribution(year, week=None, state=None):
     """
 
@@ -280,18 +282,26 @@ def data__age_distribution(year, week=None, state=None):
     if not year > 0:
         return '[]'
 
-    ks = [
-        '0_4_anos', '5_9_anos', '10_19_anos', '20_29_anos',
-        '30_39_anos', '40_49_anos', '50_59_anos', '60+_anos'
-    ]
 
     if not state:
         state = 'Brasil'
 
     df = pd.DataFrame(
-        get_srag_data(year=year, state_name=state, epiweek=week)[ks].sum()
-    ).T.round(2)
-    return df.to_csv(index=False)
+        get_srag_data_age_sex(year=year, state_name=state, epiweek=week)
+    ).round(2)
+
+    df.rename(index={
+        '0_4_anos': '0-4 anos',
+        '5_9_anos': '5-9 anos',
+        '10_19_anos': '10-19 anos',
+        '20_29_anos': '20-29 anos',
+        '30_39_anos': '30-39 anos',
+        '40_49_anos': '40-49 anos',
+        '50_59_anos': '50-59 anos',
+        '60+_anos': '60+ anos'
+    }, inplace=True)
+
+    return 'index' + df.to_csv()
 
 
 @click.command()

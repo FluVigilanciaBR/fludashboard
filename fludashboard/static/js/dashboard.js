@@ -1,11 +1,26 @@
-/* -*- Mode: JavaScript; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* -*- Mode: JavaScript; tab-width: 8; indent-tabs-mode: nil;
+ c-basic-offset: 2 -*- */
 /* vim: set ts=8 sts=2 et sw=2 tw=80: */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/** Dashboard class */
+/**
+ * Allows control over all dashboard functionalities.
+ * @property {string} group_by - Data aggregation criterion (year|week).
+ * @property {string} delimitation - Data aggregation criterion (state|region).
+ * @property {number} lastWeek - The last week defined (e.g. 2).
+ * @property {object} sragData - SRAG data object.
+ * @property {SRAGTable} sragTable - SRAGTable object.
+ * @property {SRAGMap} sragMap - SRAGMap object.
+ * @property {SRAGIncidenceChart} sragIncidenceChart - SRAGIncidenceChart
+ *   object.
+ * @property {SRAGAgeChart} sragAgeChart - SRAGAgeChart object.
+ */
 class Dashboard {
+  /**
+   * @constructs
+   */
   constructor(
       userInterface, mapId
   ) {
@@ -89,8 +104,7 @@ class Dashboard {
   }
 
   /**
-   * start up the charts
-   *
+   * starts up the charts
    */
   init() {
     this.load_graphs();
@@ -99,7 +113,6 @@ class Dashboard {
 
   /**
    * load data and build charts
-   *
    */
   load_graphs() {
     var _this = this;
@@ -123,9 +136,8 @@ class Dashboard {
   }
 
   /**
-   * When a week mark is changed, this function should update and trigger
-   * some information and chart
-   * @param {dict} sragData - srag data
+   * When a week mark is changed, this function should update the charts and
+   * SRAG data table.
    */
   changeWeek() {
     var _this = this;
@@ -159,8 +171,8 @@ class Dashboard {
   }
 
   /**
-   *
-   *
+   * Trigger the functions to create the charts and the data table.
+   * @param {object} error - data about any error.
    */
   makeGraphs(error) {
     var stateName = $('#selected-state').val();
@@ -180,11 +192,6 @@ class Dashboard {
     );
 
     this.changeWeek();
-
-    /*if (stateName) {
-      this.sragIncidenceChart.plot(year, week, stateName);
-      this.sragAgeChart.plot(year, week, stateName);
-    }*/
 
     this.sragIncidenceChart.plot(year, week, stateName);
     this.sragAgeChart.plot(year, week, stateName);

@@ -5,15 +5,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- *
- *
+ * SRAGTable allows create data table with SRAG data dynamically.
+ * @property {object} dataTable - DataTable object.
  */
 class SRAGTable {
+  /**
+   * @constructs
+   */
   constructor(){
     $('#divTable').html(this.getDataTableContent());
     this.dataTable = $('#data-table').DataTable();
   }
 
+  /**
+   * Returns HTML table that will be created.
+   * @returns {string}
+   */
   getDataTableContent() {
     return  '' +
       '<table id="data-table" ' +
@@ -29,6 +36,12 @@ class SRAGTable {
       '</table>';
   }
 
+  /**
+   * Builds the SRAG incidence table.
+   * @param {number} year - SRAG incidence year (e.g. 2013).
+   * @param {number} week - SRAG incidence week (e.g. 2).
+   * @param {string} stateName - Federal state name (e.g. "Acre").
+   */
   makeTable(year, week, stateName) {
     var columns = [];
     var _tmp = '';
@@ -50,24 +63,12 @@ class SRAGTable {
       "ordering": false
     };
 
-    /*if(week>0) {
-      $("#data-table").removeClass('hidden');
-    } else {
-      $("#data-table").addClass('hidden');
-    }*/
-
     tableSettings['columnDefs'] = [{width: '50%', targets: 1}];
 
     var _tmp = '/' + territoryType;
 
     if (stateName) {
       _tmp = _tmp + '/' + stateName;
-      /*
-      tableSettings['columnDefs'].push({
-        "targets": [ 0 ],
-        "visible": false,
-        "searchable": false
-      });*/
     }
 
     tableSettings['ajax'] = '/data/data-table/' + year + '/' + week + _tmp;
@@ -76,10 +77,6 @@ class SRAGTable {
       {'data': 'situation'},
       {'data': 'srag'}
     ];
-
-    // destroy old table
-    //this.dataTable.empty(); // empty in case the columns change
-    //this.dataTable.destroy();
 
     // create new table
     $('#divTable').html(this.getDataTableContent());
