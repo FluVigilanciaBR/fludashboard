@@ -6,6 +6,7 @@ test_fludashboard
 ----------------------------------
 
 Tests for `fludashboard` module.
+
 """
 import flask
 import os
@@ -13,7 +14,15 @@ import sys
 import unittest
 
 # local
-sys.path.insert(0, os.path.dirname(os.getcwd()))
+PATH_ROOT = os.path.dirname(os.getcwd())
+
+if 'data' in os.listdir(PATH_ROOT):
+    sys.path.insert(0, PATH_ROOT)
+    os.chdir(PATH_ROOT)
+else:
+    os.chdir(os.path.join(PATH_ROOT, 'fludashboard', 'fludashboard'))
+    sys.path.insert(0, os.getcwd())
+
 from fludashboard.app import app
 from contextlib import contextmanager
 
@@ -21,13 +30,26 @@ from contextlib import contextmanager
 class TestFludashboard(unittest.TestCase):
 
     def setUp(self):
+        print('S'*100)
+        print(os.getcwd())
+
+        if 'data' in os.listdir(PATH_ROOT):
+            os.chdir(PATH_ROOT)
+            sys.path.insert(0, PATH_ROOT)
+        else:
+            os.chdir(os.path.join(PATH_ROOT, 'fludashboard', 'fludashboard'))
+            sys.path.insert(0, os.getcwd())
+
         self.app = app
 
     def tearDown(self):
         pass
 
     def test_index(self):
+        print(os.getcwd())
         with self.app.test_client() as c:
+            print('I'*100)
+            print(os.getcwd())
             resp = c.get('/')
             assert resp._status_code == 200
 
