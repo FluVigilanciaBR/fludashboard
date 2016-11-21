@@ -30,9 +30,6 @@ from contextlib import contextmanager
 class TestFludashboard(unittest.TestCase):
 
     def setUp(self):
-        print('S'*100)
-        print(os.getcwd())
-
         if 'data' in os.listdir(PATH_ROOT):
             os.chdir(PATH_ROOT)
             sys.path.insert(0, PATH_ROOT)
@@ -48,8 +45,6 @@ class TestFludashboard(unittest.TestCase):
     def test_index(self):
         print(os.getcwd())
         with self.app.test_client() as c:
-            print('I'*100)
-            print(os.getcwd())
             resp = c.get('/')
             assert resp._status_code == 200
 

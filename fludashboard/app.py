@@ -12,7 +12,8 @@ sys.path.insert(0, os.path.dirname(os.getcwd()))
 from fludashboard.srag_data import (
     get_srag_data, get_srag_data_age_sex,
     prepare_srag_data, report_incidence,
-    group_data_by_season, prepare_keys_name
+    group_data_by_season, prepare_keys_name,
+    get_srag_incidence_data
 )
 from fludashboard.calc_srag_alert import (
     apply_filter_alert_by_epiweek,
@@ -29,9 +30,8 @@ def index():
 
     :return:
     """
-    df_incidence = pd.read_csv(
-        '../data/current_estimated_values.csv', encoding='utf-8'
-    )
+    df_incidence = get_srag_incidence_data()
+
     # prepare dataframe keys
     prepare_keys_name(df_incidence)
 

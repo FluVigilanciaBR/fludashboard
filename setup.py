@@ -52,7 +52,7 @@ setup(
     },
     include_package_data=True,
     data_files=[
-        ('data', list_dir(dir_name='data')),
+        ('data', list_dir(dir_name='data'))
     ],
     install_requires=requirements,
     license="GNU General Public License v3",
