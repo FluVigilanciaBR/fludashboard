@@ -4,6 +4,19 @@
 from setuptools import setup
 from pip.req import parse_requirements
 from pip.download import PipSession
+from glob import glob
+
+import os
+
+PATH_ROOT = os.getcwd()
+
+
+def list_dir(pathname=PATH_ROOT, dir_name=''):
+    return glob(
+        os.path.join(pathname, dir_name, '**'), 
+        recursive=True
+    )[1:]
+
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
@@ -38,6 +51,9 @@ setup(
         ]
     },
     include_package_data=True,
+    data_files=[
+        ('data', list_dir(dir_name='data'))
+    ],
     install_requires=requirements,
     license="GNU General Public License v3",
     zip_safe=False,

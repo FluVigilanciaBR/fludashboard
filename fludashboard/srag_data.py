@@ -1,6 +1,7 @@
 from unidecode import unidecode
 
 import pandas as pd
+import os
 
 
 def prepare_keys_name(df):
@@ -127,15 +128,31 @@ def report_incidence(x, low, high, situation):
     return y
 
 
+def get_srag_incidence_data():
+    path_root = os.path.dirname(os.path.dirname(__file__))
+    path_data = os.path.join(path_root, 'data')
+
+    return pd.read_csv(
+        os.path.join(path_data, 'current_estimated_values.csv')
+    )
+
+
 def prepare_srag_data(year=None):
     """
 
     """
+    path_root = os.path.dirname(os.path.dirname(__file__))
+    path_data = os.path.join(path_root, 'data')
+
     df_incidence = pd.read_csv(
-        '../data/current_estimated_values.csv'
+        os.path.join(path_data, 'current_estimated_values.csv')
     )
-    df_typical = pd.read_csv('../data/mem-typical.csv')
-    df_thresholds = pd.read_csv('../data/mem-report.csv')
+    df_typical = pd.read_csv(
+        os.path.join(path_data, 'mem-typical.csv')
+    )
+    df_thresholds = pd.read_csv(
+        os.path.join(path_data, 'mem-report.csv')
+    )
 
     # prepare dataframe keys
     for _df in [df_incidence, df_typical, df_thresholds]:
@@ -184,10 +201,15 @@ def get_srag_data_age_sex(year, state_name=None, epiweek=0):
     """
 
     """
+    path_root = os.path.dirname(os.path.dirname(__file__))
+    path_data = os.path.join(path_root, 'data')
+
     # data
     df = pd.read_csv(
-        '../data/clean_data_epiweek-weekly-incidence_w_situation.csv',
-        low_memory=False, encoding='utf-8'
+        os.path.join(
+            path_data,
+            'clean_data_epiweek-weekly-incidence_w_situation.csv'
+        ), low_memory=False, encoding='utf-8'
     )
 
     prepare_keys_name(df)
