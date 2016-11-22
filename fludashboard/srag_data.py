@@ -22,6 +22,11 @@ def prepare_keys_name(df):
 
 
 def get_season_situation(df):
+    """
+
+    :param df:
+    :return:
+    """
     def _fn(se):
         return df[
             (df.uf == se.uf) & (df.epiyear == se.epiyear)
@@ -44,10 +49,11 @@ def get_season_level(se):
     return 1 # 'green'
 
 
-def group_data_by_season(df, season):
+def group_data_by_season(df, df_age_dist=None, season=None):
     """
 
     :param df:
+    :param df_age_dist:
     :param season:
     :return:
     """
@@ -67,24 +73,33 @@ def group_data_by_season(df, season):
     situation = list(
         df_tmp[df_tmp.epiyear == season].situation.unique()
     )
+
     if 'unknown' in situation or 'estimate' in situation:
         df_tmp.loc[df_tmp.epiyear == season, 'situation'] = 'incomplete'
     else:
         df_tmp.loc[df_tmp.epiyear == season, 'situation'] = 'stable'
 
-    df_by_season = df_tmp[season_basic_cols].groupby(
-        ['uf', 'unidade_da_federacao', 'epiyear'],
-        as_index=False
-    ).sum()
+    if df_age_dist is not None:
+        df_by_season = df_age_dist[[
+            'uf', 'unidade_da_federacao', 'epiyear', 'sexo', 'srag',
+            '0_4_anos', '5_9_anos', '10_19_anos', '20_29_anos', '30_39_anos',
+            '40_49_anos', '50_59_anos', '60+_anos'
+        ]].groupby([
+            'uf', 'unidade_da_federacao', 'epiyear', 'sexo'
+        ], as_index=False).sum()
+    else:
+        df_by_season = df_tmp[season_basic_cols].groupby(
+            ['uf', 'unidade_da_federacao', 'epiyear'],
+            as_index=False
+        ).sum()
 
     df_by_season['situation'] = df_by_season.apply(
         get_season_situation(df_tmp), axis=1
     )
 
-    df_by_season_level = pd.crosstab(
-        [df_tmp.uf, df_tmp.unidade_da_federacao, df_tmp.epiyear],
-        df_tmp.level
-    ).reset_index()
+    df_by_season_level = pd.crosstab([
+        df_tmp.uf, df_tmp.unidade_da_federacao, df_tmp.epiyear
+    ], df_tmp.level).reset_index()
 
     df_by_season_level.columns.name = None
 
@@ -201,31 +216,42 @@ def get_srag_data_age_sex(year, state_name=None, epiweek=0):
     """
 
     """
+    season = year  # alias
     path_root = os.path.dirname(os.path.dirname(__file__))
     path_data = os.path.join(path_root, 'data')
-
-    # data
-    df = pd.read_csv(
-        os.path.join(
-            path_data,
-            'clean_data_epiweek-weekly-incidence_w_situation.csv'
-        ), low_memory=False, encoding='utf-8'
-    )
-
-    prepare_keys_name(df)
 
     age_cols = [
         '0_4_anos', '5_9_anos', '10_19_anos', '20_29_anos', '30_39_anos',
         '40_49_anos', '50_59_anos', '60+_anos'
     ]
 
-    df = df[df.epiyear == year]
+    if not state_name:
+        state_name = 'Brasil'
 
-    if state_name:
+    # data
+    df_age_dist = pd.read_csv(
+        os.path.join(
+            path_data,
+            'clean_data_epiweek-weekly-incidence_w_situation.csv'
+        ), low_memory=False, encoding='utf-8'
+    )
+
+    prepare_keys_name(df_age_dist)
+
+    df_age_dist = df_age_dist[
+        (df_age_dist.epiyear == season) &
+        (df_age_dist.unidade_da_federacao == state_name)
+    ]
+
+    if epiweek is not None and epiweek > 0:
+        df_age_dist = df_age_dist[df_age_dist.epiweek == epiweek]
+        df = df_age_dist
+    else:
+        df = prepare_srag_data(year)['df']
         df = df[df.unidade_da_federacao == state_name]
-
-    if epiweek:
-        df = df[df.epiweek == epiweek]
+        df = group_data_by_season(
+            df=df, df_age_dist=df_age_dist, season=season
+        )
 
     df = df[age_cols + ['sexo']].set_index('sexo').transpose()
     df.rename(columns={'F': 'Mulheres', 'M': 'Homens'}, inplace=True)
