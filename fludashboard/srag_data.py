@@ -243,7 +243,7 @@ def get_srag_data_age_sex(year, state_name=None, epiweek=0):
         (df_age_dist.unidade_da_federacao == state_name)
     ]
 
-    if epiweek > 0:
+    if epiweek is not None and epiweek > 0:
         df_age_dist = df_age_dist[df_age_dist.epiweek == epiweek]
         df = df_age_dist
     else:
