@@ -77,8 +77,8 @@ def data__weekly_incidence_curve(year, state=None):
 
     ks = [
         'epiweek', 'corredor_baixo', 'corredor_mediano', 'corredor_alto',
-        'srag',
-        'limiar_pre_epidemico', 'intensidade_alta', 'intensidade_muito_alta'
+        'srag', 'limiar_pre_epidemico', 'intensidade_alta',
+        'intensidade_muito_alta'
     ]
 
     df = get_srag_data(year=year, state_name=state)
@@ -209,7 +209,7 @@ def data__data_table(year, epiweek=None, territory_type=None, state_name=None):
 
     # for a whole year view
     if not epiweek:
-        df = group_data_by_season(df, year)
+        df = group_data_by_season(df, season=year)
 
         # order by type
         df = df.assign(type_unit=1)
@@ -281,7 +281,6 @@ def data__age_distribution(year, week=None, state=None):
     """
     if not year > 0:
         return '[]'
-
 
     if not state:
         state = 'Brasil'
