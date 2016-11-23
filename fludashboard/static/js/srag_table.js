@@ -14,7 +14,9 @@ class SRAGTable {
    */
   constructor(){
     $('#divTable').html(this.getDataTableContent());
-    this.dataTable = $('#data-table').DataTable();
+    this.dataTable = $('#data-table').DataTable({
+      "autoWidth": false
+    });
   }
 
   /**
@@ -77,6 +79,7 @@ class SRAGTable {
       {'data': 'situation'},
       {'data': 'srag'}
     ];
+    tableSettings["autoWidth"] = false;
 
     // create new table
     $('#divTable').html(this.getDataTableContent());

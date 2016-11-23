@@ -31,34 +31,28 @@
 
     <div class="row">
 
-      <div class="col-sm-12">
-        <div class="row">
-          <!-- detailed/resumed -->
-          <div class="col-sm-12">
-            <input
-              id="btn-detailed"
-              type="button" value="Detalhado (semana)" class="tab selected">
-            <input
-              id="btn-resumed"
-              type="button" value="Resumido (ano)" class="tab">
-          </div>
-      </div>
+      <div class="col-md-12">
 
         <div class="row">
 
           <!-- Time Chart --> 
-          <div class="col-sm-12">
+          <div class="col-md-12">
             <div class="chart-wrapper">
-              <div class="chart-title">
-                <strong>Crit&eacute;rios</strong>
-              </div>
               <div class="chart-stage">
-                <div style="display:inline;float:left;">
+                <div class="criteria-box">
+                  <input
+                    id="btn-detailed"
+                    type="button" value="Detalhado (semana)" class="tab selected">
+                  <input
+                    id="btn-resumed"
+                    type="button" value="Resumido (ano)" class="tab">
+                </div>
+                <div class="criteria-box">
                   <input type="radio" id="radTypeState" name="radType[]" checked="checked"> Por UF
                   <br/>
                   <input type="radio" id="radTypeRegion" name="radType[]"> Por Região
                 </div>
-                <div style="display:inline;float:left;margin-left:20px;">
+                <div class="criteria-box">
                   <strong>Ano:</strong>
                   <br/>
                   <select id='year'>
@@ -69,8 +63,7 @@
                     {%endfor%}
                   </select>
                 </div>
-                <div id="div-week"
-                     style="display:inline;float:left;margin-left:20px;">
+                <div id="div-week" class="criteria-box">
                   <div data-role="main" class="ui-content">
                     <label for="week">Semana:</label>
         <input type id="week-display" value="{{current_epiweek}}" 
@@ -92,13 +85,13 @@
     <div class="row">
 
       <!-- Map -->  
-      <div class="col-sm-6">
+      <div class="col-md-5">
         <div class="chart-wrapper">
           <div class="chart-title">
             <strong>Mapa de incidência de SRAG</strong>
           </div>
           <div class="chart-stage">
-            <div id="map" style="height:350px;"></div>
+            <div id="map" class="content-height"></div>
           </div>
         </div>
         <div id="legend">
@@ -120,11 +113,11 @@
       </div>
       <!-- Map -->
 
-      <div class="col-sm-6">
+      <div class="col-md-7">
         <div class="row">
 
           <!-- Resources Pie -->
-          <div class="col-sm-12">
+          <div class="col-md-12">
             <div class="chart-wrapper">
               <div class="chart-title">
                 <strong>Curva de Incidência
@@ -160,7 +153,7 @@
                 <!-- info panel:end -->
 
                 <!-- chart -->
-                <div id="weekly-incidence-curve-chart" style="height:350px"></div>
+                <div id="weekly-incidence-curve-chart" class="content-height"></div>
                 <!-- chart:end -->
               </div>
             </div>
@@ -172,7 +165,7 @@
     </div>
     <div class="row">
       <!-- Table --> 
-      <div class="col-sm-6">
+      <div class="col-md-5">
         <div class="chart-wrapper">
           <div class="chart-title">
             <strong>Incidência
@@ -181,15 +174,15 @@
               <span class="territory-display"></span>
             </strong>
           </div>
-          <div class="chart-stage" id="divTable"
-               style="height:350px; overflow-y:auto;">
+          <div class="chart-stage content-height" id="divTable"
+               style="overflow-y:auto;">
             
           </div>
         </div>
       </div>
       
       <!-- Gender/Age Distribution --> 
-      <div class="col-sm-6">
+      <div class="col-md-7">
         <div class="chart-wrapper">
           <div class="chart-title">
             <strong>Distribui&ccedil;&atilde;o por G&ecirc;nero/Idade
@@ -198,8 +191,8 @@
             <span class="territory-display"></span>
             </strong>
           </div>
-          <div class="chart-stage"  style="height:350px;">
-            <div id="age-chart" style="height:350px;"></div>
+          <div class="chart-stage content-height">
+            <div id="age-chart" class="content-height"></div>
           </div>
         </div>
       </div>
