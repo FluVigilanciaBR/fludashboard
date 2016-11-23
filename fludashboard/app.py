@@ -19,9 +19,23 @@ from fludashboard.calc_srag_alert import (
     apply_filter_alert_by_epiweek,
     calc_alert_rank_whole_year)
 from fludashboard.utils import crossdomain
-from fludashboard.episem import episem
+from fludashboard.episem import episem, extractweekday as extract_weekday
 
 app = Flask(__name__)
+
+
+def _calc_last_epiweek(year):
+    # Extract last Brazilian epiweek from given year
+
+    day = datetime.datetime(int(year), 12, 31)  # Ultimo dia do ano
+    day_week = extract_weekday(day)  # dia semana do ultimo dia
+
+    if day_week < 3:
+        day = day - datetime.timedelta(days=(day_week+1))
+    else:
+        day = day + datetime.timedelta(days=(6-day_week))
+
+    return(int(episem(day, out='W')))
 
 
 @app.route("/")
@@ -38,15 +52,18 @@ def index():
     # Here the code should recieve the user-requested year.
     # By default should be the current or latest available
     list_of_years = list(set(df_incidence.epiyear))
-
     year = max(list_of_years) if list_of_years else 0
     epiweek = episem(datetime.datetime.now().strftime('%Y-%m-%d'))[-2:]
+    last_week_years = {
+        y: _calc_last_epiweek(y) for y in list_of_years
+    }
 
     return render_template(
         "index.html",
         current_epiweek=epiweek,
         list_of_years=sorted(list_of_years, reverse=True),
-        last_year=year
+        last_year=year,
+        last_week_years=last_week_years
     )
 
 

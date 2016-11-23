@@ -20,10 +20,10 @@
 class Dashboard {
   /**
    * @constructs
+   * @param {dict} lastWeekYears- Dictionary with the last week of each
+      available year (e.g. {2015: 53, 2016: 52}).
    */
-  constructor(
-      userInterface, mapId
-  ) {
+  constructor(lastWeekYears) {
     var _this = this;
     this.group_by = 'week'; // year or week
     // state or region
@@ -32,13 +32,14 @@ class Dashboard {
       'state' : 'region'
     );
     this.lastWeek = $('#week').val() || 0;
+    this.lastWeekYears = lastWeekYears;
     this.sragData = {};
 
     // table
     this.sragTable = new SRAGTable();
     this.sragMap = new SRAGMap();
     this.sragIncidenceChart = new SRAGIncidenceChart(
-      '#weekly-incidence-curve-chart'
+      '#weekly-incidence-curve-chart', this.lastWeekYears
     );
 
     this.sragAgeChart = new SRAGAgeChart(
@@ -198,7 +199,3 @@ class Dashboard {
     this.sragTable.makeTable(year, week, stateName);
   }
 }
-
-dashboard = new Dashboard();
-
-$(document).ready(function(){dashboard.init()});

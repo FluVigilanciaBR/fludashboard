@@ -12,9 +12,12 @@ class SRAGIncidenceChart{
   /**
    * @constructs
    * @param {string} bindTo - DOM ID of the chart container (e.g. "#container").
+   * @param {dict} lastWeekYears- Dictionary with the last week of each
+      available year (e.g. {2015: 53, 2016: 52}).
    */
-  constructor(bindTo) {
+  constructor(bindTo, lastWeekYears) {
     this.bindTo = bindTo;
+    this.lastWeekYears = lastWeekYears;
   }
 
   /**
@@ -125,10 +128,15 @@ class SRAGIncidenceChart{
       },
       axis: {
         x: {
-        label: {
-          text: 'SE',
-          position: 'outer-center'
-        }
+          label: {
+            text: 'SE',
+            position: 'outer-center'
+          },
+          tick: {
+            values: range(1, _this.lastWeekYears[year], 2)
+          },
+          min: 0,
+          max:_this.lastWeekYears[year]
         },
         y: {
         label: {
@@ -138,7 +146,7 @@ class SRAGIncidenceChart{
         },
       },
       regions: [
-        {start:0, end:52, class: 'alert-red'}
+        {start:0, end:_this.lastWeekYears[year], class: 'alert-red'}
       ],
       grid: {
         x: {
