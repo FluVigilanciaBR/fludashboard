@@ -73,8 +73,8 @@ def group_data_by_season(df, df_age_dist=None, season=None):
     situation = list(
         df_tmp[df_tmp.epiyear == season].situation.unique()
     )
-
-    if 'unknown' in situation or 'estimate' in situation:
+    l_incomplete = ['unknown', 'estimated', 'incomplete', 'Incompleto']
+    if set(l_incomplete).intersection(situation):
         df_tmp.loc[df_tmp.epiyear == season, 'situation'] = 'incomplete'
     else:
         df_tmp.loc[df_tmp.epiyear == season, 'situation'] = 'stable'
@@ -115,8 +115,8 @@ def group_data_by_season(df, df_age_dist=None, season=None):
     )
 
     df_by_season.situation.replace({
-        'incomplete': 'Incompleto',
-        'stable': 'Estável',
+        'incomplete': 'Dados incompletos. Sujeito a grandes alterações.',
+        'stable': 'Dado estável. Sujeito a pequenas alterações.',
     }, inplace=True)
 
     df_by_season['epiweek'] = 0

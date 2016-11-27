@@ -273,7 +273,8 @@ def data__data_table(year, epiweek=None, territory_type=None, state_name=None):
         situation_dict = {
             'stable': 'Dado estável. Sujeito a pequenas alterações.',
             'estimated': 'Estimado. Sujeito a alterações.',
-            'unknown': 'Dados incompletos. Sujeito a grandes alterações.'
+            'unknown': 'Dados incompletos. Sujeito a grandes alterações.',
+            'incomplete': 'Dados incompletos. Sujeito a grandes alterações.'
         }
         df.situation = df.situation.map(
             lambda x: situation_dict[x] if x else ''
