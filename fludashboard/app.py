@@ -115,7 +115,6 @@ def data__weekly_incidence_curve(year, state=None):
         df.loc[mask, 'ci_upper'] = df.loc[mask, '97.5%']
 
         ks += ['estimated_cases', 'ci_lower', 'ci_upper']
-
     except:
         pass
 
@@ -124,8 +123,8 @@ def data__weekly_incidence_curve(year, state=None):
 
         df['incomplete_data'] = None
 
-        df_est = df[df['epiweek'] >= min_week]
-        df_est['incomplete_data'] = df_est['97.5%']
+        mask = df['epiweek'] >= min_week
+        df.loc[mask, 'incomplete_data'] = df.loc[mask, '97.5%']
 
         ks += ['incomplete_data']
     except:
@@ -159,8 +158,12 @@ def data__incidence_levels(
     df = get_srag_data(year=year, state_name=state_name, epiweek=epiweek)
 
     if epiweek is not None and epiweek > 0:
-        ks = ['l0', 'l1', 'l2', 'l3', 'situation']
-        return (df[ks]*100).round(2).to_json(orient='records')
+        ks = ['l0', 'l1', 'l2', 'l3']
+        df[ks] *= 100
+        df[ks] = df[ks].round(2)
+
+        ks += ['situation']
+        return df[ks].to_json(orient='records')
 
     # prepare data for the whole year
     df = apply_filter_alert_by_epiweek(df=df)

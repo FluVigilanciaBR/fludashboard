@@ -51,10 +51,10 @@ class SRAGIncidenceChart{
 
         if (data['situation'] == 'stable') {
           $('.classification', _level).text(
-            data['l0'] == 1 ?
-              'Baixa' : data['l1'] == 1 ?
-              'Epidêmica' : data['l2'] == 1 ?
-              'Alta' : data['l3'] == 1 ?
+            data['l0'] == 100 ?
+              'Baixa' : data['l1'] == 100 ?
+              'Epidêmica' : data['l2'] == 100 ?
+              'Alta' : data['l3'] == 100 ?
               'Muito Alta' : '(Não encontrada.)'
           );
           _level.removeClass('hidden');
@@ -135,7 +135,7 @@ class SRAGIncidenceChart{
           tick: {
             values: range(1, _this.lastWeekYears[year], 2)
           },
-          min: 0,
+          min: 1,
           max:_this.lastWeekYears[year]
         },
         y: {
@@ -146,7 +146,7 @@ class SRAGIncidenceChart{
         },
       },
       regions: [
-        {start:0, end:_this.lastWeekYears[year], class: 'alert-red'}
+        {start: 1, end: _this.lastWeekYears[year], class: 'alert-red'}
       ],
       grid: {
         x: {
