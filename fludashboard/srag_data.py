@@ -41,9 +41,9 @@ def get_season_level(se):
     """
     if se.l2 + se.l3 > 4:
         return 4  # 'red'
-    elif se.l2 + se.l3 > 1:
+    elif se.l2 + se.l3 >= 1:
         return 3  # 'orange'
-    elif se.l1 > 1:
+    elif se.l1 >= 1:
         return 2  # 'yellow'
     # else
     return 1 # 'green'
@@ -173,10 +173,10 @@ def prepare_srag_data(year=None):
         df_typical.assign(epiyear=year)
 
     df = pd.merge(
-        df_incidence, df_typical, on=['uf', 'epiweek'], how='right'
+        df_incidence, df_typical, on=['uf', 'epiweek'], how='outer'
     ).merge(
         df_thresholds.drop(['unidade_da_federacao'], axis=1),
-        on='uf'
+        on='uf', how='outer'
     )
 
     # resolve some conflicts
