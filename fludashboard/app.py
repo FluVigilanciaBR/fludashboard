@@ -2,7 +2,6 @@ from flask import Flask
 from flask import render_template
 
 import click
-import numpy as np
 import pandas as pd
 import datetime
 import sys

@@ -133,7 +133,7 @@ class SRAGIncidenceChart{
             position: 'outer-center'
           },
           tick: {
-            values: range(1, _this.lastWeekYears[year], 2)
+            values: d3.range(1, _this.lastWeekYears[year], 2)
           },
           min: 1,
           max:_this.lastWeekYears[year]

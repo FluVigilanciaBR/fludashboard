@@ -2,6 +2,7 @@
 
 
 """
+import numpy as np
 
 
 def calc_alert_rank(se):
@@ -13,6 +14,7 @@ def calc_alert_rank(se):
     _max = max([se.l3, se.l2, se.l1, se.l0])
 
     return (
+        0 if np.isnan(_max) else
         1 if se.l0 == _max else
         2 if se.l1 == _max else
         3 if se.l2 == _max else
