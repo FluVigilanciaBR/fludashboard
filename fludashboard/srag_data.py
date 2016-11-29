@@ -114,24 +114,19 @@ def group_data_by_season(df, df_age_dist=None, season=None):
         get_season_level, axis=1
     )
 
-    df_by_season.situation.replace({
-        'incomplete': 'Dados incompletos. Sujeito a grandes alterações.',
-        'stable': 'Dado estável. Sujeito a pequenas alterações.',
-    }, inplace=True)
-
     df_by_season['epiweek'] = 0
 
     return df_by_season
 
 
-def report_incidence(x, low, high, situation):
+def report_incidence(x, situation, low=None, high=None):
     """
     original name: report_inc
 
     :param x:
+    :param situation:
     :param low:
     :param high:
-    :param situation:
     :return:
     """
     if situation == 'stable':
@@ -173,6 +168,10 @@ def prepare_srag_data(year=None):
     for _df in [df_incidence, df_typical, df_thresholds]:
         prepare_keys_name(_df)
 
+    if year:
+        df_incidence = df_incidence[df_incidence.epiyear == year]
+        df_typical.assign(epiyear=year)
+
     df = pd.merge(
         df_incidence, df_typical, on=['uf', 'epiweek'], how='right'
     ).merge(
@@ -180,8 +179,8 @@ def prepare_srag_data(year=None):
         on='uf'
     )
 
-    if year:
-        df = df[df.epiyear == year]
+    # resolve some conflicts
+    df.situation.fillna('', inplace=True)
 
     return {
         'df_incidence': df_incidence,
@@ -197,18 +196,13 @@ def get_srag_data(year, state_name=None, epiweek=0):
     """
     # data
     df = prepare_srag_data(year=year)['df']
-    mask = df.keys()
 
     if state_name:
-        mask = df.unidade_da_federacao == state_name
+        df = df[df.unidade_da_federacao == state_name]
 
     if epiweek:
-        if state_name:
-            mask &= df.epiweek == epiweek
-        else:
-            mask = df.epiweek == epiweek
+        df = df[df.epiweek == epiweek]
 
-    df = df[mask]
     return df
 
 

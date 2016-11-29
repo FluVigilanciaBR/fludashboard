@@ -102,7 +102,7 @@ input.tab.selected {
 
 #chart-incidence-activity-level-panel {
   position: absolute;
-  z-index: 10000;
+  z-index: 100;
   padding: 10px;
   margin-left: 80px;
 }

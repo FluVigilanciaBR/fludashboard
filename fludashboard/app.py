@@ -114,7 +114,6 @@ def data__weekly_incidence_curve(year, state=None):
         df.loc[mask, 'ci_upper'] = df.loc[mask, '97.5%']
 
         ks += ['estimated_cases', 'ci_lower', 'ci_upper']
-
     except:
         pass
 
@@ -123,8 +122,8 @@ def data__weekly_incidence_curve(year, state=None):
 
         df['incomplete_data'] = None
 
-        df_est = df[df['epiweek'] >= min_week]
-        df_est['incomplete_data'] = df_est['97.5%']
+        mask = df['epiweek'] >= min_week
+        df.loc[mask, 'incomplete_data'] = df.loc[mask, '97.5%']
 
         ks += ['incomplete_data']
     except:
@@ -158,8 +157,12 @@ def data__incidence_levels(
     df = get_srag_data(year=year, state_name=state_name, epiweek=epiweek)
 
     if epiweek is not None and epiweek > 0:
-        ks = ['l0', 'l1', 'l2', 'l3', 'situation']
-        return (df[ks]*100).round(2).to_json(orient='records')
+        ks = ['l0', 'l1', 'l2', 'l3']
+        df[ks] *= 100
+        df[ks] = df[ks].round(2)
+
+        ks += ['situation']
+        return df[ks].to_json(orient='records')
 
     # prepare data for the whole year
     df = apply_filter_alert_by_epiweek(df=df)
@@ -228,25 +231,6 @@ def data__data_table(year, epiweek=None, territory_type=None, state_name=None):
     if not epiweek:
         df = group_data_by_season(df, season=year)
 
-        # order by type
-        df = df.assign(type_unit=1)
-
-        try:
-            df.loc[df.uf == 'BR', 'type_unit'] = 0
-        except:
-            pass
-
-        df.sort_values(
-            by=['type_unit', 'unidade_da_federacao', 'epiyear', 'epiweek'],
-            inplace=True
-        )
-        df.reset_index(drop=True, inplace=True)
-        df.drop('type_unit', axis=1, inplace=True)
-
-        return '{"data": %s}' % df[ks].round({
-            'srag': 2
-        }).to_json(orient='records')
-
     # order by type
     df = df.assign(type_unit=1)
 
@@ -264,10 +248,16 @@ def data__data_table(year, epiweek=None, territory_type=None, state_name=None):
 
     # add more information into srag field
     if df.shape[0]:
-        df.srag = df[['50%', '2.5%', '97.5%', 'situation']].apply(
-            lambda row: report_incidence(
-                row['50%'], row['2.5%'], row['97.5%'], row['situation']
-        ), axis=1)
+        if epiweek:
+            df.srag = df[['50%', '2.5%', '97.5%', 'situation']].apply(
+                lambda row: report_incidence(
+                    row['50%'], row['situation'], row['2.5%'], row['97.5%']
+                ), axis=1)
+        else:
+            df.srag = df[['srag', 'situation']].apply(
+                lambda row: report_incidence(
+                    row['srag'], row['situation']
+                ), axis=1)
 
         # change situation value by a informative text
         situation_dict = {
@@ -276,6 +266,7 @@ def data__data_table(year, epiweek=None, territory_type=None, state_name=None):
             'unknown': 'Dados incompletos. Sujeito a grandes alterações.',
             'incomplete': 'Dados incompletos. Sujeito a grandes alterações.'
         }
+
         df.situation = df.situation.map(
             lambda x: situation_dict[x] if x else ''
         )
