@@ -231,25 +231,6 @@ def data__data_table(year, epiweek=None, territory_type=None, state_name=None):
     if not epiweek:
         df = group_data_by_season(df, season=year)
 
-        # order by type
-        df = df.assign(type_unit=1)
-
-        try:
-            df.loc[df.uf == 'BR', 'type_unit'] = 0
-        except:
-            pass
-
-        df.sort_values(
-            by=['type_unit', 'unidade_da_federacao', 'epiyear', 'epiweek'],
-            inplace=True
-        )
-        df.reset_index(drop=True, inplace=True)
-        df.drop('type_unit', axis=1, inplace=True)
-
-        return '{"data": %s}' % df[ks].round({
-            'srag': 2
-        }).to_json(orient='records')
-
     # order by type
     df = df.assign(type_unit=1)
 
@@ -267,10 +248,16 @@ def data__data_table(year, epiweek=None, territory_type=None, state_name=None):
 
     # add more information into srag field
     if df.shape[0]:
-        df.srag = df[['50%', '2.5%', '97.5%', 'situation']].apply(
-            lambda row: report_incidence(
-                row['50%'], row['2.5%'], row['97.5%'], row['situation']
-        ), axis=1)
+        if epiweek:
+            df.srag = df[['50%', '2.5%', '97.5%', 'situation']].apply(
+                lambda row: report_incidence(
+                    row['50%'], row['situation'], row['2.5%'], row['97.5%']
+                ), axis=1)
+        else:
+            df.srag = df[['srag', 'situation']].apply(
+                lambda row: report_incidence(
+                    row['srag'], row['situation']
+                ), axis=1)
 
         # change situation value by a informative text
         situation_dict = {
@@ -279,6 +266,7 @@ def data__data_table(year, epiweek=None, territory_type=None, state_name=None):
             'unknown': 'Dados incompletos. Sujeito a grandes alterações.',
             'incomplete': 'Dados incompletos. Sujeito a grandes alterações.'
         }
+
         df.situation = df.situation.map(
             lambda x: situation_dict[x] if x else ''
         )

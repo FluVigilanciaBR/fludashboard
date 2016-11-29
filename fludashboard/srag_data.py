@@ -114,24 +114,19 @@ def group_data_by_season(df, df_age_dist=None, season=None):
         get_season_level, axis=1
     )
 
-    df_by_season.situation.replace({
-        'incomplete': 'Dados incompletos. Sujeito a grandes alterações.',
-        'stable': 'Dado estável. Sujeito a pequenas alterações.',
-    }, inplace=True)
-
     df_by_season['epiweek'] = 0
 
     return df_by_season
 
 
-def report_incidence(x, low, high, situation):
+def report_incidence(x, situation, low=None, high=None):
     """
     original name: report_inc
 
     :param x:
+    :param situation:
     :param low:
     :param high:
-    :param situation:
     :return:
     """
     if situation == 'stable':

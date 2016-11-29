@@ -5,7 +5,7 @@
 import numpy as np
 
 
-def calc_alert_rank(se):
+def get_season_level(se):
     """
 
     :param se: pd.Series
@@ -52,7 +52,7 @@ def apply_filter_alert_by_epiweek(
     df_alert = df[mask].copy().reset_index()
 
     # alert
-    alert_col = df_alert.T.apply(calc_alert_rank)
+    alert_col = df_alert.T.apply(get_season_level)
     df_alert = df_alert.assign(alert=alert_col)
 
     return df_alert
