@@ -25,14 +25,14 @@ Description
 Function: ``plot``
 ==================
 
-Plot incidence chart using
+Plots SRAG incidence chart by age
 
-.. js:function:: plot(year, state_name, week-)
+.. js:function:: plot(year, week, stateName-)
 
     
-    :param number year: year to filter the data
-    :param string state_name: state_name to filter the data
-    :param number week-: week to filter the data
+    :param number year: SRAG incidence year.
+    :param number week: SRAG incidence week.
+    :param string stateName-: Federal state name (e.g. "Acre").
     
 
 .. _SRAGAgeChart.bindTo:

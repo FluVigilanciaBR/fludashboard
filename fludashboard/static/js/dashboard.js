@@ -19,8 +19,7 @@
  */
 class Dashboard {
   /**
-   * @constructs
-   * @param {dict} lastWeekYears- Dictionary with the last week of each
+   * @param {dict} lastWeekYears - Dictionary with the last week of each
       available year (e.g. {2015: 53, 2016: 52}).
    */
   constructor(lastWeekYears) {

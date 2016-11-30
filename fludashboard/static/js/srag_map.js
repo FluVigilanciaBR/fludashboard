@@ -19,7 +19,6 @@
  */
 class SRAGMap {
   /**
-   * @constructs
    */
   constructor() {
     this.fluColors = {

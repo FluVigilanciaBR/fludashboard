@@ -25,7 +25,7 @@ Description
 Function: ``init``
 ==================
 
-start up the charts
+starts up the charts
 
 .. js:function:: init()
 
@@ -49,13 +49,12 @@ load data and build charts
 Function: ``changeWeek``
 ========================
 
-When a week mark is changed, this function should update and trigger
-some information and chart
+When a week mark is changed, this function should update the charts and
+SRAG data table.
 
-.. js:function:: changeWeek(sragData)
+.. js:function:: changeWeek()
 
     
-    :param dict sragData: srag data
     
 .. _Dashboard.makeGraphs:
 
@@ -63,11 +62,12 @@ some information and chart
 Function: ``makeGraphs``
 ========================
 
+Trigger the functions to create the charts and the data table.
 
-
-.. js:function:: makeGraphs()
+.. js:function:: makeGraphs(error)
 
     
+    :param object error: data about any error.
     
 
 .. _Dashboard.group_by:
@@ -81,6 +81,10 @@ Member: ``delimitation``:
 .. _Dashboard.lastWeek:
 
 Member: ``lastWeek``: 
+
+.. _Dashboard.lastWeekYears:
+
+Member: ``lastWeekYears``: 
 
 .. _Dashboard.sragData:
 
