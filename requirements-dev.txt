@@ -4,3 +4,6 @@
 sphinx
 sphinxcontrib-autoanysrc
 sphinx_rtd_theme
+
+# shell
+sh

@@ -25,13 +25,13 @@ Description
 Function: ``makeMap``
 =====================
 
-Build a map
+Builds a Brazilian map
 
 .. js:function:: makeMap(geoJsonBr, sragData)
 
     
     :param dict geoJsonBr: geoJson data about Brazilian territory
-    :param dict sragData: srag data
+    :param dict sragData: SRAG data
     
 .. _SRAGMap.getAlertLevelForWholeYear:
 
@@ -39,19 +39,19 @@ Build a map
 Function: ``getAlertLevelForWholeYear``
 =======================================
 
-Get the alert level color using the follow criteria:
+Gets the alert level color using the follow criteria:
 
-Red (level 4) if the incidence was above the high threshold for at
- least 5 weeks;
-Orange (level 3) if above the high threshold from 1 to 4 weeks;
-Yellow (level 2) if crossed the epidemic threshold but not the high one;
-Green (level 1) if it did not cross the epidemic threshold.
+- Red (level 4) if the incidence was above the high threshold for at
+  least 5 weeks;
+- Orange (level 3) if above the high threshold from 1 to 4 weeks;
+- Yellow (level 2) if crossed the epidemic threshold but not the high one;
+- Green (level 1) if it did not cross the epidemic threshold.
 
 .. js:function:: getAlertLevelForWholeYear(d)
 
     
-    :param dict d: total number of alert occurrence
-    :return number: alert level
+    :param dict d: Total number of alert occurrence
+    :return number: - Alert level (1-4)
     
 .. _SRAGMap.changeColorMap:
 
@@ -59,12 +59,12 @@ Green (level 1) if it did not cross the epidemic threshold.
 Function: ``changeColorMap``
 ============================
 
-Change the color of the map using the alerts criteria
+Changes the color of the map using the alerts criteria
 
 .. js:function:: changeColorMap(df)
 
     
-    :param dict df: data frame object
+    :param dict df: Data frame object
     
 
 .. _SRAGMap.fluColors:
@@ -74,14 +74,6 @@ Member: ``fluColors``:
 .. _SRAGMap.map:
 
 Member: ``map``: 
-
-.. _SRAGMap.osmUrl:
-
-Member: ``osmUrl``: 
-
-.. _SRAGMap.osmAttrib:
-
-Member: ``osmAttrib``: 
 
 .. _SRAGMap.osm:
 
@@ -99,9 +91,9 @@ Member: ``regionIds``:
 
 Member: ``regionNames``: 
 
-.. _SRAGMap.Legend:
+.. _SRAGMap.legend:
 
-Member: ``Legend``: 
+Member: ``legend``: 
 
 .. _SRAGMap.geojsonLayer:
 
