@@ -98,6 +98,7 @@ Functionality
 FluDashboard presents activity levels and incidence information time series by epidemiological week as well as by
 epidemiological season.
 Those two can be accessed by the "Detalhado" (detailed) and the "Resumido" (summary) view. Each view is composed by 4 panels:
+
 - Country map
 - Incidence chart
 - Incidence table
@@ -114,12 +115,9 @@ Detalhado (weekly activity information) view:
  - High activity (orange): incidence above high and below very high incidence threshold;
  - Very high activity (red): incidence above very high incidence threshold.
 
-- Incidence chart (upper right): This panel presents the reported incidence time series (black solid line) for the corresponding season, with an
-horizontal marker indicating the selected epidemiological week. Incidence is reported per 100 thousand individuals.
-Incidence estimation, when possible, is shown as a red solid line along with 95% confidence interval as dotted red
+- Incidence chart (upper right): This panel presents the reported incidence time series (black solid line) for the corresponding season, with an horizontal marker indicating the selected epidemiological week. Incidence is reported per 100 thousand individuals. Incidence estimation, when possible, is shown as a red solid line along with 95% confidence interval as dotted red
 lines. The activity level probability is also presented as text on the upper left corner. Map color correspond to activity
-level with highest probability. Along with reported and estimated incidence, the system presents the following activity thresholds, estimated based
-on historical activity at each State/Region:
+level with highest probability. Along with reported and estimated incidence, the system presents the following activity thresholds, estimated based on historical activity at each State/Region:
  - Pre-epidemic threshold (blue dashed line): activity level which indicates, when crossed, the beginning of sustained
  transmission for the current season. After crossing this threshold, incidence is expected to present steady
  increase (subject to fluctuations);
@@ -140,9 +138,7 @@ table also presents selected data current status:
  and our system is not able to provide reliable estimates. Data is subject to significant changes in the future,
  becoming stable after a few weeks.
 
-- Age and gender distribution: Reported incidence (without estimation) bar chart by gender and age bracket. Age distribution for females (blue), males (orange) and for the total population (green).
-Distributions are subject to future updates as described in the incidence table. Distribution in this panel does not
-use estimations, being always the currently reported distribution, either stable or incomplete.
+- Age and gender distribution: Reported incidence (without estimation) bar chart by gender and age bracket. Age distribution for females (blue), males (orange) and for the total population (green). Distributions are subject to future updates as described in the incidence table. Distribution in this panel does not use estimations, being always the currently reported distribution, either stable or incomplete.
 
 Resumido (seasonal activity) view:
 ----------------------------------
@@ -158,25 +154,13 @@ This view uses detailed activity levels to report the seasonal one.
  - Very high activity (red): weekly incidence has been reported above high or very high incidence threshold for 5
  weeks or more.
 
-- Incidence chart (upper right): This panel presents the reported incidence time series (black solid line) for the corresponding season. Incidence is
-reported per 100 thousand individuals. Incidence estimation, when possible, is shown as a red solid line along with 95% confidence interval as dotted red
-lines. The activity level probability is also presented as text on the upper left corner. Map color correspond to activity
-level with highest probability. Along with reported and estimated incidence, the system presents the following activity thresholds, estimated based
-on historical activity at each State/Region:
- - Pre-epidemic threshold (blue dashed line): activity level which indicates, when crossed, the beginning of sustained
- transmission for the current season. After crossing this threshold, incidence is expected to present steady
- increase (subject to fluctuations);
- - High activity threshold (green dashed line): activity level above which incidence is considered high for that
- location. Calculated based on the estimated 90 percentile of historical activity distribution.
- - Very high activity threshold (red dashed line): activity level above which incidence is considered high for that
- region. Calculated based on the estimated 97.5 percentile of historical activity distribution.
+- Incidence chart (upper right): This panel presents the reported incidence time series (black solid line) for the corresponding season. Incidence is reported per 100 thousand individuals. Incidence estimation, when possible, is shown as a red solid line along with 95% confidence interval as dotted red lines. The activity level probability is also presented as text on the upper left corner. Map color correspond to activity level with highest probability. Along with reported and estimated incidence, the system presents the following activity thresholds, estimated based on historical activity at each State/Region:
+ - Pre-epidemic threshold (blue dashed line): activity level which indicates, when crossed, the beginning of sustained transmission for the current season. After crossing this threshold, incidence is expected to present steady increase (subject to fluctuations);
+ - High activity threshold (green dashed line): activity level above which incidence is considered high for that location. Calculated based on the estimated 90 percentile of historical activity distribution.
+ - Very high activity threshold (red dashed line): activity level above which incidence is considered high for that region. Calculated based on the estimated 97.5 percentile of historical activity distribution.
 
-- Incidence table (lower left): Incidence for the corresponding State/Region for selected season up to latest report.
-Along with the name of the State/Region and incidence, this table also presents selected data current status:
- - Stable: reported data is considered to be sufficiently close to total number of notifications. Reported values are
-  expected to suffer minor updates in the future, if any;
- - Incomplete: reported data is not yet stable due to digitization opportunity pattern in the selected State/Region.
- Data is subject to significant changes in the future, becoming stable after a few weeks.
+- Incidence table (lower left): Incidence for the corresponding State/Region for selected season up to latest report. Along with the name of the State/Region and incidence, this table also presents selected data current status:
+ - Stable: reported data is considered to be sufficiently close to total number of notifications. Reported values are expected to suffer minor updates in the future, if any;
+ - Incomplete: reported data is not yet stable due to digitization opportunity pattern in the selected State/Region. Data is subject to significant changes in the future, becoming stable after a few weeks.
 
-- Age and gender distribution: Reported incidence bar chart by gender and age bracket. Age distribution for females (blue), males (orange) and for the total population (green).
-Distributions are subject to future updates as described in the incidence table.
+- Age and gender distribution: Reported incidence bar chart by gender and age bracket. Age distribution for females (blue), males (orange) and for the total population (green). Distributions are subject to future updates as described in the incidence table.
