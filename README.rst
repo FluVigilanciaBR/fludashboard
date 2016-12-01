@@ -1,6 +1,6 @@
-===============================
+============
 fludashboard
-===============================
+============
 
 .. image:: https://img.shields.io/pypi/v/fludashboard.svg
         :target: https://pypi.python.org/pypi/fludashboard
