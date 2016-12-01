@@ -10,7 +10,6 @@
  */
 class SRAGTable {
   /**
-   * @constructs
    */
   constructor(){
     $('#divTable').html(this.getDataTableContent());

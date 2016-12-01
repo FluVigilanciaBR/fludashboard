@@ -25,11 +25,14 @@ Description
 Function: ``displayInfo``
 =========================
 
+Shows activity information about the criteria established on the chart.
 
-
-.. js:function:: displayInfo()
+.. js:function:: displayInfo(year, week, stateName)
 
     
+    :param number year: SRAG incidence year (e.g. 2013).
+    :param number week: SRAG incidence week (e.g. 2).
+    :param string stateName: Federal state name (e.g. "Acre").
     
 .. _SRAGIncidenceChart.plot:
 
@@ -37,19 +40,24 @@ Function: ``displayInfo``
 Function: ``plot``
 ==================
 
-Plot incidence chart using
+Plots SRAG incidence chart
 
-.. js:function:: plot(year, state_name, week-)
+.. js:function:: plot(year, week, stateName-)
 
     
-    :param number year: year to filter the data
-    :param string state_name: state_name to filter the data
-    :param number week-: week to filter the data
+    :param number year: SRAG incidence year (e.g. 2013).
+    :param number week: SRAG incidence week (e.g. 2).
+    :param string stateName-: Federal state name (e.g. "Acre").
+    :return object: - Chart object.
     
 
 .. _SRAGIncidenceChart.bindTo:
 
 Member: ``bindTo``: 
+
+.. _SRAGIncidenceChart.lastWeekYears:
+
+Member: ``lastWeekYears``: 
 
 
 
