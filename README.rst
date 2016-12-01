@@ -109,7 +109,7 @@ In each, information can be displayed by State or by Region.
 Detalhado (weekly activity information) view:
 ---------------------------------------------
 
-- Country map (upper left): Each State/Region is colored according to selected week activity level
+- Country map (upper left): Each State/Region is colored according to selected week activity level:
  - Low activity (green): incidence below epidemic threshold;
  - Epidemic activity (yellow): incidence above epidemic threshold and below high incidence threshold;
  - High activity (orange): incidence above high and below very high incidence threshold;
@@ -132,7 +132,7 @@ Resumido (seasonal activity) view:
 
 This view uses detailed activity levels to report the seasonal one.
 
-- Country map (upper left): Each State/Region is colored according to selected week activity level
+- Country map (upper left): Each State/Region is colored according to selected week activity level:
  - Low activity (green): incidence below epidemic threshold during the whole season
  - Epidemic activity (yellow): incidence has crossed the epidemic threshold at least once, but never crossed high incidence threshold;
  - High activity (orange): weekly incidence has been reported above high or very high incidence threshold between 1 to 4 weeks;
