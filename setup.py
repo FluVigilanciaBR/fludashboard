@@ -1,14 +1,55 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from setuptools import setup
+from setuptools import setup, Command
 from pip.req import parse_requirements
 from pip.download import PipSession
 from glob import glob
 
 import os
+import sys
 
 PATH_ROOT = os.getcwd()
+
+
+class MakeDoc(Command):
+    """
+    MakeDoc will prepare Python and JavaScript document from code.
+
+    """
+    description = "Prepares documentation"
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        """
+
+        :return:
+        """
+        import sh
+
+        env = os.environ.copy()
+
+        # update RST files from python files
+        sh.cd(os.path.join(PATH_ROOT, 'docs'))
+        out = sh.sphinx_apidoc('-o', '.', '../fludashboard', '--force')
+        print(out)
+
+        # update RST files from python javascript files
+        path_template = list(
+            sh.grep(sh.locate('jsdoc-sphinx'), 'template$')
+        )[0].replace('\n', '')
+
+        out = sh.jsdoc(
+            '-t', path_template, '-d', 'jsdoc/', '../fludashboard/static/js/'
+        )
+        print(out)
+
 
 
 def list_dir(pathname=PATH_ROOT, dir_name=''):
@@ -33,6 +74,7 @@ test_requirements = [
 ]
 
 setup(
+    cmdclass={'doc': MakeDoc},
     name='fludashboard',
     version='0.1.0',
     description="Flu Dashboard",

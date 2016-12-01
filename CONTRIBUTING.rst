@@ -42,9 +42,24 @@ fludashboard could always use more documentation, whether as part of the
 official fludashboard docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
-To update sphinx documentation, at /docs/ directory, do:a:
+To update sphinx python documentation, at /docs/ directory, do::
 
     $ sphinx-apidoc -o . ../fludashboard
+
+To update sphinx javascript documentation, first install jsdoc and jsdoc-sphinx::
+
+    $ npm install jsdoc
+    $ npm install jsdoc-sphinx
+
+Next, enter the following command::
+
+    $ jsdoc -t <path_template> -d <DOC_ROOT_OF_PRJECT>/jsdoc/ ../fludashboard/static/js/
+
+To update both python and javascript documentation code just run::
+
+    $ python setup.py doc
+
+
 
 Submit Feedback
 ~~~~~~~~~~~~~~~

@@ -1,6 +1,6 @@
-===============================
+============
 fludashboard
-===============================
+============
 
 .. image:: https://img.shields.io/pypi/v/fludashboard.svg
         :target: https://pypi.python.org/pypi/fludashboard
@@ -107,7 +107,7 @@ Those two can be accessed by the "Detalhado" (detailed) and the "Resumido" (summ
 In each, information can be displayed by State or by Region.
 
 Detalhado (weekly activity information) view:
-=============================================
+---------------------------------------------
 
 - Country map (upper left):
 Each State/Region is colored according to selected week activity level:
@@ -153,7 +153,7 @@ Distributions are subject to future updates as described in the incidence table.
 use estimations, being always the currently reported distribution, either stable or incomplete.
 
 Resumido (seasonal activity) view:
-==================================
+----------------------------------
 
 This view uses detailed activity levels to report the seasonal one.
 
