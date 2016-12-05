@@ -145,7 +145,13 @@ Detalhado (weekly activity information) view:
 
 - Age and gender distribution
 
- Reported incidence (without estimation) bar chart by gender and age bracket. Age distribution for females (blue), males (orange) and for the total population (green). Distributions are subject to future updates as described in the incidence table. Distribution in this panel does not use estimations, being always the currently reported distribution, either stable or incomplete.
+ Reported incidence (without estimation) bar chart by gender and age bracket.
+
+ - Females (blue);
+ - Males (orange);
+ - Total population (green).
+
+ Distributions are subject to future updates as described in the incidence table. Distribution in this panel does not use estimations, being always the currently reported distribution, either stable or incomplete.
 
 Resumido (seasonal activity) view:
 ----------------------------------
@@ -178,4 +184,10 @@ This view uses detailed activity levels to report the seasonal one.
 
 - Age and gender distribution
 
- Reported incidence bar chart by gender and age bracket. Age distribution for females (blue), males (orange) and for the total population (green). Distributions are subject to future updates as described in the incidence table.
+ Reported incidence bar chart by gender and age bracket for the selected season.
+
+ - Females (blue);
+ - Males (orange);
+ - Total population (green).
+
+ Distributions are subject to future updates as described in the incidence table. Distribution in this panel does not use estimations, being always the currently reported distribution, either stable or incomplete.
