@@ -42,6 +42,8 @@ Tutoriais
 
 * Panorama semanal:
 
+  https://youtu.be/OWbvpxsJnpQ
+
 .. youtube:: OWbvpxsJnpQ
 
 
