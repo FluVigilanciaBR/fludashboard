@@ -37,6 +37,13 @@ Funcionalidades
 * Nível de atividade por temporada;
 * Séries históricas.
 
+Tutoriais
+---------
+
+* Panorama semanal:
+
+.. youtube:: OWbvpxsJnpQ
+
 
 ===========
 Implantação
