@@ -67,6 +67,15 @@ def index():
     )
 
 
+@app.route("/help")
+def app_help():
+    """
+
+    :return:
+    """
+    return render_template("help.html")
+
+
 @app.route('/data/incidence/<int:year>/<string:territory_type>')
 def get_incidence_data(year, territory_type):
     """
