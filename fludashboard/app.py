@@ -334,7 +334,7 @@ def startup(p):
     :param p:
     :return:
     """
-    app.run(host='0.0.0.0', port=p, debug=True)
+    app.run(host='157.86.153.230', port=p, debug=True)
 
 
 if __name__ == "__main__":
