@@ -38,6 +38,11 @@ def _calc_last_epiweek(year):
     return(int(episem(day, out='W')))
 
 
+@app.route("/super-header")
+def super_header():
+    return render_template("super-header.html")
+
+
 @app.route("/")
 def index():
     """

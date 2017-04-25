@@ -51,7 +51,7 @@ class SRAGTable {
       'state' : 'region'
     );
     var tableSettings = {
-      "dom": 'Bfrtip',
+      "dom": 'Bfrt',
       "language": {
         "url": "/static/libs/datatables/i18n/Portuguese-Brasil.json"
       },
@@ -59,7 +59,8 @@ class SRAGTable {
         'excelHtml5',
         'csvHtml5'
       ],
-      "pageLength": 10,
+      "paging": false,
+      //"pageLength": 100,
       "fixedColumns": true,
       "ordering": false
     };

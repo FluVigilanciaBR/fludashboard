@@ -15,10 +15,54 @@
       type="image/png"
       href="/static/img/favicon.ico"
   />
+  <style>
+    iframe {
+      padding: 0;
+      margin: 0;
+      border: 0;
+      width: 100%;
+      height: 110px;
+    }
+
+    .navbar {
+      margin: 0!important;
+    }
+/**
+    .container-fluid.page {
+      padding-top: 100px!important;
+    }
+
+    .navbar-inverse * {
+      background: #ffffff!important;
+      color: #3d4a57!important;
+    }
+**/
+  html, document, body {
+    margin: 0!important;
+    padding: 0!important;
+  }
+
+  .navbar-fixed {
+    border-width: 0 0 1px;
+    -webkit-transform: translate3d(0,0,0);
+    -o-transform: translate3d(0,0,0);
+    transform: translate3d(0,0,0);
+    border-radius: 0;
+  }
+
+  @media (min-width: 768px)
+  .navbar-fixed {
+      border-radius: 0;
+  }
+
+
+  </style>
 </head>
 <body class="application">
+  <div class="navbar navbar-inverse navbar-fixed" role="navigation">
 
-  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <iframe src="./super-header" scrolling="no"></iframe>
+
     <div class="container-fluid">
       <div class="navbar-header">
         <a class="navbar-brand" href="./"><strong>Monitoramento de casos reportados de síndrome respiratória aguda
@@ -30,7 +74,7 @@
     </div>
   </div>
 
-  <div class="container-fluid">
+  <div class="container-fluid page">
 
     <div class="row">
 
@@ -38,7 +82,7 @@
 
         <div class="row">
 
-          <!-- Time Chart --> 
+          <!-- Time Chart -->
           <div class="col-md-12">
             <div class="chart-wrapper">
               <div class="chart-stage">
@@ -69,7 +113,7 @@
                 <div id="div-week" class="criteria-box">
                   <div data-role="main" class="ui-content">
                     <label for="week">Semana:</label>
-        <input type id="week-display" value="{{current_epiweek}}" 
+        <input type id="week-display" value="{{current_epiweek}}"
                       style="width:30px;text-align:center;padding:1px;"
           maxlength="2"
         />
@@ -81,13 +125,13 @@
               </div>
             </div>
           </div>
-          <!-- Time Chart --> 
+          <!-- Time Chart -->
         </div>
       </div>
     </div>
     <div class="row">
 
-      <!-- Map -->  
+      <!-- Map -->
       <div class="col-md-5">
         <div class="chart-wrapper">
           <div class="chart-title">
@@ -167,7 +211,7 @@
       </div>
     </div>
     <div class="row">
-      <!-- Table --> 
+      <!-- Table -->
       <div class="col-md-5">
         <div class="chart-wrapper">
           <div class="chart-title">
@@ -179,12 +223,12 @@
           </div>
           <div class="chart-stage content-height" id="divTable"
                style="overflow-y:auto;">
-            
+
           </div>
         </div>
       </div>
-      
-      <!-- Gender/Age Distribution --> 
+
+      <!-- Gender/Age Distribution -->
       <div class="col-md-7">
         <div class="chart-wrapper">
           <div class="chart-title">
