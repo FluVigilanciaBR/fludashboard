@@ -341,14 +341,9 @@ ul.auto-toc {
 <div class="document">
 
 
-<div class="section" id="fludashboard">
-<h1>fludashboard</h1>
-<a class="reference external image-reference" href="https://pypi.python.org/pypi/fludashboard"><object data="https://img.shields.io/pypi/v/fludashboard.svg" type="image/svg+xml">https://img.shields.io/pypi/v/fludashboard.svg</object></a>
-<a class="reference external image-reference" href="https://travis-ci.org/FluVigilanciaBR/fludashboard"><object data="https://img.shields.io/travis/FluVigilanciaBR/fludashboard.svg" type="image/svg+xml">https://img.shields.io/travis/FluVigilanciaBR/fludashboard.svg</object></a>
-<a class="reference external image-reference" href="https://fludashboard.readthedocs.io/en/latest/?badge=latest"><img alt="Documentation Status" src="https://readthedocs.org/projects/fludashboard/badge/?version=latest" /></a>
-<a class="reference external image-reference" href="https://pyup.io/repos/github/FluVigilanciaBR/fludashboard/"><object data="https://pyup.io/repos/github/FluVigilanciaBR/fludashboard/shield.svg" type="image/svg+xml">Updates</object></a>
-<p>Flu Dashboard</p>
-<p>FluDashboard é uma iniciativa para monitorar e apresentar níveis de alerta para os casos reportados de Síndrome Respiratória Aguda Grave (SRAG) no SINAN, o Sistema de Informação de Agravos de Notificação (www.saude.gov.br/sinan).
+<div class="section" id="infogripe">
+<h1>InfoGripe</h1>
+<p>InfoGripe é uma iniciativa para monitorar e apresentar níveis de alerta para os casos reportados de Síndrome Respiratória Aguda Grave (SRAG) no SINAN, o Sistema de Informação de Agravos de Notificação (www.saude.gov.br/sinan).
 Os dados são apresentados por estado e por regiões de vigilância para síndromes gripais.</p>
 <p>Este é um produto da parceria entre pesquisadores do Programa de Computação Científica da Fundação Oswaldo Cruz (Fiocruz, PROCC), da Escola de Matemática Aplicada da Fundação Getúlio Vargas (FGV, EMAp), no Rio de Janeiro, e do GT-Influenza da Secretaria de Vigilância Sanitária do Ministério da Saúde (GT-Influenza, SVS, MS).</p>
 <ul class="simple">
@@ -372,43 +367,12 @@ Os dados são apresentados por estado e por regiões de vigilância para síndro
 <p><a class="reference external" href="https://youtu.be/OWbvpxsJnpQ">https://youtu.be/OWbvpxsJnpQ</a></p>
 </li>
 </ul>
-<iframe src="http://www.youtube.com/embed/OWbvpxsJnpQ"     width="500" height="281" frameborder="0"     webkitAllowFullScreen mozallowfullscreen allowfullscreen     class="align-left"></iframe></div>
-</div>
-<div class="section" id="implantacao">
-<h1>Implantação</h1>
-<p>Para implantar o FluDashboard usa o pacote conda, que criará um ambiente chamado <em>fludahsboard</em></p>
-<pre class="code shell literal-block">
-conda config --set always_yes yes --set changeps1 no
-
-conda config --add channels conda-forge
-
-conda update --all
-
-conda env create -f requirements -n fludashboard
-</pre>
-<p>Muda para o novo ambiente criado:</p>
-<pre class="code shell literal-block">
-<span class="name builtin">source</span> activate fludashboard
-</pre>
-<p>Alternativamente, a implantação pode ser feita via recipiente docker. Para criar um novo recipiente com ambiente conda:</p>
-<pre class="code shell literal-block">
-docker pull continuumio/anaconda3
-</pre>
-</div>
-<div class="section" id="executando-o-aplicativo">
-<h1>Executando o aplicativo</h1>
-<p>Para executar o app basta digitar no terminal (no diretório fludashboard/fludashboard):</p>
-<pre class="code shell literal-block">
-python app.py
-</pre>
-<p>A aplicação estará acessível na porta 5000. Para customizar a porta, usa o argumento -p com a porta desejada:</p>
-<pre class="code shell literal-block">
-python app.py -p 9000
-</pre>
+<iframe allowfullscreen="allowfullscreen" class="youtube" frameborder="0" height="360" src="http://youtube.com/embed/OWbvpxsJnpQ" width="640">
+</iframe></div>
 </div>
 <div class="section" id="descricao-das-funcionalidades">
 <h1>Descrição das funcionalidades</h1>
-<p>FluDashboard apresenta níveis de atividade e informação sobre a série temporal de incidência por semana epidemiológica (SE) e por temporada.
+<p>InfoGripe apresenta níveis de atividade e informação sobre a série temporal de incidência por semana epidemiológica (SE) e por temporada.
 Estas informações podem ser visualizadas pelo panorama <strong>Detalhado (semana)</strong> e <strong>Resumido (ano)</strong>. Cada panorama é composto por quatro painéis:</p>
 <ul class="simple">
 <li>Mapa do país;</li>

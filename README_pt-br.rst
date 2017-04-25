@@ -1,25 +1,8 @@
 ============
-fludashboard
+InfoGripe
 ============
 
-.. image:: https://img.shields.io/pypi/v/fludashboard.svg
-        :target: https://pypi.python.org/pypi/fludashboard
-
-.. image:: https://img.shields.io/travis/FluVigilanciaBR/fludashboard.svg
-        :target: https://travis-ci.org/FluVigilanciaBR/fludashboard
-
-.. image:: https://readthedocs.org/projects/fludashboard/badge/?version=latest
-        :target: https://fludashboard.readthedocs.io/en/latest/?badge=latest
-        :alt: Documentation Status
-
-.. image:: https://pyup.io/repos/github/FluVigilanciaBR/fludashboard/shield.svg
-     :target: https://pyup.io/repos/github/FluVigilanciaBR/fludashboard/
-     :alt: Updates
-
-
-Flu Dashboard
-
-FluDashboard é uma iniciativa para monitorar e apresentar níveis de alerta para os casos reportados de Síndrome Respiratória Aguda Grave (SRAG) no SINAN, o Sistema de Informação de Agravos de Notificação (www.saude.gov.br/sinan).
+InfoGripe é uma iniciativa para monitorar e apresentar níveis de alerta para os casos reportados de Síndrome Respiratória Aguda Grave (SRAG) no SINAN, o Sistema de Informação de Agravos de Notificação (www.saude.gov.br/sinan).
 Os dados são apresentados por estado e por regiões de vigilância para síndromes gripais.
 
 Este é um produto da parceria entre pesquisadores do Programa de Computação Científica da Fundação Oswaldo Cruz (Fiocruz, PROCC), da Escola de Matemática Aplicada da Fundação Getúlio Vargas (FGV, EMAp), no Rio de Janeiro, e do GT-Influenza da Secretaria de Vigilância Sanitária do Ministério da Saúde (GT-Influenza, SVS, MS).
@@ -47,58 +30,11 @@ Tutoriais
 .. youtube:: OWbvpxsJnpQ
 
 
-===========
-Implantação
-===========
-
-Para implantar o FluDashboard usa o pacote conda, que criará um ambiente chamado *fludahsboard*
-
-.. code:: shell
-
-    conda config --set always_yes yes --set changeps1 no
-
-    conda config --add channels conda-forge 
-
-    conda update --all
-
-    conda env create -f requirements -n fludashboard
-
-
-Muda para o novo ambiente criado:
-
-.. code:: shell
-
-    source activate fludashboard
-
-
-Alternativamente, a implantação pode ser feita via recipiente docker. Para criar um novo recipiente com ambiente conda:
-
-.. code:: shell
-
-    docker pull continuumio/anaconda3
-
-=======================
-Executando o aplicativo
-=======================
-
-Para executar o app basta digitar no terminal (no diretório fludashboard/fludashboard):
-
-.. code:: shell
-
-    python app.py
-
-
-A aplicação estará acessível na porta 5000. Para customizar a porta, usa o argumento -p com a porta desejada:
-
-.. code:: shell
-
-    python app.py -p 9000
-
 =============================
 Descrição das funcionalidades
 =============================
 
-FluDashboard apresenta níveis de atividade e informação sobre a série temporal de incidência por semana epidemiológica (SE) e por temporada.
+InfoGripe apresenta níveis de atividade e informação sobre a série temporal de incidência por semana epidemiológica (SE) e por temporada.
 Estas informações podem ser visualizadas pelo panorama **Detalhado (semana)** e **Resumido (ano)**. Cada panorama é composto por quatro painéis:
 
 - Mapa do país;
@@ -145,7 +81,7 @@ Panorama Detalhado (semana):
 
  - Estável: dados reportados considerados suficientemente próximos do total casos notificados. Estes dados estão sujeitos a pequenas alterações futuras;
  - Estimado: dados reportados baseado em estimativa para a oportunidade de digitação. Isto é, baseado no número de notificações já digitadas no sistema (dados incompletos) e o tempo típico entre notificação na unidade de saúde e digitação desta notificação no sistema. Estes dados podem sofrer alterações futuras, tornando-se estáveis após algumas semanas;
- - Incompleto: dados reportados ainda não são estáveis em função do padrão de oportunidade de digitação observado na localidade selecionada e nosso sistema não é capaz de produzir estimativas confiáveis. Estes dados podem sofrer grandes alterações futuras, tornando-se estáveis após algumas semanas. 
+ - Incompleto: dados reportados ainda não são estáveis em função do padrão de oportunidade de digitação observado na localidade selecionada e nosso sistema não é capaz de produzir estimativas confiáveis. Estes dados podem sofrer grandes alterações futuras, tornando-se estáveis após algumas semanas.
 
 - Distribuição etária e por gênero (inferior direito)
 
@@ -196,7 +132,7 @@ Este panorama apresenta a situação anual com base nos níveis de atividade des
  Incidência para a localidade correspondente na temporada selecionada, juntamente com o intervalo de confiança de 90% quando valor for estimado. Juntamenteda incidência e nome da localidade, esta tabela apresenta a situação dos dados selecionados:
 
  - Estável: dados reportados considerados suficientemente próximos do total casos notificados. Estes dados estão sujeitos a pequenas alterações futuras;
- - Incompleto: dados reportados ainda não são estáveis em função do padrão de oportunidade de digitação observado na localidade selecionada e nosso sistema não é capaz de produzir estimativas confiáveis. Estes dados podem sofrer grandes alterações futuras, tornando-se estáveis após algumas semanas. 
+ - Incompleto: dados reportados ainda não são estáveis em função do padrão de oportunidade de digitação observado na localidade selecionada e nosso sistema não é capaz de produzir estimativas confiáveis. Estes dados podem sofrer grandes alterações futuras, tornando-se estáveis após algumas semanas.
 
 - Distribuição etária e por gênero (inferior direito)
 
