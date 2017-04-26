@@ -1,12 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Dashboard</title>
+  <title>Situação da Gripe</title>
 
   <link rel="icon"
       type="image/png"
-      href="/static/img/favicon.ico"
+      href="/static/img/info_gripe_icon.ico"
   />
+<!--
+  <link rel="stylesheet"
+        href="http://www.ensp.fiocruz.br/portal-ensp/_estilos/ensp_basico.css"
+        type="text/css" media="all"/>
+-->
 
   <link rel="stylesheet"
         href="http://www.ensp.fiocruz.br/portal-ensp/_estilos/ensp_barra-fiocruz.css"
@@ -20,6 +25,20 @@
     }
   </style>
 </head>
+
+<style type="text/css">
+
+  img.align-left, .figure.align-left, object.align-left {
+    float: left ;
+    margin-right: 1em }
+
+  img.align-right, .figure.align-right, object.align-right {
+    float: right ;
+    margin-left: 1em }
+
+</style>
+
+
 <body>
   <div id="barra-brasil" style="background:#7F7F7F; height: 20px; padding:0 0 0 10px;display:block;">
     <ul id="menu-barra-temp" style="list-style:none;">
@@ -39,8 +58,9 @@
   </div>
 
   <div style="margin-top: 10px; margin-bottom: 10px;">
-      <img src="/static/img/fgv-emap.png" alt="FGV-EMap" height="60px"/>
-      <img src="/static/img/procc.png" alt="PROCC" height="60px" />
+      <img src="/static/img/info_gripe.png" alt="Info-Gripe" height="60px"/>
+      <img class="align-right" src="/static/img/procc.png" alt="PROCC" height="60px" />
+      <img class="align-right" src="/static/img/fgv-emap.png" alt="FGV-EMap" height="60px"/>
   </div>
 
   <script src="./static/libs/jquery/jquery.js"></script>

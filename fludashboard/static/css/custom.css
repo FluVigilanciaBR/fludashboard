@@ -116,3 +116,11 @@ input.tab.selected {
 .content-height {
   height: 450px;
 }
+
+.align-left {
+  float: left;
+}
+
+.align-right {
+  float: right;
+}
