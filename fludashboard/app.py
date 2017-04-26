@@ -328,13 +328,14 @@ def data__age_distribution(year, week=None, state=None):
 
 @click.command()
 @click.option('-p', default=5000, help='Port Number')
-def startup(p):
+@click.option('-ip', default='0.0.0.0', help='Host address')
+def startup(ip, p):
     """
 
     :param p:
     :return:
     """
-    app.run(host='0.0.0.0', port=p, debug=True)
+    app.run(host=ip, port=p, debug=True)
 
 
 if __name__ == "__main__":
