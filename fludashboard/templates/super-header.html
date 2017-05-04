@@ -2,7 +2,7 @@
 <html>
 <head>
   <title>Situação da Gripe</title>
-
+  <base target="_parent">
   <link rel="icon"
       type="image/png"
       href="/static/img/info_gripe_icon.ico"
@@ -50,17 +50,23 @@
   <div id="prologo">
 
      <ul class="barra-fiocruz">
-        <li><a class="logo-fiocruz" href="http://www.fiocruz.br/" target="_blank"><span>Fiocruz</span></a></li>
-        <li><a class="fale-com" href="http://portal.fiocruz.br/pt-br/content/fale-conosco" target="_blank"><span>Fale com a Fiocruz</span></a></li>
-        <li><a class="logo-ensp" href="http://www.fiocruz.br/" target="_blank"><span>Fiocruz</span></a></li>
+        <li><a class="logo-fiocruz" href="http://www.fiocruz.br/"><span>Fiocruz</span></a></li>
+        <li><a class="fale-com" href="http://portal.fiocruz.br/pt-br/content/fale-conosco"><span>Fale com a Fiocruz</span></a></li>
+        <li><a class="logo-ensp" href="http://www.fiocruz.br/"><span>Fiocruz</span></a></li>
     </ul>
 
   </div>
 
   <div style="margin-top: 10px; margin-bottom: 10px;">
-      <img src="/static/img/info_gripe.png" alt="Info-Gripe" height="60px"/>
-      <img class="align-right" src="/static/img/procc.png" alt="PROCC" height="60px" />
-      <img class="align-right" src="/static/img/fgv-emap.png" alt="FGV-EMap" height="60px"/>
+      <a href="/">
+          <img src="/static/img/info_gripe.png" alt="Info-Gripe" height="60px"/>
+      </a>
+      <a href="http://www.procc.fiocruz.br/">
+        <img class="align-right" src="/static/img/procc.png" alt="PROCC" height="60px" />
+      </a>
+      <a href="http://emap.fgv.br/">
+        <img class="align-right" src="/static/img/fgv-emap.png" alt="FGV-EMap" height="60px"/>
+      </a>
   </div>
 
   <script src="./static/libs/jquery/jquery.js"></script>
