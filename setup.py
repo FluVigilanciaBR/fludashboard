@@ -53,11 +53,14 @@ class MakeDoc(Command):
 
 
 def list_dir(pathname=PATH_ROOT, dir_name=''):
-    return glob(
+    result = glob(
         os.path.join(pathname, dir_name, '**'), 
         recursive=True
     )[1:]
 
+    size = len(pathname)
+
+    return ['.%s' % r[size:] for r in result]
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
@@ -106,8 +109,8 @@ setup(
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Natural Language :: English',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
     ],
     test_suite='tests',
     tests_require=test_requirements
