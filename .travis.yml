@@ -2,7 +2,9 @@
 # This file will be regenerated if you run travis_pypi_setup.py
 
 language: python
-python: 3.5
+python: 
+  - 3.5
+  - 3.6
 
 #env:
 #  - TOXENV=py35
@@ -11,12 +13,7 @@ python: 3.5
 install:
   - sudo apt-get update
   # We do this conditionally because it saves us some downloading if the
-  # version is the same.
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
-    else
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-    fi
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
@@ -28,21 +25,9 @@ install:
   - conda info -a
 
   # Replace dep1 dep2 ... with your dependencies
-  - conda env create -n fludashboard -f requirements.txt
-  - source activate fludashboard
+  - conda install --file requirements.txt
   - python setup.py install
 
 # command to run tests, e.g. python setup.py test
 script: python setup.py test
 
-# After you create the Github repo and add it to Travis, run the
-# travis_pypi_setup.py script to finish PyPI deployment setup
-#deploy:
-#  provider: pypi
-#  distributions: sdist bdist_wheel
-#  user: fludashboard
-#  password:
-#    secure: PLEASE_REPLACE_ME
-#  on:
-#    tags: true
-#    repo: FluVigilanciaBR/fludashboard
