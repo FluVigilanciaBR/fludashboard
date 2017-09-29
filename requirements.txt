@@ -1,14 +1,6 @@
 pandas
-jupyter
-jupyter_nbextensions_configurator
-bokeh
-holoviews
-folium
-seaborn
-ggplot
 numpy
-matplotlib
 flask
 unidecode
-flake8
 click
+gunicorn
