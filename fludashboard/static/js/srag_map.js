@@ -84,8 +84,8 @@ class SRAGMap {
     };
 
     this.legend = new L.Control.Legend({
-      position: 'topleft',
-      collapsed: true,
+      position: 'bottomright',
+      collapsed: false,
       controlButton: {
         title: "Legend"}
     });
@@ -93,7 +93,6 @@ class SRAGMap {
     this.map.addControl(this.legend);
       
     $(".legend-container").append( $("#legend") );
-    $(".legend-toggle").append( "<i class='legend-toggle-icon fa fa-info fa-2x' style='color: #000'>i</i>" );
   }
 
   /**
