@@ -33,10 +33,11 @@ ADD requirements.txt /tmp/requirements.txt
 
 RUN conda install --file /tmp/requirements.txt
 
-# Send code to the container
+# Send files to the container
 ADD fludashboard /srv/deploy/fludashboard
+ADD data /srv/deploy/data
 
-WORKDIR /srv/deploy/fludashboard
+WORKDIR /srv/deploy/
 
 # Change the permissions for the user home directory
 RUN chown -R deploy:deploy /srv/deploy/
