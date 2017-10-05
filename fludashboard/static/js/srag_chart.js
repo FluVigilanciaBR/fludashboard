@@ -119,7 +119,7 @@ class SRAGIncidenceChart{
           limiar_pre_epidemico: '#0000ff',
           intensidade_alta: '#00ff00',
           intensidade_muito_alta: '#ff0000',
-          estimated_cases: '#ff0000',
+          estimated_cases: '#ff9900',
           ci_lower: '#ff0000',
           ci_upper: '#ff0000',
           incomplete_data: '#ff0000',
