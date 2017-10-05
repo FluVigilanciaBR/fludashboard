@@ -41,9 +41,7 @@ class Dashboard {
       '#weekly-incidence-curve-chart', this.lastWeekYears
     );
 
-    this.sragAgeChart = new SRAGAgeChart(
-      '#age-chart'
-    );
+    this.sragAgeChart = new SRAGAgeChart('#age-chart');
 
     $('#year').change(function () {_this.load_graphs();});
 
@@ -101,6 +99,16 @@ class Dashboard {
       $('#selected-state').val('');
       _this.load_graphs();
     });
+
+    // dataset
+    $('#dataset').change(function(){
+      _this.load_graphs();
+    });
+
+    // scale
+    $('#dataset').change(function(){
+      _this.load_graphs();
+    });
   }
 
   /**
@@ -128,10 +136,17 @@ class Dashboard {
       'state' : 'region'
     );
 
+    var url = [
+        '.', 'data',
+        $('#dataset option:selected').val(),
+        $('#scale option:selected').val(),
+        $('#year').val() || 0,
+        delimitation
+    ].join('/');
+
     queue()
       .defer(d3.json, 'static/data/br-states.json')
-      .defer(d3.json, (
-        '/data/incidence/' + ($('#year').val() || 0) + '/' + delimitation))
+      .defer(d3.json, url)
       .await(fn);
   }
 
@@ -142,6 +157,8 @@ class Dashboard {
   changeWeek() {
     var _this = this;
 
+    var dataset = $('#dataset option:selected').val();
+    var scale = $('#scale option:selected').val();
     var week = parseInt($('#week').val() || 0);
     var year = parseInt($('#year').val() || 0);
 
@@ -162,12 +179,12 @@ class Dashboard {
     }
 
     //print_filter(df);
-    var stateName = $('#selected-state').val();
+    var stateName = $('#selected-state').val() || 'Brasil';
 
     _this.sragMap.changeColorMap(_this.sragData);
-    _this.sragIncidenceChart.plot(year, week, stateName);
-    _this.sragAgeChart.plot(year, week, stateName);
-    _this.sragTable.makeTable(year, week, stateName);
+    _this.sragIncidenceChart.plot(dataset, scale, year, week, stateName);
+    _this.sragAgeChart.plot(dataset, scale, year, week, stateName);
+    _this.sragTable.makeTable(dataset, scale, year, week, stateName);
   }
 
   /**
@@ -175,26 +192,28 @@ class Dashboard {
    * @param {object} error - data about any error.
    */
   makeGraphs(error) {
-    var stateName = $('#selected-state').val();
+    var stateName = $('#selected-state').val() || 'Brasil';
+    var dataset = $('#dataset option:selected').val();
+    var scale = $('#scale option:selected').val();
     var week = parseInt($('#week').val() || 0);
     var year = parseInt($('#year').val() || 0);
     var _this = this;
 
     this.sragMap.makeMap(
-      this.statesBR, this.sragData, year, week,
+      this.statesBR, this.sragData, dataset, scale, year, week,
       function(
-        year, stateName, week
+        dataset, scale, year, stateName, week
       ) {
-        _this.sragIncidenceChart.plot(year, week, stateName);
-        _this.sragAgeChart.plot(year, week, stateName);
-        _this.sragTable.makeTable(year, week, stateName);
+        _this.sragIncidenceChart.plot(dataset, scale, year, week, stateName);
+        _this.sragAgeChart.plot(dataset, scale, year, week, stateName);
+        _this.sragTable.makeTable(dataset, scale, year, week, stateName);
       }
     );
 
     this.changeWeek();
 
-    this.sragIncidenceChart.plot(year, week, stateName);
-    this.sragAgeChart.plot(year, week, stateName);
-    this.sragTable.makeTable(year, week, stateName);
+    this.sragIncidenceChart.plot(dataset, scale, year, week, stateName);
+    this.sragAgeChart.plot(dataset, scale, year, week, stateName);
+    this.sragTable.makeTable(dataset, scale, year, week, stateName);
   }
 }

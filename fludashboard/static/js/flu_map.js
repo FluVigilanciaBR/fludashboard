@@ -99,9 +99,11 @@ class SRAGMap {
    * Builds a Brazilian map
    * @param {dict} geoJsonBr - geoJson data about Brazilian territory
    * @param {dict} sragData - SRAG data
+   * @param {string} dataset - dataset
+   * @param {string} scale - data scale
    */
   makeMap(
-    geoJsonBr, sragData, year, week, clickExternalTrigger
+    geoJsonBr, sragData, dataset, scale, year, week, clickExternalTrigger
   ) {
     var _this = this;
 
@@ -176,7 +178,7 @@ class SRAGMap {
 
           $('#selected-state').val(stateName);
 
-          clickExternalTrigger(year, stateName, week);
+          clickExternalTrigger(dataset, scale, year, stateName, week);
         }
       });
     };

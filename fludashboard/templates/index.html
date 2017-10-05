@@ -90,6 +90,20 @@
                     type="button" value="Resumido (ano)" class="tab">
                 </div>
                 <div class="criteria-box">
+                  <label>Conjunto de dados:</label>
+                  <select name="dataset" id="dataset">
+                    <option value="srag" selected="selected">SRAG</option>
+                    <option value="sragflu">SRAGFLU</option>
+                    <option value="obitoflu">OBITOFLU</option>
+                  </select>
+                  <br/>
+                  <label>Escala:</label>
+                  <select name="scale" id="scale">
+                    <option value="incidence" selected="selected">INCIDÊNCIA</option>
+                    <option value="cases">CASOS</option>
+                  </select>
+                </div>
+                <div class="criteria-box">
                   <input type="radio" id="radTypeState" name="radType[]" checked="checked"> Por UF
                   <br/>
                   <input type="radio" id="radTypeRegion" name="radType[]"> Por Região
@@ -262,9 +276,9 @@
   <script src="./static/libs/datatables/ext/jszip.min.js"></script>
   <script src="./static/libs/datatables/ext/vfs_fonts.js"></script>
   <script src="./static/libs/datatables/ext/buttons.html5.min.js"></script>
-  <script src="./static/js/srag_table.js"></script>
-  <script src="./static/js/srag_map.js"></script>
-  <script src="./static/js/srag_chart.js"></script>
+  <script src="./static/js/flu_table.js"></script>
+  <script src="./static/js/flu_map.js"></script>
+  <script src="./static/js/flu_chart.js"></script>
   <script src="./static/js/dashboard.js"></script>
 
   <script language="JavaScript">
