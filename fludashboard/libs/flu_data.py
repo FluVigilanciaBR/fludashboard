@@ -409,7 +409,7 @@ def get_data_age_sex(
         df_age_dist = df_age_dist[df_age_dist.epiweek == epiweek]
         df = df_age_dist
     else:
-        df = prepare_data(year)['df']
+        df = prepare_data(dataset=dataset, scale=scale, year=year)['df']
         df = df[df.unidade_da_federacao == state_name]
         df = group_data_by_season(
             df=df, df_age_dist=df_age_dist, season=season

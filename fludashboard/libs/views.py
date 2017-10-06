@@ -34,7 +34,7 @@ def compose_data_url(variables: str):
 
     url = [
         url_var[v] if v in url_var else v
-        for v in ['data'] + variables.split(',')
+        for v in ['data'] + variables.split('/')
     ]
 
     return '/'.join(url)
@@ -83,7 +83,7 @@ def app_help():
     return render_template("help.html")
 
 
-@app.route(compose_data_url('year,territory_type'))
+@app.route(compose_data_url('year/territory_type'))
 def get_data(
     dataset: str, scale: str, year: int, territory_type: str
 ):
@@ -103,8 +103,8 @@ def get_data(
     return apply_filter_alert_by_epiweek(df).to_json(orient='records')
 
 
-@app.route(compose_data_url('year,weekly-incidence-curve'))
-@app.route(compose_data_url('year,state,weekly-incidence-curve'))
+@app.route(compose_data_url('year/weekly-incidence-curve'))
+@app.route(compose_data_url('year/state,weekly-incidence-curve'))
 def data__weekly_incidence_curve(
     dataset: str, scale: str, year: int, state: str='Brasil'
 ):
@@ -161,9 +161,9 @@ def data__weekly_incidence_curve(
     return df[ks].to_csv(index=False, na_rep='null')
 
 
-@app.route(compose_data_url('year,levels'))
-@app.route(compose_data_url('year,epiweek,levels'))
-@app.route(compose_data_url('year,epiweek,state_name,levels'))
+@app.route(compose_data_url('year/levels'))
+@app.route(compose_data_url('year/epiweek/levels'))
+@app.route(compose_data_url('year/epiweek/state_name/levels'))
 def data__incidence_levels(
     dataset: str, scale: str, year: int,
     epiweek: int=None, state_name: str='Brasil'
@@ -217,11 +217,11 @@ def data__incidence_levels(
     return (pd.DataFrame(se).T*100).round(2).to_json(orient='records')
 
 
-@app.route(compose_data_url('year,data-table'))
-@app.route(compose_data_url('year,epiweek,data-table'))
-@app.route(compose_data_url('year,epiweek,territory_type,data-table'))
+@app.route(compose_data_url('year/data-table'))
+@app.route(compose_data_url('year/epiweek/data-table'))
+@app.route(compose_data_url('year/epiweek/territory_type/data-table'))
 @app.route(
-    compose_data_url('year,epiweek,territory_type,state_name,data-table')
+    compose_data_url('year/epiweek/territory_type/state_name/data-table')
 )
 def data__data_table(
     dataset: str, scale: str, year: int, epiweek: int=None,
@@ -315,9 +315,9 @@ def data__data_table(
     }).to_json(orient='records')
 
 
-@app.route(compose_data_url('year,age-distribution'))
-@app.route(compose_data_url('year,epiweek,age-distribution'))
-@app.route(compose_data_url('year,epiweek,state,age-distribution'))
+@app.route(compose_data_url('year/age-distribution'))
+@app.route(compose_data_url('year/epiweek/age-distribution'))
+@app.route(compose_data_url('year/epiweek/state/age-distribution'))
 @cross_domain(origin='*')
 def data__age_distribution(
     dataset: str, scale: str, year: int,
