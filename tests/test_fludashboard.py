@@ -8,35 +8,20 @@ test_fludashboard
 Tests for `fludashboard` module.
 
 """
+from contextlib import contextmanager
+# local
+from fludashboard.app import app
+
 import flask
 import os
 import sys
 import unittest
 
-# local
-PATH_ROOT = os.path.dirname(os.getcwd())
-
-if 'data' in os.listdir(PATH_ROOT):
-    sys.path.insert(0, PATH_ROOT)
-    os.chdir(PATH_ROOT)
-else:
-    os.chdir(os.path.join(PATH_ROOT, 'fludashboard', 'fludashboard'))
-    sys.path.insert(0, os.getcwd())
-
-from fludashboard.app import app
-from contextlib import contextmanager
-
 
 class TestFludashboard(unittest.TestCase):
 
     def setUp(self):
-        if 'data' in os.listdir(PATH_ROOT):
-            os.chdir(PATH_ROOT)
-            sys.path.insert(0, PATH_ROOT)
-        else:
-            os.chdir(os.path.join(PATH_ROOT, 'fludashboard', 'fludashboard'))
-            sys.path.insert(0, os.getcwd())
-
+        self.url = '/data/srag/incidence/'
         self.app = app
 
     def tearDown(self):
@@ -50,72 +35,80 @@ class TestFludashboard(unittest.TestCase):
 
     def test_get_incidence_data(self):
         with self.app.test_client() as c:
-            # /data/incidence/<int:year>/<string:territory_type>'
-            resp = c.get('/data/incidence/2015/Acre')
+            # /data/<string:dataset>/<string:scale>/<int:year>/
+            # <string:territory_type>
+            resp = c.get(self.url + '2015/Acre')
             assert resp._status_code == 200
 
     def data__weekly_incidence_curve(self):
         with self.app.test_client() as c:
-            # '/data/weekly-incidence-curve/<int:year>/'
-            resp = c.get('/data/weekly-incidence-curve/2015/')
+            # /data/<string:dataset>/<string:scale>/<int:year>/
+            # weekly-incidence-curve
+            resp = c.get(self.url + '2015/weekly-incidence-curve')
             assert resp._status_code == 200
 
-            # /data/weekly-incidence-curve/<int:year>/<string:state>
-            resp = c.get('/data/weekly-incidence-curve/2015/Acre')
+            # /data/<string:dataset>/<string:scale>/<int:year>/<string:state>
+            # /weekly-incidence-curve
+            resp = c.get(self.url + '2015/Acre/weekly-incidence-curve')
             assert resp._status_code == 200
 
     def test_data__incidence_levels(self):
         with self.app.test_client() as c:
-            # /data/incidence-levels/<int:year>
-            resp = c.get('/data/incidence-levels/2015')
+            # /data/<string:dataset>/<string:scale>/<int:year>/levels
+            resp = c.get(self.url + '2015/levels')
             assert resp._status_code == 200
 
-            # /data/incidence-levels/<int:year>/<int:epiweek>/
-            resp = c.get('/data/incidence-levels/2015/25/')
+            # /data/<string:dataset>/<string:scale>/<int:year>/<int:epiweek>/
+            # levels
+            resp = c.get(self.url + '2015/25/levels')
             assert resp._status_code == 200
 
-            # /data/incidence-levels/<int:year>/<int:epiweek>/
-            # <string:state_name>
-            resp = c.get('/data/incidence-levels/2015/25/Acre')
+            # /data/<string:dataset>/<string:scale>/<int:year>/<int:epiweek>/
+            # <string:state_name>/levels
+            resp = c.get(self.url + '2015/25/Acre/levels')
             assert resp._status_code == 200
 
     def test_data__data_table(self):
         with self.app.test_client() as c:
-            # /data/data-table/<int:year>
-            resp = c.get('/data/data-table/2015')
+            # /data/<string:dataset>/<string:scale>/<int:year>/data-table
+            resp = c.get(self.url + '2015/data-table')
             assert resp._status_code == 200
 
-            # /data/data-table/<int:year>/<int:epiweek>
-            resp = c.get('/data/data-table/2015/25')
+            # /data/<string:dataset>/<string:scale>/<int:year>/<int:epiweek>/
+            # data-table
+            resp = c.get(self.url + '2015/25/data-table')
             assert resp._status_code == 200
 
-            # /data/data-table/<int:year>/<int:epiweek>/<string:territory_type>
-            resp = c.get('/data/data-table/2015/25/state')
+            # /data/<string:dataset>/<string:scale>/<int:year>/<int:epiweek>/
+            # <string:territory_type>/data-table
+            resp = c.get(self.url + '2015/25/state/data-table')
             assert resp._status_code == 200
 
-            resp = c.get('/data/data-table/2015/25/region')
+            resp = c.get(self.url + '2015/25/region/data-table')
             assert resp._status_code == 200
 
-            # /data/data-table/<int:year>/<int:epiweek>/<string:territory_type>/
-            # <string:state_name>
-            resp = c.get('/data/data-table/2015/25/state/Acre')
+            # /data/<string:dataset>/<string:scale>/<int:year>/<int:epiweek>/
+            # <string:territory_type>/<string:state_name>/data-table
+            resp = c.get(self.url + '2015/25/state/Acre/data-table')
             assert resp._status_code == 200
 
-            resp = c.get('/data/data-table/2015/25/region/Região Central')
+            resp = c.get(self.url + '2015/25/region/Região Central/data-table')
             assert resp._status_code == 200
 
     def test_data__age_distribution(self):
         with self.app.test_client() as c:
-            # /data/age-distribution/<int:year>/
-            resp = c.get('/data/age-distribution/2015/')
+            # /data/<string:dataset>/<string:scale>/<int:year>/age-distribution
+            resp = c.get(self.url + '2015/age-distribution')
             assert resp._status_code == 200
 
-            # /data/age-distribution/<int:year>/<int:week>/
-            resp = c.get('/data/age-distribution/2015/25/')
+            # /data/<string:dataset>/<string:scale>/<int:year>/<int:week>/
+            # age-distribution
+            resp = c.get(self.url + '2015/25/age-distribution')
             assert resp._status_code == 200
 
-            # /data/age-distribution/<int:year>/<int:week>/<string:state>
-            resp = c.get('/data/age-distribution/2015/25/Acre')
+            # /data/<string:dataset>/<string:scale>/<int:year>/<int:week>/
+            # <string:state>/age-distribution
+            resp = c.get(self.url + '2015/25/Acre/age-distribution')
             assert resp._status_code == 200
 
 

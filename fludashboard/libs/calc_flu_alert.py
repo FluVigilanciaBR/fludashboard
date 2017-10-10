@@ -3,6 +3,7 @@
 
 """
 import numpy as np
+import pandas as pd
 
 
 def get_season_level(se):
@@ -40,9 +41,13 @@ def calc_alert_rank_whole_year(se):
 
 
 def apply_filter_alert_by_epiweek(
-        df, epiweek=None, verbose=False
+    df: pd.DataFrame, epiweek: int=None
 ):
     """
+
+    :param df:
+    :param epiweek:
+    :return:
     """
     if epiweek is not None:
         mask = df.eval('epiweek=={}'.format(epiweek))

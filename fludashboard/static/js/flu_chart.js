@@ -21,13 +21,19 @@ class SRAGIncidenceChart{
 
   /**
    * Shows activity information about the criteria established on the chart.
+   * @param {string} dataset - dataset
+   * @param {string} scale - data scale
    * @param {number} year - SRAG incidence year (e.g. 2013).
    * @param {number} week - SRAG incidence week (e.g. 2).
    * @param {string} stateName - Federal state name (e.g. "Acre").
    */
-  displayInfo(year, week, stateName) {
+  displayInfo(dataset, scale, year, week, stateName) {
+    var url = [
+        '.', 'data', dataset, scale, year, week, stateName, 'levels'
+    ].join('/');
+
     $.getJSON({
-      url: '/data/incidence-levels/' + year + '/' + week + '/' +  stateName,
+      url: url,
       success: function(d) {
         // hidden  all
         var _prob = $('#chart-incidence-activity-level-panel .prob');
@@ -70,24 +76,35 @@ class SRAGIncidenceChart{
 
   /**
    * Plots SRAG incidence chart
+   * @param {string} dataset - dataset
+   * @param {string} scale - data scale
    * @param {number} year - SRAG incidence year (e.g. 2013).
    * @param {number} week - SRAG incidence week (e.g. 2).
    * @param {string} stateName- Federal state name (e.g. "Acre").
    * @return {object} - Chart object.
    */
-  plot(year, week, stateName) {
+  plot(dataset, scale, year, week, stateName) {
     var _this = this;
+    var y_label = '';
+    var url = [
+        '.', 'data', dataset, scale, year,
+        stateName, 'weekly-incidence-curve'
+    ].join('/');
 
     $(this.bindTo).empty();
 
-    /*if (stateName == '') {
-      return;
-    }*/
+    if (scale == 'incidence') {
+        $('#chart-incidence-case-title').text('Curva de Incidência');
+        y_label = 'Incidência (por 100 mil habitantes)';
+    } else {
+        $('#chart-incidence-case-title').text('Série temporal');
+        y_label = 'Número de casos';
+    }
 
     var chart = c3.generate({
       bindto: _this.bindTo,
       data: {
-        url: './data/weekly-incidence-curve/' + year + '/' + stateName,
+        url: url,
         x: 'epiweek',
         names: {
           corredor_baixo: null,
@@ -119,7 +136,7 @@ class SRAGIncidenceChart{
           limiar_pre_epidemico: '#0000ff',
           intensidade_alta: '#00ff00',
           intensidade_muito_alta: '#ff0000',
-          estimated_cases: '#ff0000',
+          estimated_cases: '#ff9900',
           ci_lower: '#ff0000',
           ci_upper: '#ff0000',
           incomplete_data: '#ff0000',
@@ -139,7 +156,7 @@ class SRAGIncidenceChart{
         },
         y: {
         label: {
-          text: 'Incidência (por 100 mil habitantes)',
+          text: y_label,
           position: 'outer-middle'
         }
         },
@@ -169,7 +186,7 @@ class SRAGIncidenceChart{
       }
     });
 
-    this.displayInfo(year, week, stateName);
+    this.displayInfo(dataset, scale, year, week, stateName);
 
     return chart;
   }
@@ -189,24 +206,32 @@ class SRAGAgeChart{
 
   /**
    * Plots SRAG incidence chart by age
+   * @param {string} dataset - dataset
+   * @param {string} scale - data scale
    * @param {number} year - SRAG incidence year.
    * @param {number} week - SRAG incidence week.
    * @param {string} stateName- Federal state name (e.g. "Acre").
    */
-  plot(year, week, stateName) {
+  plot(dataset, scale, year, week, stateName) {
     var _this = this;
+    var y_label;
+    var url = [
+        '.', 'data', dataset, scale, year, week,
+        stateName, 'age-distribution'
+    ].join('/');
 
     $(this.bindTo).empty();
 
-    /*if (stateName == '') {
-      return;
-    }*/
+    if (scale == 'incidence') {
+        y_label = 'Incidência (por 100 mil habitantes)';
+    } else {
+        y_label = 'Número de casos';
+    }
 
     return c3.generate({
       bindto: _this.bindTo,
       data: {
-        url: './data/age-distribution/' + year + '/' +
-          week + '/' + stateName,
+        url: url,
         x: 'index',
         type: 'bar'
       },
@@ -221,7 +246,7 @@ class SRAGAgeChart{
         },
         y: {
           label: {
-            text: 'Incidência (por 100 mil habitantes)',
+            text: y_label,
             position: 'outer-middle'
           }
         },
