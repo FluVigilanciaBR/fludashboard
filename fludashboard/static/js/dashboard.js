@@ -106,7 +106,7 @@ class Dashboard {
     });
 
     // scale
-    $('#dataset').change(function(){
+    $('#scale').change(function(){
       _this.load_graphs();
     });
   }

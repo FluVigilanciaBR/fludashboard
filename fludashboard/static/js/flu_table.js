@@ -22,7 +22,13 @@ class SRAGTable {
    * Returns HTML table that will be created.
    * @returns {string}
    */
-  getDataTableContent() {
+  getDataTableContent(scale) {
+    var label = (
+        scale == 'incidence' ?
+        'Incidência (por 100 mil habitantes)' :
+        'Número de casos'
+    );
+
     return  '' +
       '<table id="data-table" ' +
       '  class="display table table-striped table-condensed">' +
@@ -31,7 +37,7 @@ class SRAGTable {
       '    <tr class="header">' +
       '      <th>Unidade da Federa&ccedil;&atilde;o</th>' +
       '      <th>Situa&ccedil;&atilde;o</th>' +
-      '      <th>Incidência (por 100 mil habitantes)</th>' +
+      '      <th>' + label + '</th>' +
       '    </tr>' +
       '  </thead>' +
       '</table>';
@@ -79,7 +85,7 @@ class SRAGTable {
         '.', 'data', dataset, scale, year, week, _tmp, 'data-table'
     ].join('/');
 
-    tableSettings['ajax'] = url
+    tableSettings['ajax'] = url;
     tableSettings['columns'] = [
       {'data': 'unidade_da_federacao'},
       {'data': 'situation'},
@@ -87,8 +93,15 @@ class SRAGTable {
     ];
     tableSettings["autoWidth"] = false;
 
+    // title
+    if (scale == 'incidence') {
+        $('#table-incidence-case-title').text('Incidência');
+    } else {
+        $('#table-incidence-case-title').text('Número de casos');
+    }
+
     // create new table
-    $('#divTable').html(this.getDataTableContent());
+    $('#divTable').html(this.getDataTableContent(scale));
     this.dataTable = $('#data-table').DataTable(tableSettings);
   }
 }

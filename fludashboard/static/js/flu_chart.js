@@ -85,6 +85,7 @@ class SRAGIncidenceChart{
    */
   plot(dataset, scale, year, week, stateName) {
     var _this = this;
+    var y_label = '';
     var url = [
         '.', 'data', dataset, scale, year,
         stateName, 'weekly-incidence-curve'
@@ -92,9 +93,13 @@ class SRAGIncidenceChart{
 
     $(this.bindTo).empty();
 
-    /*if (stateName == '') {
-      return;
-    }*/
+    if (scale == 'incidence') {
+        $('#chart-incidence-case-title').text('Curva de Incidência');
+        y_label = 'Incidência (por 100 mil habitantes)';
+    } else {
+        $('#chart-incidence-case-title').text('Série temporal');
+        y_label = 'Número de casos';
+    }
 
     var chart = c3.generate({
       bindto: _this.bindTo,
@@ -151,7 +156,7 @@ class SRAGIncidenceChart{
         },
         y: {
         label: {
-          text: 'Incidência (por 100 mil habitantes)',
+          text: y_label,
           position: 'outer-middle'
         }
         },
@@ -209,6 +214,7 @@ class SRAGAgeChart{
    */
   plot(dataset, scale, year, week, stateName) {
     var _this = this;
+    var y_label;
     var url = [
         '.', 'data', dataset, scale, year, week,
         stateName, 'age-distribution'
@@ -216,9 +222,11 @@ class SRAGAgeChart{
 
     $(this.bindTo).empty();
 
-    /*if (stateName == '') {
-      return;
-    }*/
+    if (scale == 'incidence') {
+        y_label = 'Incidência (por 100 mil habitantes)';
+    } else {
+        y_label = 'Número de casos';
+    }
 
     return c3.generate({
       bindto: _this.bindTo,
@@ -238,7 +246,7 @@ class SRAGAgeChart{
         },
         y: {
           label: {
-            text: 'Incidência (por 100 mil habitantes)',
+            text: y_label,
             position: 'outer-middle'
           }
         },

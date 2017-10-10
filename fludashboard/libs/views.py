@@ -104,7 +104,7 @@ def get_data(
 
 
 @app.route(compose_data_url('year/weekly-incidence-curve'))
-@app.route(compose_data_url('year/state,weekly-incidence-curve'))
+@app.route(compose_data_url('year/state/weekly-incidence-curve'))
 def data__weekly_incidence_curve(
     dataset: str, scale: str, year: int, state: str='Brasil'
 ):
@@ -328,7 +328,7 @@ def data__age_distribution(
     :param dataset:
     :param scale:
     :param year:
-    :param week:
+    :param epiweek:
     :param state:
     :return:
     """
@@ -356,4 +356,5 @@ def data__age_distribution(
         '60+_anos': '60+ anos'
     }, inplace=True)
 
-    return 'index' + df.to_csv()
+    # the replace is used when there is no data in the df
+    return ('index' + df.to_csv()).replace('""', '')

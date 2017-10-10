@@ -5,6 +5,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// CONSTANTS
+DATASET_TITLE = {
+    'srag': 'SRAG',
+    'sragflu': 'SRAG por Influenza',
+    'obitoflu': 'Óbitos por Influenza'
+};
+
 /**
  * SRAG Map allows create a map divided by federal states or regions and
  * colored by alert criteria.
@@ -106,6 +113,13 @@ class SRAGMap {
     geoJsonBr, sragData, dataset, scale, year, week, clickExternalTrigger
   ) {
     var _this = this;
+    var title = '';
+
+    title = (scale == 'incidence') ?
+        'Mapa de incidência de ':
+        'Mapa de situação de ';
+    title = title + DATASET_TITLE[dataset];
+    $('#map-incidence-case-title').text(title);
 
     // remove existent layer from the map
     this.map.eachLayer(function (layer) {
