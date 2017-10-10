@@ -1,9 +1,28 @@
 from datetime import timedelta
 from flask import make_response, request, current_app
 from functools import update_wrapper
+# local
+from .episem import episem, extractweekday as extract_weekday
+
+import datetime
+import os
 
 
-def crossdomain(
+def calc_last_epiweek(year):
+    # Extract last Brazilian epiweek from given year
+
+    day = datetime.datetime(int(year), 12, 31)  # Ultimo dia do ano
+    day_week = extract_weekday(day)  # dia semana do ultimo dia
+
+    if day_week < 3:
+        day = day - datetime.timedelta(days=(day_week+1))
+    else:
+        day = day + datetime.timedelta(days=(6-day_week))
+
+    return int(episem(day, out='W'))
+
+
+def cross_domain(
     origin=None, methods=None, headers=None,
     max_age=21600, attach_to_all=True,
     automatic_options=True
@@ -58,3 +77,16 @@ def crossdomain(
         f.provide_automatic_options = False
         return update_wrapper(wrapped_function, f)
     return decorator
+
+
+def recursive_dir_name(path: str, steps_back: int):
+    """
+
+    :param path:
+    :param steps_back:
+    :return:
+    """
+    for _ in range(steps_back):
+        path = os.path.dirname(path)
+    return path
+

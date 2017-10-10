@@ -1,4 +1,112 @@
+"""
+---------------------------------------------------
+clean_data_epiweek-weekly-incidence_w_situation.csv
+---------------------------------------------------
+
+Fields:
+
+* 0-4 anos
+* 10-19 anos
+* 20-29 anos
+* 30-39 anos
+* 40-49 anos
+* 5-9 anos
+* 50-59 anos
+* 60+ anos
+* DELAYED
+* FLU_A
+* FLU_B
+* INCONCLUSIVE
+* NEGATIVE
+* NOTTESTED
+* OTHERS
+* POSITIVE_CASES
+* SRAG
+* Situation
+* TESTING_IGNORED
+* Tipo
+* Total
+* UF
+* Unidade da Federação
+* VSR
+* dado
+* epiweek
+* epiyear
+* epiyearweek
+* escala
+* sexo
+
+---------------------------------------------------
+current_estimated_values.csv
+---------------------------------------------------
+
+Fields:
+
+* UF
+* epiyear
+* epiweek
+* SRAG
+* Tipo
+* Situation
+* mean
+* 50%
+* 2.5%
+* 97.5%
+* L0
+* L1
+* L2
+* L3
+* Run date
+* dado
+* escala
+
+---------------------------------------------------
+mem-report.csv
+---------------------------------------------------
+
+Fields:
+
+* UF
+* População
+* Média geométrica do pico de infecção das temporadas regulares
+* regiã* o de baixa atividade típica
+* limiar pré-epidêmico
+* intensidade alta
+* intensidade muito alta
+* SE típica do início do surto
+* "SE típica do início do surto - IC inferior (2,5%)"
+* "SE típica do início do surto - IC superior (97,5%)"
+* duração típica do surto
+* "duração típica do surto - IC inferior (2,5%)"
+* "duração típica do surto - IC superior (97,5%)"
+* ano
+* Unidade da Federação
+* Tipo
+* dado
+* escala
+
+---------------------------------------------------
+mem-typical.csv
+---------------------------------------------------
+
+Fields:
+
+* UF
+* População
+* epiweek
+* corredor baixo
+* corredor mediano
+* corredor alto
+* ano
+* Unidade da Federação
+* Tipo
+* dado
+* escala
+
+"""
 from unidecode import unidecode
+# local
+from .utils import recursive_dir_name
 
 import pandas as pd
 import os
@@ -138,8 +246,14 @@ def report_incidence(x, situation, low=None, high=None):
     return y
 
 
-def get_srag_incidence_data():
-    path_root = os.path.dirname(os.path.dirname(__file__))
+def read_data(dataset: str='srag', scale: str='incidence'):
+    """
+
+    :param dataset:
+    :param scale:
+    :return:
+    """
+    path_root = recursive_dir_name(__file__, steps_back=3)
     path_data = os.path.join(path_root, 'data')
 
     return pd.read_csv(
@@ -147,11 +261,17 @@ def get_srag_incidence_data():
     )
 
 
-def prepare_srag_data(year=None):
+def prepare_data(
+    dataset: str, scale: str, year: int = None
+) -> {str: pd.DataFrame}:
     """
 
+    :param year:
+    :param dataset:
+    :param scale:
+    :return:
     """
-    path_root = os.path.dirname(os.path.dirname(__file__))
+    path_root = recursive_dir_name(__file__, steps_back=3)
     path_data = os.path.join(path_root, 'data')
 
     df_incidence = pd.read_csv(
@@ -163,6 +283,35 @@ def prepare_srag_data(year=None):
     df_thresholds = pd.read_csv(
         os.path.join(path_data, 'mem-report.csv')
     )
+
+    # filter
+    df_incidence.escala.replace({
+        'incidência': 'incidence',
+        'casos': 'cases'
+    }, inplace=True)
+
+    df_incidence = df_incidence[
+        (df_incidence.dado == dataset) &
+        (df_incidence.escala == scale)
+    ]
+
+    df_typical.escala.replace({
+        'incidência': 'incidence',
+        'casos': 'cases'
+    }, inplace=True)
+    df_typical = df_typical[
+        (df_typical.dado == dataset) &
+        (df_typical.escala == scale)
+    ]
+
+    df_thresholds.escala.replace({
+        'incidência': 'incidence',
+        'casos': 'cases'
+    }, inplace=True)
+    df_thresholds = df_thresholds[
+        (df_thresholds.dado == dataset) &
+        (df_thresholds.escala == scale)
+    ]
 
     # prepare dataframe keys
     for _df in [df_incidence, df_typical, df_thresholds]:
@@ -190,12 +339,21 @@ def prepare_srag_data(year=None):
     }
 
 
-def get_srag_data(year, state_name=None, epiweek=0):
+def get_data(
+    dataset: str, scale: str, year: int,
+    state_name: str=None, epiweek: int=0
+):
     """
 
+    :param dataset:
+    :param scale:
+    :param year:
+    :param state_name:
+    :param epiweek:
+    :return:
     """
     # data
-    df = prepare_srag_data(year=year)['df']
+    df = prepare_data(dataset=dataset, scale=scale, year=year)['df']
 
     if state_name:
         df = df[df.unidade_da_federacao == state_name]
@@ -206,12 +364,22 @@ def get_srag_data(year, state_name=None, epiweek=0):
     return df
 
 
-def get_srag_data_age_sex(year, state_name=None, epiweek=0):
+def get_data_age_sex(
+    dataset: str, scale: str, year: int,
+    state_name: str=None, epiweek: int=0
+):
     """
+
+    :param dataset:
+    :param scale:
+    :param year:
+    :param state_name:
+    :param epiweek:
+    :return:
 
     """
     season = year  # alias
-    path_root = os.path.dirname(os.path.dirname(__file__))
+    path_root = recursive_dir_name(__file__, steps_back=3)
     path_data = os.path.join(path_root, 'data')
 
     age_cols = [
@@ -241,7 +409,7 @@ def get_srag_data_age_sex(year, state_name=None, epiweek=0):
         df_age_dist = df_age_dist[df_age_dist.epiweek == epiweek]
         df = df_age_dist
     else:
-        df = prepare_srag_data(year)['df']
+        df = prepare_data(dataset=dataset, scale=scale, year=year)['df']
         df = df[df.unidade_da_federacao == state_name]
         df = group_data_by_season(
             df=df, df_age_dist=df_age_dist, season=season
