@@ -125,3 +125,42 @@ input.tab.selected {
 .align-right {
   float: right;
 }
+
+.c3-shapes.c3-shapes-corredor-muito-alto.c3-lines.c3-lines-corredor-muito-alto > path {
+  stroke: rgba(255, 0, 0, 255) !important;
+  opacity: 0 !important;
+  visibility; hidden;
+}
+
+.c3-legend-item-srag line{
+    stroke-width: 2px!important;
+}
+
+.c3-legend-item-estimated-cases line {
+    stroke-width: 2px!important;
+}
+
+.c3-legend-item-limiar-pre-epidemico line {
+    stroke-width: 2px!important;
+    stroke-dasharray: 2;
+}
+
+.c3-legend-item-intensidade-alta line {
+    stroke-width: 2px!important;
+    stroke-dasharray: 2;
+}
+
+.c3-legend-item-intensidade-muito-alta line {
+    stroke-width: 2px!important;
+    stroke-dasharray: 2;
+}
+
+.c3-legend-item-ci-lower line {
+    stroke-width: 2px!important;
+    stroke-dasharray: 2;
+}
+
+.c3-legend-item-ci-upper line {
+    stroke-width: 2px!important;
+    stroke-dasharray: 2;
+}

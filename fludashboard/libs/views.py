@@ -9,6 +9,7 @@ from .episem import episem
 
 import datetime
 import pandas as pd
+import numpy as np
 
 app = Flask(
     __name__,
@@ -103,10 +104,10 @@ def get_data(
     return apply_filter_alert_by_epiweek(df).to_json(orient='records')
 
 
-@app.route(compose_data_url('year/weekly-incidence-curve'))
-@app.route(compose_data_url('year/state/weekly-incidence-curve'))
+@app.route(compose_data_url('year/epiweek/weekly-incidence-curve'))
+@app.route(compose_data_url('year/epiweek/state/weekly-incidence-curve'))
 def data__weekly_incidence_curve(
-    dataset: str, scale: str, year: int, state: str='Brasil'
+    dataset: str, scale: str, year: int, epiweek: int, state: str='Brasil'
 ):
     """
 
@@ -157,6 +158,20 @@ def data__weekly_incidence_curve(
         ks += ['incomplete_data']
     except:
         pass
+
+    # cheating: using a new field corredor_muito_alto just for plotting
+    df['corredor_muito_alto'] = df.intensidade_muito_alta.max() * 1.20
+    # change keys' order
+    ks.insert(ks.index('corredor_alto') + 1, 'corredor_muito_alto')
+    k = 'estimated_cases'
+    ks.pop(ks.index(k))
+    ks.insert(ks.index('srag') + 1, k)
+
+    ks = ks[5:] + ks[:5]
+
+    if df[df.epiweek == epiweek].situation.values[0] == 'stable':
+        if epiweek < df.tail(1).epiweek.values[0]:
+            df[df.epiweek > epiweek].srag = np.nan
 
     return df[ks].to_csv(index=False, na_rep='null')
 

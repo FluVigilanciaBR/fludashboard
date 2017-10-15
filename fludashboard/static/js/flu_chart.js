@@ -87,7 +87,7 @@ class SRAGIncidenceChart{
     var _this = this;
     var y_label = '';
     var url = [
-        '.', 'data', dataset, scale, year,
+        '.', 'data', dataset, scale, year, week,
         stateName, 'weekly-incidence-curve'
     ].join('/');
 
@@ -107,22 +107,24 @@ class SRAGIncidenceChart{
         url: url,
         x: 'epiweek',
         names: {
-          corredor_baixo: null,
-          corredor_mediano: null,
-          corredor_alto: null,
+          corredor_baixo: 'Zona de Êxito',
+          corredor_mediano: 'Zona de Segurança',
+          corredor_alto: 'Zona de Alerta',
+          corredor_muito_alto: 'Zona de Surto',
           srag: 'Casos notificados',
           limiar_pre_epidemico: 'Limiar Pré epidêmico',
           intensidade_alta: 'Intensidade Alta',
           intensidade_muito_alta: 'Intensidade Muito Alta',
           estimated_cases: 'Casos estimados',
-          ci_lower: 'Intervalo de confiança (2,5%)',
-          ci_upper: 'Intervalo de confiança (97,5%)',
+          ci_lower: 'Intervalo de confiança inferior',
+          ci_upper: 'Intervalo de confiança superior',
           incomplete_data: 'Dados Incompletos'
         },
         types: {
           corredor_baixo: 'area',
           corredor_mediano: 'area',
           corredor_alto: 'area',
+          corredor_muito_alto: 'area',
           srag: 'line',
           limiar_pre_epidemico: 'line',
           intensidade_alta: 'line',
@@ -132,13 +134,14 @@ class SRAGIncidenceChart{
           corredor_baixo: '#00ff00',
           corredor_mediano: '#ffff00',
           corredor_alto: '#ff9900',
+          corredor_muito_alto: '#ff0000',
           srag: '#000000',
-          limiar_pre_epidemico: '#0000ff',
-          intensidade_alta: '#00ff00',
+          limiar_pre_epidemico: '#00ff00',
+          intensidade_alta: '#0000ff',
           intensidade_muito_alta: '#ff0000',
-          estimated_cases: '#ff9900',
-          ci_lower: '#ff0000',
-          ci_upper: '#ff0000',
+          estimated_cases: '#ff0000',
+          ci_lower: '#000000',
+          ci_upper: '#000000',
           incomplete_data: '#ff0000',
         }
       },
@@ -161,9 +164,9 @@ class SRAGIncidenceChart{
         }
         },
       },
-      regions: [
+      /*regions: [
         {start: 1, end: _this.lastWeekYears[year], class: 'alert-red'}
-      ],
+      ],*/
       grid: {
         x: {
          lines: [
@@ -183,6 +186,9 @@ class SRAGIncidenceChart{
       },
       point: {
         show: false
+      },
+      legend: {
+        position: 'right'
       }
     });
 
