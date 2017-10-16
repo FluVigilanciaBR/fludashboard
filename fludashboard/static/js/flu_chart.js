@@ -155,13 +155,17 @@ class SRAGIncidenceChart{
             values: d3.range(1, _this.lastWeekYears[year], 2)
           },
           min: 1,
-          max:_this.lastWeekYears[year]
+          max:_this.lastWeekYears[year],
+          padding: {
+            left: 0,
+            right: 0,
+          }
         },
         y: {
-        label: {
-          text: y_label,
-          position: 'outer-middle'
-        }
+          label: {
+            text: y_label,
+            position: 'outer-middle'
+          }
         },
       },
       /*regions: [

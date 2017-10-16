@@ -1,5 +1,32 @@
 """
 ---------------------------------------------------
+historical_estimated_values.csv
+---------------------------------------------------
+
+Fields:
+
+* UF
+* epiyear
+* epiweek
+* SRAG
+* Tipo
+* Situation
+* mean
+* 50%
+* 2.5%
+* 97.5%
+* L0
+* L1
+* L2
+* L3
+* Run date
+* base_epiyearweek
+* base_epiyear
+* base_epiweek
+* dado
+* escala
+
+---------------------------------------------------
 clean_data_epiweek-weekly-incidence_w_situation.csv
 ---------------------------------------------------
 
@@ -262,7 +289,7 @@ def read_data(dataset: str='srag', scale: str='incidence'):
 
 
 def prepare_data(
-    dataset: str, scale: str, year: int = None
+    dataset: str, scale: str, year: int = None, week: int=None
 ) -> {str: pd.DataFrame}:
     """
 
@@ -318,8 +345,11 @@ def prepare_data(
         prepare_keys_name(_df)
 
     if year:
-        df_incidence = df_incidence[df_incidence.epiyear == year]
+        df_incidence = df_incidence[df_incidence.base_epiyear == year]
         df_typical.assign(epiyear=year)
+
+    if week:
+        df_incidence = df_incidence[df_incidence.base_epiweek == week]
 
     df = pd.merge(
         df_incidence, df_typical, on=['uf', 'epiweek'], how='outer'

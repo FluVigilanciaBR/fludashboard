@@ -127,7 +127,8 @@ def data__weekly_incidence_curve(
     ]
 
     df = flu_data.get_data(
-        dataset=dataset, scale=scale, year=year, state_name=state
+        dataset=dataset, scale=scale, year=year,
+        epiweek=epiweek, state_name=state
     )
 
     try:
@@ -160,7 +161,7 @@ def data__weekly_incidence_curve(
         pass
 
     # cheating: using a new field corredor_muito_alto just for plotting
-    df['corredor_muito_alto'] = df.intensidade_muito_alta.max() * 1.20
+    df['corredor_muito_alto'] = df.intensidade_muito_alta.max() * 1.02
     # change keys' order
     ks.insert(ks.index('corredor_alto') + 1, 'corredor_muito_alto')
     k = 'estimated_cases'
@@ -171,7 +172,8 @@ def data__weekly_incidence_curve(
 
     if df[df.epiweek == epiweek].situation.values[0] == 'stable':
         if epiweek < df.tail(1).epiweek.values[0]:
-            df[df.epiweek > epiweek].srag = np.nan
+            mask = df.iloc[np.where(df.epiweek > epiweek)].index
+            df.srag[mask] = np.nan
 
     return df[ks].to_csv(index=False, na_rep='null')
 
