@@ -90,6 +90,21 @@
                     type="button" value="Resumido (ano)" class="tab">
                 </div>
                 <div class="criteria-box">
+                  <label>Conjunto de dados:</label> <br/>
+                  <select name="dataset" id="dataset">
+                    <option value="srag" selected="selected">SRAG</option>
+                    <option value="sragflu">SRAGFLU</option>
+                    <option value="obitoflu">OBITOFLU</option>
+                  </select>
+                </div>
+                <div class="criteria-box">
+                  <label>Escala:</label> <br/>
+                  <select name="scale" id="scale">
+                    <option value="incidence" selected="selected">INCIDÊNCIA</option>
+                    <option value="cases">CASOS</option>
+                  </select>
+                </div>
+                <div class="criteria-box">
                   <input type="radio" id="radTypeState" name="radType[]" checked="checked"> Por UF
                   <br/>
                   <input type="radio" id="radTypeRegion" name="radType[]"> Por Região
@@ -130,7 +145,9 @@
       <div class="col-md-5">
         <div class="chart-wrapper">
           <div class="chart-title">
-            <strong>Mapa de incidência de SRAG</strong>
+            <strong id="map-incidence-case-title">
+              Mapa de incidência de SRAG
+            </strong>
           </div>
           <div class="chart-stage">
             <div id="map" class="content-height"></div>
@@ -166,7 +183,7 @@
           <div class="col-md-12">
             <div class="chart-wrapper">
               <div class="chart-title">
-                <strong>Curva de Incidência
+                <strong><span id="chart-incidence-case-title">Curva de Incidência</span>
                   <span class="territory-display"></span>
                 </strong>
               </div>
@@ -214,7 +231,8 @@
       <div class="col-md-5">
         <div class="chart-wrapper">
           <div class="chart-title">
-            <strong>Incidência
+            <strong>
+              <span id="table-incidence-case-title">Incidência</span>
               <span class="period-display">na semana epidemiológica</span>
               <span class="week-display"></span>
               <span class="territory-display"></span>
@@ -262,9 +280,9 @@
   <script src="./static/libs/datatables/ext/jszip.min.js"></script>
   <script src="./static/libs/datatables/ext/vfs_fonts.js"></script>
   <script src="./static/libs/datatables/ext/buttons.html5.min.js"></script>
-  <script src="./static/js/srag_table.js"></script>
-  <script src="./static/js/srag_map.js"></script>
-  <script src="./static/js/srag_chart.js"></script>
+  <script src="./static/js/flu_table.js"></script>
+  <script src="./static/js/flu_map.js"></script>
+  <script src="./static/js/flu_chart.js"></script>
   <script src="./static/js/dashboard.js"></script>
 
   <script language="JavaScript">
