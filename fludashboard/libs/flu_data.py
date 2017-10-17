@@ -135,8 +135,56 @@ from unidecode import unidecode
 # local
 from .utils import recursive_dir_name
 
-import pandas as pd
+import numpy as np
 import os
+import pandas as pd
+
+STATE_CODE = {
+    '11': 'Rondônia',
+    '12': 'Acre',
+    '13': 'Amazonas',
+    '14': 'Roraima',
+    '15': 'Pará',
+    '16': 'Amapá',
+    '17': 'Tocantins',
+    '21': 'Maranhão',
+    '22': 'Piauí',
+    '23': 'Ceará',
+    '24': 'Rio Grande do Norte',
+    '25': 'Paraíba',
+    '26': 'Pernambuco',
+    '27': 'Alagoas',
+    '28': 'Sergipe',
+    '29': 'Bahia',
+    '31': 'Minas Gerais',
+    '32': 'Espírito Santo',
+    '33': 'Rio de Janeiro',
+    '35': 'São Paulo',
+    '41': 'Paraná',
+    '42': 'Santa Catarina',
+    '43': 'Rio Grande do Sul',
+    '50': 'Mato Grosso do Sul',
+    '51': 'Mato Grosso',
+    '52': 'Goiás',
+    '53': 'Distrito Federal',
+    'BR': 'Brasil',
+    'RegC': 'Regional Centro',
+    'RegL': 'Regional Leste',
+    'RegN': 'Regional Norte',
+    'RegS': 'Regional Sul'
+}
+
+
+def get_state_code_from_name(state_name: str) -> str:
+    """
+
+    :param state_name:
+    :return:
+    """
+    return [
+        (k, v) for k, v in STATE_CODE.items()
+        if v == state_name
+    ][0][0]
 
 
 def prepare_keys_name(df):
@@ -289,122 +337,141 @@ def read_data(dataset: str='srag', scale: str='incidence'):
 
 
 def prepare_data(
-    dataset: str, scale: str, year: int = None, week: int=None
+    dataset: str, scale: str, year: int = None, week: int=None,
+    state_code: str=None
 ) -> {str: pd.DataFrame}:
     """
 
     :param year:
     :param dataset:
     :param scale:
+    :param week:
+    :param state_code:
     :return:
     """
     path_root = recursive_dir_name(__file__, steps_back=3)
     path_data = os.path.join(path_root, 'data')
+    masks = {
+        'incidence': True,
+        'historical': True,
+        'typical': True,
+        'thresholds': True,
+    }
 
-    df_incidence = pd.read_csv(
-        os.path.join(path_data, 'current_estimated_values.csv')
-    )
-    df_typical = pd.read_csv(
-        os.path.join(path_data, 'mem-typical.csv')
-    )
-    df_thresholds = pd.read_csv(
-        os.path.join(path_data, 'mem-report.csv')
-    )
+    dfs = {
+        'incidence': pd.read_csv(
+            os.path.join(path_data, 'current_estimated_values.csv')),
+        'historical': pd.read_csv(
+            os.path.join(path_data, 'historical_estimated_values.csv')),
+        'typical': pd.read_csv(
+            os.path.join(path_data, 'mem-typical.csv')),
+        'thresholds': pd.read_csv(
+            os.path.join(path_data, 'mem-report.csv')),
+    }
 
     # filter
-    df_incidence.escala.replace({
-        'incidência': 'incidence',
-        'casos': 'cases'
-    }, inplace=True)
+    if year is not None:
+        masks['incidence'] &= dfs['incidence'].epiyear == year
+        masks['historical'] &= dfs['historical'].base_epiyear == year
+        dfs['typical'].assign(epiyear=year)
 
-    df_incidence = df_incidence[
-        (df_incidence.dado == dataset) &
-        (df_incidence.escala == scale)
-    ]
+    if week is not None:
+        masks['incidence'] &= dfs['incidence'].epiweek <= week
+        masks['historical'] &= dfs['historical'].base_epiweek == week
 
-    df_typical.escala.replace({
-        'incidência': 'incidence',
-        'casos': 'cases'
-    }, inplace=True)
-    df_typical = df_typical[
-        (df_typical.dado == dataset) &
-        (df_typical.escala == scale)
-    ]
+    for k in dfs.keys():
+        # prepare dataframe keys
+        prepare_keys_name(dfs[k])
+        # change escala text from Portuguese to English
+        dfs[k].escala.replace({
+            'incidência': 'incidence',
+            'casos': 'cases'
+        }, inplace=True)
 
-    df_thresholds.escala.replace({
-        'incidência': 'incidence',
-        'casos': 'cases'
-    }, inplace=True)
-    df_thresholds = df_thresholds[
-        (df_thresholds.dado == dataset) &
-        (df_thresholds.escala == scale)
-    ]
+        # mask by dataset and scale
+        masks[k] &= (dfs[k].dado == dataset) & (dfs[k].escala == scale)
 
-    # prepare dataframe keys
-    for _df in [df_incidence, df_typical, df_thresholds]:
-        prepare_keys_name(_df)
+        if state_code is not None:
+            masks[k] &= dfs[k].uf == state_code
 
-    if year:
-        df_incidence = df_incidence[df_incidence.base_epiyear == year]
-        df_typical.assign(epiyear=year)
+            # apply mask
+        dfs[k] = dfs[k][masks[k]]
 
-    if week:
-        df_incidence = df_incidence[df_incidence.base_epiweek == week]
+        # remove no necessaries fields
+        dfs[k].drop(labels=['dado', 'escala'], axis=1, inplace=True)
+
+    # First, last keep only stable weeksfor notification curve:
+    dfs['incidence'].loc[
+        (dfs['incidence'].situation != 'stable'), 'srag'
+    ] = np.nan
+
+    # Adapt historical dataset:
+    dfs['historical'].sort_values(['epiyear', 'epiweek'], inplace=True)
+    dfs['historical']['estimated_cases'] = dfs['historical']['50%']
 
     df = pd.merge(
-        df_incidence, df_typical, on=['uf', 'epiweek'], how='outer'
+        dfs['incidence'], dfs['typical'],
+        on=['uf', 'epiweek'], how='outer'
     ).merge(
-        df_thresholds.drop(['unidade_da_federacao'], axis=1),
+        dfs['thresholds'].drop(['unidade_da_federacao'], axis=1),
         on='uf', how='outer'
     )
 
     # resolve some conflicts
     df.situation.fillna('', inplace=True)
 
+    ks = [
+        k for k in df.keys()
+        if k not in ['estimated_cases', '2.5%', '97.5%']
+    ]
+
+    df = pd.merge(
+        df[ks],
+        dfs['historical'][['epiweek', 'estimated_cases', '2.5%', '97.5%']],
+        on='epiweek', how='outer'
+    )
+
     return {
-        'df_incidence': df_incidence,
-        'df_typical': df_typical,
-        'df_thresholds': df_thresholds,
+        'df_incidence': dfs['incidence'],
+        'df_typical': dfs['typical'],
+        'df_thresholds': dfs['thresholds'],
         'df': df
     }
 
 
 def get_data(
     dataset: str, scale: str, year: int,
-    state_name: str=None, epiweek: int=0
+    state_code: str=None, week: int=0
 ):
     """
 
     :param dataset:
     :param scale:
     :param year:
-    :param state_name:
-    :param epiweek:
+    :param state_code:
+    :param week:
     :return:
     """
     # data
-    df = prepare_data(dataset=dataset, scale=scale, year=year)['df']
-
-    if state_name:
-        df = df[df.unidade_da_federacao == state_name]
-
-    if epiweek:
-        df = df[df.epiweek == epiweek]
+    df = prepare_data(
+        dataset=dataset, scale=scale, year=year,
+        week=week, state_code=state_code
+    )['df']
 
     return df
 
 
 def get_data_age_sex(
     dataset: str, scale: str, year: int,
-    state_name: str=None, epiweek: int=0
+    state_code: str='BR', week: int=0
 ):
     """
 
     :param dataset:
     :param scale:
     :param year:
-    :param state_name:
-    :param epiweek:
+    :param state_code:
+    :param week:
     :return:
 
     """
@@ -417,9 +484,6 @@ def get_data_age_sex(
         '40_49_anos', '50_59_anos', '60+_anos'
     ]
 
-    if not state_name:
-        state_name = 'Brasil'
-
     # data
     df_age_dist = pd.read_csv(
         os.path.join(
@@ -430,17 +494,25 @@ def get_data_age_sex(
 
     prepare_keys_name(df_age_dist)
 
+    df_age_dist.escala.replace({
+        'incidência': 'incidence',
+        'casos': 'cases'
+    }, inplace=True)
+
     df_age_dist = df_age_dist[
+        (df_age_dist.dado == dataset) &
+        (df_age_dist.escala == scale) &
         (df_age_dist.epiyear == season) &
-        (df_age_dist.unidade_da_federacao == state_name)
+        (df_age_dist.uf == state_code)
     ]
 
-    if epiweek is not None and epiweek > 0:
-        df_age_dist = df_age_dist[df_age_dist.epiweek == epiweek]
+    if week is not None and week > 0:
+        df_age_dist = df_age_dist[df_age_dist.epiweek == week]
         df = df_age_dist
     else:
-        df = prepare_data(dataset=dataset, scale=scale, year=year)['df']
-        df = df[df.unidade_da_federacao == state_name]
+        df = prepare_data(
+            dataset=dataset, scale=scale, year=year, state_code=state_code
+        )['df']
         df = group_data_by_season(
             df=df, df_age_dist=df_age_dist, season=season
         )
