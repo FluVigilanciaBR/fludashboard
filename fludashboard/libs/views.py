@@ -9,7 +9,7 @@ from .episem import episem
 
 import datetime
 import pandas as pd
-import numpy as np
+
 
 app = Flask(
     __name__,
@@ -52,12 +52,13 @@ def index():
 
     :return:
     """
-    df = flu_data.read_data()
+    # read data to get the list of available years
+    df = flu_data.read_data(
+        file_name='current_estimated_values.csv',
+        dataset='srag', scale='incidence', state_code='BR'
+    )
 
-    # prepare dataframe keys
-    flu_data.prepare_keys_name(df)
-
-    # Here the code should recieve the user-requested year.
+    # Here the code should receive the user-requested year.
     # By default should be the current or latest available
     list_of_years = list(set(df.epiyear))
     year = max(list_of_years) if list_of_years else 0
@@ -96,7 +97,7 @@ def get_data(
     :param territory_type:
     :return:
     """
-    df = flu_data.prepare_data(dataset=dataset, scale=scale, year=year)['df']
+    df = flu_data.get_data(dataset=dataset, scale=scale, year=year)
     df = df[
         df.tipo == ('Estado' if territory_type == 'state' else 'Regional')
     ]
@@ -126,33 +127,30 @@ def data__weekly_incidence_curve(
         'intensidade_muito_alta'
     ]
 
+    st_code = flu_data.get_state_code_from_name(state)
+
     df = flu_data.get_data(
-        dataset=dataset, scale=scale, year=year, state_name=state
+        dataset=dataset, scale=scale, year=year,
+        historical_week=epiweek, state_code=st_code
     )
 
     try:
-        min_week = int(df.loc[df['situation'] == 'estimated', 'epiweek'].min())
-
-        df['estimated_cases'] = None
-        df['ci_lower'] = None
-        df['ci_upper'] = None
-
-        mask = df['epiweek'] >= min_week
-
-        df.loc[mask, 'estimated_cases'] = df.loc[mask, '50%']
-        df.loc[mask, 'ci_lower'] = df.loc[mask, '2.5%']
-        df.loc[mask, 'ci_upper'] = df.loc[mask, '97.5%']
+        df.loc[:, 'ci_lower'] = df.loc[:, '2.5%']
+        df.loc[:, 'ci_upper'] = df.loc[:, '97.5%']
 
         ks += ['estimated_cases', 'ci_lower', 'ci_upper']
+
+        k = 'estimated_cases'
+        ks.pop(ks.index(k))
+        ks.insert(ks.index('srag') + 1, k)
     except:
         pass
 
     try:
         min_week = int(df.loc[df['situation'] == 'unknown', 'epiweek'].min())
+        mask = df['epiweek'] >= min_week
 
         df['incomplete_data'] = None
-
-        mask = df['epiweek'] >= min_week
         df.loc[mask, 'incomplete_data'] = df.loc[mask, '97.5%']
 
         ks += ['incomplete_data']
@@ -160,18 +158,9 @@ def data__weekly_incidence_curve(
         pass
 
     # cheating: using a new field corredor_muito_alto just for plotting
-    df['corredor_muito_alto'] = df.intensidade_muito_alta.max() * 1.20
+    df['corredor_muito_alto'] = df.intensidade_muito_alta.max() * 1.02
     # change keys' order
     ks.insert(ks.index('corredor_alto') + 1, 'corredor_muito_alto')
-    k = 'estimated_cases'
-    ks.pop(ks.index(k))
-    ks.insert(ks.index('srag') + 1, k)
-
-    ks = ks[5:] + ks[:5]
-
-    if df[df.epiweek == epiweek].situation.values[0] == 'stable':
-        if epiweek < df.tail(1).epiweek.values[0]:
-            df[df.epiweek > epiweek].srag = np.nan
 
     return df[ks].to_csv(index=False, na_rep='null')
 
@@ -197,9 +186,11 @@ def data__incidence_levels(
     if not year > 0:
         return '[]'
 
+    state_code = flu_data.get_state_code_from_name(state_name)
+
     df = flu_data.get_data(
         dataset=dataset, scale=scale, year=year,
-        state_name=state_name, epiweek=epiweek
+        state_code=state_code, week=epiweek
     )
 
     if epiweek is not None and epiweek > 0:
@@ -269,9 +260,14 @@ def data__data_table(
         'srag'
     ]
 
+    if state_name is not None:
+        state_code = flu_data.get_state_code_from_name(state_name)
+    else:
+        state_code = None
+
     df = flu_data.get_data(
-        dataset=dataset, scale=scale, year=year,
-        state_name=state_name, epiweek=epiweek
+        dataset=dataset, scale=scale, year=year, week=epiweek,
+        state_code=state_code
     )
 
     if territory_type == 'state':
@@ -343,7 +339,7 @@ def data__age_distribution(
     :param dataset:
     :param scale:
     :param year:
-    :param epiweek:
+    :param epiweek: 0 == all weeks
     :param state:
     :return:
     """
@@ -353,10 +349,12 @@ def data__age_distribution(
     if not state:
         state = 'Brasil'
 
+    state_code = flu_data.get_state_code_from_name(state)
+
     df = pd.DataFrame(
         flu_data.get_data_age_sex(
             dataset=dataset, scale=scale,
-            year=year, state_name=state, epiweek=epiweek
+            year=year, week=epiweek, state_code=state_code
         )
     ).round(2)
 
