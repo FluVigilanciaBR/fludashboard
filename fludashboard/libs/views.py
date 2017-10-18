@@ -260,7 +260,10 @@ def data__data_table(
         'srag'
     ]
 
-    state_code = flu_data.get_state_code_from_name(state_name)
+    if state_name is not None:
+        state_code = flu_data.get_state_code_from_name(state_name)
+    else:
+        state_code = None
 
     df = flu_data.get_data(
         dataset=dataset, scale=scale, year=year, week=epiweek,
@@ -344,7 +347,7 @@ def data__age_distribution(
         return '[]'
 
     if not state:
-        state = 'BR'
+        state = 'Brasil'
 
     state_code = flu_data.get_state_code_from_name(state)
 

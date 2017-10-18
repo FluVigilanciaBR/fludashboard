@@ -329,7 +329,7 @@ def report_incidence(x, situation, low=None, high=None):
 def read_data(
     file_name: str, dataset: str, scale: str, state_code: str=None,
     year: int=None, week: int=None, base_year: int=None, base_week: int=None,
-    historical_week: int=None, **kwargs
+    historical_week: int=None, low_memory=True, **kwargs
 ):
     """
 
@@ -351,7 +351,7 @@ def read_data(
     path_data = os.path.join(path_root, 'data')
     file_path = os.path.join(path_data, file_name)
 
-    df = pd.read_csv(file_path)
+    df = pd.read_csv(file_path, low_memory=low_memory)
 
     # prepare dataframe keys
     prepare_keys_name(df)
@@ -486,7 +486,8 @@ def get_data_age_sex(
     # data
     df_age_dist = read_data(
         'clean_data_epiweek-weekly-incidence_w_situation.csv',
-        dataset=dataset, scale=scale, year=season, state_code=state_code
+        dataset=dataset, scale=scale, year=season, state_code=state_code,
+        low_memory=False
     )
 
     if week is not None and week > 0:
