@@ -53,9 +53,10 @@ def index():
     :return:
     """
     # read data to get the list of available years
-    df = flu_data.read_data()
-    # prepare dataframe keys
-    flu_data.prepare_keys_name(df)
+    df = flu_data.read_data(
+        file_name='current_estimated_values.csv',
+        dataset='srag', scale='incidence', state_code='BR'
+    )
 
     # Here the code should receive the user-requested year.
     # By default should be the current or latest available
@@ -96,7 +97,7 @@ def get_data(
     :param territory_type:
     :return:
     """
-    df = flu_data.prepare_data(dataset=dataset, scale=scale, year=year)['df']
+    df = flu_data.get_data(dataset=dataset, scale=scale, year=year)
     df = df[
         df.tipo == ('Estado' if territory_type == 'state' else 'Regional')
     ]
@@ -130,7 +131,7 @@ def data__weekly_incidence_curve(
 
     df = flu_data.get_data(
         dataset=dataset, scale=scale, year=year,
-        week=epiweek, state_code=st_code
+        historical_week=epiweek, state_code=st_code
     )
 
     try:
@@ -146,8 +147,11 @@ def data__weekly_incidence_curve(
         pass
 
     try:
+        min_week = int(df.loc[df['situation'] == 'unknown', 'epiweek'].min())
+        mask = df['epiweek'] >= min_week
+
         df['incomplete_data'] = None
-        df.loc[:, 'incomplete_data'] = df.loc[:, '97.5%']
+        df.loc[mask, 'incomplete_data'] = df.loc[mask, '97.5%']
 
         ks += ['incomplete_data']
     except:
@@ -256,10 +260,11 @@ def data__data_table(
         'srag'
     ]
 
-    # state_code = flu_data.get_state_code_from_name(state_name)
+    state_code = flu_data.get_state_code_from_name(state_name)
 
     df = flu_data.get_data(
-        dataset=dataset, scale=scale, year=year, week=epiweek
+        dataset=dataset, scale=scale, year=year, week=epiweek,
+        state_code=state_code
     )
 
     if territory_type == 'state':
@@ -268,8 +273,6 @@ def data__data_table(
         mask = ~(df.tipo == 'Estado')
 
     df = df[mask]
-
-    raise Exception(df.epiweek.unique())
 
     # for a whole year view
     if not epiweek:
@@ -333,7 +336,7 @@ def data__age_distribution(
     :param dataset:
     :param scale:
     :param year:
-    :param epiweek:
+    :param epiweek: 0 == all weeks
     :param state:
     :return:
     """

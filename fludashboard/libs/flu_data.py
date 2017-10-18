@@ -171,7 +171,12 @@ STATE_CODE = {
     'RegC': 'Regional Centro',
     'RegL': 'Regional Leste',
     'RegN': 'Regional Norte',
-    'RegS': 'Regional Sul'
+    'RegS': 'Regional Sul',
+    'RegOfN': 'Norte',
+    'RegOfNE': 'Nordeste',
+    'RegOfSE': 'Sudeste',
+    'RegOfCO': 'Centro-oeste',
+    'RegOfS': 'Sul'
 }
 
 
@@ -321,127 +326,72 @@ def report_incidence(x, situation, low=None, high=None):
     return y
 
 
-def read_data(dataset: str='srag', scale: str='incidence'):
+def read_data(
+    file_name: str, dataset: str, scale: str, state_code: str=None,
+    year: int=None, week: int=None, base_year: int=None, base_week: int=None,
+    historical_week: int=None, **kwargs
+):
     """
 
+    :param file_name:
     :param dataset:
     :param scale:
-    :return:
-    """
-    path_root = recursive_dir_name(__file__, steps_back=3)
-    path_data = os.path.join(path_root, 'data')
-
-    return pd.read_csv(
-        os.path.join(path_data, 'current_estimated_values.csv')
-    )
-
-
-def prepare_data(
-    dataset: str, scale: str, year: int = None, week: int=None,
-    state_code: str=None
-) -> {str: pd.DataFrame}:
-    """
-
-    :param year:
-    :param dataset:
-    :param scale:
-    :param week:
     :param state_code:
+    :param year:
+    :param week:
+    :param base_year:
+    :param base_week:
+    :param historical_week:
+    :param kwargs:
     :return:
     """
+    mask = True
+
     path_root = recursive_dir_name(__file__, steps_back=3)
     path_data = os.path.join(path_root, 'data')
-    masks = {
-        'incidence': True,
-        'historical': True,
-        'typical': True,
-        'thresholds': True,
-    }
+    file_path = os.path.join(path_data, file_name)
 
-    dfs = {
-        'incidence': pd.read_csv(
-            os.path.join(path_data, 'current_estimated_values.csv')),
-        'historical': pd.read_csv(
-            os.path.join(path_data, 'historical_estimated_values.csv')),
-        'typical': pd.read_csv(
-            os.path.join(path_data, 'mem-typical.csv')),
-        'thresholds': pd.read_csv(
-            os.path.join(path_data, 'mem-report.csv')),
-    }
+    df = pd.read_csv(file_path)
+
+    # prepare dataframe keys
+    prepare_keys_name(df)
+    # change escala text from Portuguese to English
+    df.escala.replace({
+        'incidência': 'incidence',
+        'casos': 'cases'
+    }, inplace=True)
 
     # filter
+    mask &= (df.dado == dataset) & (df.escala == scale)
+
+    if state_code is not None:
+        mask &= df.uf == state_code
+
     if year is not None:
-        masks['incidence'] &= dfs['incidence'].epiyear == year
-        masks['historical'] &= dfs['historical'].base_epiyear == year
-        dfs['typical'].assign(epiyear=year)
+        mask &= df.epiyear == year
 
-    if week is not None:
-        masks['incidence'] &= dfs['incidence'].epiweek <= week
-        masks['historical'] &= dfs['historical'].base_epiweek == week
+    if base_year is not None:
+        mask &= df.base_epiyear == base_year
 
-    for k in dfs.keys():
-        # prepare dataframe keys
-        prepare_keys_name(dfs[k])
-        # change escala text from Portuguese to English
-        dfs[k].escala.replace({
-            'incidência': 'incidence',
-            'casos': 'cases'
-        }, inplace=True)
+    if week is not None and week > 0:
+        mask &= df.epiweek == week
+    elif base_week is not None:
+        mask &= df.base_epiweek == base_week
+    elif historical_week is not None:
+        mask &= df.epiweek <= historical_week
 
-        # mask by dataset and scale
-        masks[k] &= (dfs[k].dado == dataset) & (dfs[k].escala == scale)
+    # apply mask
+    df = df[mask]
 
-        if state_code is not None:
-            masks[k] &= dfs[k].uf == state_code
+    # remove no necessaries fields
+    df.drop(labels=['dado', 'escala'], axis=1, inplace=True)
 
-            # apply mask
-        dfs[k] = dfs[k][masks[k]]
-
-        # remove no necessaries fields
-        dfs[k].drop(labels=['dado', 'escala'], axis=1, inplace=True)
-
-    # First, last keep only stable weeksfor notification curve:
-    dfs['incidence'].loc[
-        (dfs['incidence'].situation != 'stable'), 'srag'
-    ] = np.nan
-
-    # Adapt historical dataset:
-    dfs['historical'].sort_values(['epiyear', 'epiweek'], inplace=True)
-    dfs['historical']['estimated_cases'] = dfs['historical']['50%']
-
-    df = pd.merge(
-        dfs['incidence'], dfs['typical'],
-        on=['uf', 'epiweek'], how='outer'
-    ).merge(
-        dfs['thresholds'].drop(['unidade_da_federacao'], axis=1),
-        on='uf', how='outer'
-    )
-
-    # resolve some conflicts
-    df.situation.fillna('', inplace=True)
-
-    ks = [
-        k for k in df.keys()
-        if k not in ['estimated_cases', '2.5%', '97.5%']
-    ]
-
-    df = pd.merge(
-        df[ks],
-        dfs['historical'][['epiweek', 'estimated_cases', '2.5%', '97.5%']],
-        on='epiweek', how='outer'
-    )
-
-    return {
-        'df_incidence': dfs['incidence'],
-        'df_typical': dfs['typical'],
-        'df_thresholds': dfs['thresholds'],
-        'df': df
-    }
+    return df
 
 
 def get_data(
     dataset: str, scale: str, year: int,
-    state_code: str=None, week: int=0
+    state_code: str=None, week: int=None, historical_week: int=None
 ):
     """
 
@@ -449,14 +399,65 @@ def get_data(
     :param scale:
     :param year:
     :param state_code:
-    :param week:
+    :param week: 0 week == all weeks
+    :param historical_week:
     :return:
     """
-    # data
-    df = prepare_data(
-        dataset=dataset, scale=scale, year=year,
-        week=week, state_code=state_code
-    )['df']
+    settings = {
+        'dataset': dataset,
+        'scale': scale,
+        'state_code': state_code
+    }
+
+    df_incidence = read_data(
+        'current_estimated_values.csv', **settings,
+        year=year, week=week, historical_week=historical_week
+    )
+    df_typical = read_data('mem-typical.csv', **settings)
+    df_thresholds = read_data('mem-report.csv', **settings)
+
+    if year is not None:
+        df_typical.assign(epiyear=year)
+
+    # First, last keep only stable weeksfor notification curve:
+    df_incidence.loc[(df_incidence.situation != 'stable'), 'srag'] = np.nan
+
+    df = pd.merge(
+        df_incidence, df_typical,
+        on=['uf', 'epiweek'], how='outer'
+    ).merge(
+        df_thresholds.drop(['unidade_da_federacao'], axis=1),
+        on='uf', how='outer'
+    )
+
+    if historical_week is not None and historical_week > 0:
+        ks = [
+            k for k in df.keys()
+            if k not in ['estimated_cases', '2.5%', '97.5%']
+        ]
+
+        df_historical = read_data(
+            'historical_estimated_values.csv', **settings,
+            year=year, week=week, base_week=historical_week
+        )
+
+        # Adapt historical dataset:
+        df_historical.sort_values(['epiyear', 'epiweek'], inplace=True)
+        df_historical['estimated_cases'] = df_historical['50%']
+
+        df = pd.merge(
+            df[ks], df_historical[['epiweek', 'estimated_cases', '2.5%', '97.5%']],
+            on='epiweek', how='outer'
+        )
+    else:
+        df['estimated_cases'] = df['50%']
+
+    # force week filter (week 0 == all weeks)
+    if week is not None and week > 0:
+        df = df[df.epiweek == week]
+
+    # resolve some conflicts
+    df.situation.fillna('', inplace=True)
 
     return df
 
@@ -476,8 +477,6 @@ def get_data_age_sex(
 
     """
     season = year  # alias
-    path_root = recursive_dir_name(__file__, steps_back=3)
-    path_data = os.path.join(path_root, 'data')
 
     age_cols = [
         '0_4_anos', '5_9_anos', '10_19_anos', '20_29_anos', '30_39_anos',
@@ -485,34 +484,18 @@ def get_data_age_sex(
     ]
 
     # data
-    df_age_dist = pd.read_csv(
-        os.path.join(
-            path_data,
-            'clean_data_epiweek-weekly-incidence_w_situation.csv'
-        ), low_memory=False, encoding='utf-8'
+    df_age_dist = read_data(
+        'clean_data_epiweek-weekly-incidence_w_situation.csv',
+        dataset=dataset, scale=scale, year=season, state_code=state_code
     )
-
-    prepare_keys_name(df_age_dist)
-
-    df_age_dist.escala.replace({
-        'incidência': 'incidence',
-        'casos': 'cases'
-    }, inplace=True)
-
-    df_age_dist = df_age_dist[
-        (df_age_dist.dado == dataset) &
-        (df_age_dist.escala == scale) &
-        (df_age_dist.epiyear == season) &
-        (df_age_dist.uf == state_code)
-    ]
 
     if week is not None and week > 0:
         df_age_dist = df_age_dist[df_age_dist.epiweek == week]
         df = df_age_dist
     else:
-        df = prepare_data(
+        df = get_data(
             dataset=dataset, scale=scale, year=year, state_code=state_code
-        )['df']
+        )
         df = group_data_by_season(
             df=df, df_age_dist=df_age_dist, season=season
         )
