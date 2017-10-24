@@ -5,7 +5,7 @@ import click
 import os
 
 
-def _update_data_files(update_data: bool):
+def update_data_files(update_data: bool):
     path_root = recursive_dir_name(os.path.abspath(__file__), steps_back=1)
     path_data = os.path.join(path_root, 'data')
 
@@ -43,7 +43,7 @@ def startup(h, p, update_data, debug):
     :param debug:
     :return:
     """
-    _update_data_files(update_data=update_data)
+    update_data_files(update_data=update_data)
     app.run(host=h, port=p, debug=debug)
 
 
@@ -55,7 +55,7 @@ def update_data_before_startup():
     :param debug:
     :return:
     """
-    _update_data_files(update_data=True)
+    update_data_files(update_data=True)
 
 
 if __name__ == "__main__":
