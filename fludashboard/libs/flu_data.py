@@ -253,7 +253,7 @@ def read_data(dataset: str='srag', scale: str='incidence'):
     :param scale:
     :return:
     """
-    path_root = recursive_dir_name(__file__, steps_back=3)
+    path_root = recursive_dir_name(os.path.abspath(__file__), steps_back=2)
     path_data = os.path.join(path_root, 'data')
 
     return pd.read_csv(
@@ -271,7 +271,7 @@ def prepare_data(
     :param scale:
     :return:
     """
-    path_root = recursive_dir_name(__file__, steps_back=3)
+    path_root = recursive_dir_name(__file__, steps_back=2)
     path_data = os.path.join(path_root, 'data')
 
     df_incidence = pd.read_csv(
@@ -379,7 +379,7 @@ def get_data_age_sex(
 
     """
     season = year  # alias
-    path_root = recursive_dir_name(__file__, steps_back=3)
+    path_root = recursive_dir_name(__file__, steps_back=2)
     path_data = os.path.join(path_root, 'data')
 
     age_cols = [
