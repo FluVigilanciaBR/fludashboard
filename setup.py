@@ -4,12 +4,19 @@
 from setuptools import setup, Command
 from pip.req import parse_requirements
 from pip.download import PipSession
-from glob import glob
 
 import os
-import sys
 
-PATH_ROOT = os.getcwd()
+PATH_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+
+def get_version():
+    """Obtain the version number"""
+    import importlib
+    mod = importlib.machinery.SourceFileLoader(
+        'version', os.path.join('fludashboard', '__init__.py')
+    ).load_module()
+    return mod.__version__
 
 
 class MakeDoc(Command):
@@ -51,17 +58,6 @@ class MakeDoc(Command):
         print(out)
 
 
-
-def list_dir(pathname=PATH_ROOT, dir_name=''):
-    result = glob(
-        os.path.join(pathname, dir_name, '**'), 
-        recursive=True
-    )[1:]
-
-    size = len(pathname)
-
-    return ['.%s' % r[size:] for r in result]
-
 with open('README.rst') as readme_file:
     readme = readme_file.read()
 
@@ -79,11 +75,11 @@ test_requirements = [
 setup(
     cmdclass={'doc': MakeDoc},
     name='fludashboard',
-    version='0.1.0',
+    version=get_version(),
     description="Flu Dashboard",
     long_description=readme + '\n\n' + history,
-    author="Ivan Ogasawara",
-    author_email='ivan.ogasawara@gmail.com',
+    author="Marcelo F C Gomes, Ivan Ogasawara",
+    author_email='marcelo.gomes@fiocruz.br, ivan.ogasawara@gmail.com',
     url='https://github.com/xmnlab/fludashboard',
     packages=[
         'fludashboard',
@@ -96,9 +92,6 @@ setup(
         ]
     },
     include_package_data=True,
-    data_files=[
-        ('data', list_dir(dir_name='data'))
-    ],
     install_requires=requirements,
     license="GNU General Public License v3",
     zip_safe=False,
