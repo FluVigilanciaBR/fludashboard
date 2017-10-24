@@ -78,8 +78,8 @@ setup(
     version=get_version(),
     description="Flu Dashboard",
     long_description=readme + '\n\n' + history,
-    author="Ivan Ogasawara",
-    author_email='ivan.ogasawara@gmail.com',
+    author="Marcelo F C Gomes, Ivan Ogasawara",
+    author_email='marcelo.gomes@fiocruz.br, ivan.ogasawara@gmail.com',
     url='https://github.com/xmnlab/fludashboard',
     packages=[
         'fludashboard',
