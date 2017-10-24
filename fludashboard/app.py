@@ -1,7 +1,7 @@
 from fludashboard.libs.views import app
 from fludashboard.libs.utils import recursive_dir_name
+from fludashboard import settings
 
-import click
 import os
 
 
@@ -29,33 +29,20 @@ def update_data_files(update_data: bool):
     print('[II] DONE!')
 
 
-@click.command()
-@click.option('-h', default='0.0.0.0', help='Host address')
-@click.option('-p', default=5000, help='Port Number')
-@click.option('-update_data', default=False, help='Update data flag')
-@click.option('-debug', default=True, help='Debug flag')
-def startup(h, p, update_data, debug):
+def startup():
     """
 
-    :param h:
-    :param p:
-    :param update_data:
-    :param debug:
     :return:
     """
-    update_data_files(update_data=update_data)
-    app.run(host=h, port=p, debug=debug)
+    update_data_files(update_data=settings.APP_UPDATE_DATA)
 
+    app.run(
+        host=settings.APP_HOST,
+        port=settings.APP_PORT,
+        debug=settings.APP_DEBUG
+    )
 
-def update_data_before_startup():
-    """
-
-    :param ip:
-    :param p:
-    :param debug:
-    :return:
-    """
-    update_data_files(update_data=True)
+    return app
 
 
 if __name__ == "__main__":

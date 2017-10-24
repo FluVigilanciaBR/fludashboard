@@ -347,7 +347,7 @@ def read_data(
     """
     mask = True
 
-    path_root = recursive_dir_name(__file__, steps_back=3)
+    path_root = recursive_dir_name(__file__, steps_back=2)
     path_data = os.path.join(path_root, 'data')
     file_path = os.path.join(path_data, file_name)
 
