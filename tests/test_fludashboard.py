@@ -8,21 +8,20 @@ test_fludashboard
 Tests for `fludashboard` module.
 
 """
-from contextlib import contextmanager
 # local
-from fludashboard.app import app
+from fludashboard.app import app, update_data_files
 
-import flask
 import os
-import sys
 import unittest
 
 
 class TestFludashboard(unittest.TestCase):
-
-    def setUp(self):
-        self.url = '/data/srag/incidence/'
-        self.app = app
+    @classmethod
+    def setUpClass(cls):
+        cls.url = '/data/srag/incidence/'
+        cls.app = app
+        # get data when necessary
+        update_data_files(update_data=False)
 
     def tearDown(self):
         pass
