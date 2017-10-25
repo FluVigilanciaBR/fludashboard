@@ -1,5 +1,5 @@
 #!/bin/bash
-FLU_HOME=$(python -c "from fludashboard import settings as s; print(s.APP_PATH)")
+FLU_HOME=$(python -c "from fludashboard import settings as s; print(s.PATH)")
 NUM_WORKERS=4
 
 WSGI_HOST="0.0.0.0"

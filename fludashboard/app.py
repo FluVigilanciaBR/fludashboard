@@ -34,12 +34,12 @@ def startup():
 
     :return:
     """
-    update_data_files(update_data=settings.APP_UPDATE_DATA)
+    update_data_files(update_data=settings.UPDATE_DATA)
 
     app.run(
-        host=settings.APP_HOST,
-        port=settings.APP_PORT,
-        debug=settings.APP_DEBUG
+        host=settings.HOST,
+        port=settings.PORT,
+        debug=settings.DEBUG
     )
 
     return app
