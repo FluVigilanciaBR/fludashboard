@@ -26,22 +26,8 @@ RUN conda config --set show_channel_urls True && \
     conda clean --tarballs --packages && \
     conda config --add channels conda-forge
 
-# Add and install requirements.txt before we send the code so we don't have to
-# install everything again whenever any file in this directory changes (this
-# helps build the container a *lot* faster by using the cache.
-ADD requirements.txt /tmp/requirements.txt
+RUN conda install fludashboard
 
-RUN conda install --file /tmp/requirements.txt
+EXPOSE 8000
 
-# Send files to the container
-ADD fludashboard /srv/deploy/fludashboard
-ADD data /srv/deploy/data
-
-WORKDIR /srv/deploy/
-
-# Change the permissions for the user home directory
-RUN chown -R deploy:deploy /srv/deploy/
-
-EXPOSE 5000
-
-CMD ["/srv/deploy/fludashboard/runwsgi.sh"]
+RUN python -m fludashboard.runwsgi

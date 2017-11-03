@@ -1,9 +1,19 @@
 #!/bin/bash
-DEPLOY_HOME="/tmp/"
+FLU_HOME=$(python -c "from fludashboard import settings as s; print(s.PATH)")
 NUM_WORKERS=4
+
 WSGI_HOST="0.0.0.0"
 WSGI_PORT="8000"
-ERRLOG="$DEPLOY_HOME/logs/wsgi_server.err"
-ACCESS_LOG="$DEPLOY_HOME/logs/wsgi_server.access"
+WSGI_BIND="$WSGI_HOST:$WSGI_PORT"
+WSGI_APP="fludashboard.app:app"
 
-exec gunicorn -w $NUM_WORKERS -b $WSGI_HOST:$WSGI_PORT fludashboard.app:app
+echo '[II] Creating log folder ...'
+mkdir $FLU_HOME/log
+
+echo '[II] Updating data ...'
+python -c "from fludashboard.app import update_data_files as upd; upd(True);"
+
+FLU_LOG="$FLU_HOME/log/fludashboard.log"
+
+echo '[II] Starting app ...'
+gunicorn -w $NUM_WORKERS -b $WSGI_BIND --log-file=$FLU_LOG $WSGI_APP

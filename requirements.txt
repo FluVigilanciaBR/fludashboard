@@ -2,5 +2,4 @@ pandas
 numpy
 flask
 unidecode
-click
 gunicorn

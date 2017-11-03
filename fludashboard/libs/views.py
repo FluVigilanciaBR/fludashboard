@@ -54,15 +54,17 @@ def index():
     """
     # read data to get the list of available years
     df = flu_data.read_data(
-        file_name='current_estimated_values.csv',
+        file_name='historical_estimated_values.csv',
         dataset='srag', scale='incidence', state_code='BR'
     )
 
     # Here the code should receive the user-requested year.
     # By default should be the current or latest available
     list_of_years = list(set(df.epiyear))
-    year = max(list_of_years) if list_of_years else 0
-    epiweek = episem(datetime.datetime.now().strftime('%Y-%m-%d'))[-2:]
+
+    epiyear = df.base_epiyear.max()
+    epiweek = df.base_epiweek.max()
+
     last_week_years = {
         y: calc_last_epiweek(y) for y in list_of_years
     }
@@ -71,7 +73,7 @@ def index():
         "index.html",
         current_epiweek=epiweek,
         list_of_years=sorted(list_of_years, reverse=True),
-        last_year=year,
+        last_year=epiyear,
         last_week_years=last_week_years
     )
 
