@@ -5,9 +5,7 @@ from .utils import cross_domain, calc_last_epiweek
 from .calc_flu_alert import (
     apply_filter_alert_by_epiweek,
     calc_alert_rank_whole_year)
-from .episem import episem
 
-import datetime
 import pandas as pd
 
 
@@ -105,13 +103,15 @@ def get_data(
 
     df = fluDB.get_data(
         dataset_id=dataset_id, scale_id=scale_id, year=year,
-        territory_type_id=territory_type_id
+        territory_type_id=territory_type_id, show_historical_weeks=False
     )
     return apply_filter_alert_by_epiweek(df).to_json(orient='records')
 
 
 @app.route(compose_data_url('year/epiweek/weekly-incidence-curve'))
-@app.route(compose_data_url('year/epiweek/territory/weekly-incidence-curve'))
+@app.route(compose_data_url(
+    'year/epiweek/territory_name/weekly-incidence-curve')
+)
 def data__weekly_incidence_curve(
     dataset_id: int, scale_id: int, year: int, epiweek: int,
     territory_name: str='Brasil'
@@ -128,16 +128,16 @@ def data__weekly_incidence_curve(
         return '[]'
 
     ks = [
-        'epiweek', 'corredor_baixo', 'corredor_mediano', 'corredor_alto',
-        'srag', 'limiar_pre_epidemico', 'intensidade_alta',
-        'intensidade_muito_alta'
+        'epiweek', 'typical_low', 'typical_median', 'typical_high',
+        'value', 'pre_epidemic_threshold', 'high_threshold',
+        'very_high_threshold'
     ]
 
     territory_id = fluDB.get_territory_id_from_name(territory_name)
 
     df = fluDB.get_data(
-        dataset_id=dataset_id, scale_id=scale_id, year=year,
-        historical_week=epiweek, territory_id=territory_id
+        dataset_id=dataset_id, scale_id=scale_id, year=year, week=epiweek,
+        show_historical_weeks=True, territory_id=territory_id
     )
 
     try:
@@ -150,20 +150,20 @@ def data__weekly_incidence_curve(
         pass
 
     try:
-        min_week = int(df.loc[df['situation'] == 'unknown', 'epiweek'].min())
+        min_week = int(df.loc[df['situation_id'] == 0, 'epiweek'].min())
         mask = df['epiweek'] >= min_week
 
         df['incomplete_data'] = None
-        df.loc[mask, 'incomplete_data'] = df.loc[mask, '97.5%']
+        df.loc[mask, 'incomplete_data'] = df.loc[mask, 'ci_upper']
 
         ks += ['incomplete_data']
     except:
         pass
 
     # cheating: using a new field corredor_muito_alto just for plotting
-    df['corredor_muito_alto'] = df.intensidade_muito_alta.max() * 1.02
+    df['typical_very_high'] = df.very_high_threshold.max() * 1.02
     # change keys' order
-    ks.insert(ks.index('corredor_alto') + 1, 'corredor_muito_alto')
+    ks.insert(ks.index('typical_high') + 1, 'typical_very_high')
 
     return df[ks].to_csv(index=False, na_rep='null')
 

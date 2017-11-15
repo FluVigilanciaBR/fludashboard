@@ -254,7 +254,8 @@ class FluDB:
 
     def get_data(
         self, dataset_id: int, scale_id: int, year: int,
-        territory_id: int=None, week: int=None, historical_week: int=None,
+        territory_id: int=None, week: int=None,
+        show_historical_weeks: bool=False,
         territory_type_id: int=None
     ):
         """
@@ -264,100 +265,165 @@ class FluDB:
         :param year:
         :param territory_id:
         :param week: 0 week == all weeks
-        :param historical_week:
+        :param show_historical_weeks:
         :param territory_type_id:
         :return:
         """
-        settings = {
+        sql = '''
+        SELECT
+          (CASE WHEN historical.dataset_id IS NULL 
+                THEN incidence.dataset_id 
+                ELSE historical.dataset_id END) AS dataset_id,
+          (CASE WHEN historical.scale_id IS NULL 
+                THEN incidence.scale_id 
+                ELSE historical.scale_id END) AS scale_id,
+          (CASE WHEN historical.territory_id IS NULL 
+                THEN incidence.territory_id 
+                ELSE historical.territory_id END) AS territory_id,
+          (CASE WHEN historical.epiyear IS NULL 
+                THEN incidence.epiyear 
+                ELSE historical.epiyear END) AS epiyear,
+          (CASE WHEN historical.epiweek IS NULL 
+                THEN incidence.epiweek 
+                ELSE historical.epiweek END) AS epiweek,
+          incidence.value, 
+          (CASE WHEN historical.situation_id IS NULL 
+                THEN incidence.situation_id 
+                ELSE historical.situation_id END) AS situation_id,
+          (CASE WHEN historical.mean IS NULL 
+                THEN incidence.mean 
+                ELSE historical.mean END) AS mean,
+          (CASE WHEN historical.median IS NULL 
+                THEN incidence.median 
+                ELSE historical.median END) AS estimated_cases, 
+          (CASE WHEN historical.ci_lower IS NULL 
+                THEN incidence.ci_lower 
+                ELSE historical.ci_lower END) AS ci_lower, 
+          (CASE WHEN historical.ci_upper IS NULL
+                THEN incidence.ci_upper 
+                ELSE historical.ci_upper END) AS ci_upper, 
+          (CASE WHEN historical.low IS NULL 
+                THEN incidence.low 
+                ELSE historical.low END) AS low, 
+          (CASE WHEN historical.epidemic IS NULL 
+                THEN incidence.epidemic 
+                ELSE historical.epidemic END) AS epidemic, 
+          (CASE WHEN historical.high IS NULL 
+                THEN incidence.high 
+                ELSE historical.high END) AS high, 
+          (CASE WHEN historical.very_high IS NULL 
+                THEN incidence.very_high 
+                ELSE historical.very_high END) AS very_high, 
+          incidence.run_date,
+          mem_typical.population, 
+          mem_typical.typical_low, 
+          mem_typical.typical_median, 
+          mem_typical.typical_high,
+          mem_report.geom_average_peak, 
+          mem_report.low_activity_region, 
+          mem_report.pre_epidemic_threshold, 
+          mem_report.high_threshold, 
+          mem_report.very_high_threshold, 
+          mem_report.epi_start, 
+          mem_report.epi_start_ci_lower,
+          mem_report.epi_start_ci_upper, 
+          mem_report.epi_duration, 
+          mem_report.epi_duration_ci_lower, 
+          mem_report.epi_duration_ci_upper,
+          mem_report.regular_seasons,
+          historical.base_epiyear, 
+          historical.base_epiweek,
+          historical.base_epiyearweek
+        FROM
+          current_estimated_values AS incidence
+          INNER JOIN (
+            SELECT dataset_id, scale_id, territory_id, year, epiweek, 
+              population, low AS typical_low, median AS typical_median, 
+              high AS typical_high 
+            FROM mem_typical 
+          ) AS mem_typical
+            ON (
+              incidence.dataset_id=mem_typical.dataset_id
+              AND incidence.scale_id=mem_typical.scale_id
+              AND incidence.territory_id=mem_typical.territory_id
+              AND incidence.epiyear=mem_typical.year
+              AND incidence.epiweek=mem_typical.epiweek
+            ) 
+          INNER JOIN mem_report
+            ON (
+              incidence.dataset_id=mem_report.dataset_id
+              AND incidence.scale_id=mem_report.scale_id
+              AND incidence.territory_id=mem_report.territory_id
+              AND incidence.epiyear=mem_report.year
+            ) 
+          INNER JOIN territory
+            ON (incidence.territory_id=territory.id)
+          %(historical_table)s
+         WHERE incidence.dataset_id=%(dataset_id)s 
+           AND incidence.scale_id=%(scale_id)s 
+           AND incidence.epiyear=%(epiyear)s 
+           AND incidence.epiweek %(incidence_week_operator)s %(epiweek)s
+           %(where_extras)s
+        ORDER BY epiyear, epiweek
+        '''
+
+        sql_param = {
             'dataset_id': dataset_id,
             'scale_id': scale_id,
-            'territory_id': territory_id
+            'territory_id': territory_id,
+            'epiweek': week,
+            'epiyear': year,
+            'where_extras': '',
+            'historical_table': '''
+            FULL OUTER JOIN (
+              SELECT * 
+              FROM historical_estimated_values LIMIT 0
+            ) AS historical ON (1=1)
+            ''',
+            'incidence_week_operator': '='
         }
 
-        sql_incidence = self.read_data(
-            'current_estimated_values', **settings,
-            year=year, week=week, historical_week=historical_week,
-            return_sql=True
-        )
-        sql_typical_param = {
-           'extra_fields': ['%s AS epiyear' % year]
-        } if year is not None else {}
-        sql_typical = self.read_data(
-            'mem_typical', **settings,
-            **sql_typical_param,
-            return_sql=True
-        )
-        sql_thresholds = self.read_data(
-            'mem_report', **settings, return_sql=True
-        )
-
-        # First, last keep only stable weeks for notification curve:
-        # df_incidence.loc[(df_incidence.situation_id != 3), 'value'] = np.nan
-        sql_incidence = sql_incidence.replace(
-            ',value', ''',
-            (CASE 
-             WHEN situation_id <> 3 THEN NULL
-             ELSE value 
-             END) AS value
-            '''
-        )
-
-        if historical_week is not None and historical_week > 0:
-            historical_fields = [
-                'epiweek', 'median AS estimated_cases',
-                'ci_lower', 'ci_upper'
-            ]
-            sql_incidence = sql_incidence\
-                .replace(',median AS estimated_cases', '')\
-                .replace(',ci_lower', '')\
-                .replace(',ci_upper', '')
-
-            sql_historical = self.read_data(
-                'historical_estimated_values', **settings,
-                year=year, week=week, base_week=historical_week,
-                selected_fields=historical_fields,
-                return_sql=True
-            )
-
-            sql_historical = '''
-            FULL OUTER JOIN (%s) AS historical
-              ON (incidence.epiweek=historical.epiweek)
-            ''' % sql_historical
-        else:
-            sql_historical = ''
-            sql_incidence = sql_incidence.replace(
-                ',median', ',median AS estimated_cases'
-            )
-
-        sql = '''
-        SELECT *
-        FROM 
-          (%s) AS incidence
-          FULL OUTER JOIN territory
-            ON (incidence.territory_id=territory.id)
-          FULL OUTER JOIN (%s) AS typical
-            ON (incidence.territory_id=typical.territory_id
-                AND incidence.epiweek=typical.epiweek)
-          FULL OUTER JOIN (%s) AS thresholds
-            ON (incidence.territory_id=thresholds.territory_id)
-          %s
-        ''' % (sql_incidence, sql_typical, sql_thresholds, sql_historical)
-
-        sql += ' WHERE 1=1 '
+        if week is None:
+            sql_param['epiweek'] = 54
+            sql_param['incidence_week_operator'] = '<='
 
         # force week filter (week 0 == all weeks)
-        if week is not None and week > 0:
-            sql += ' AND incidence.epiweek=%s' % week
+        if show_historical_weeks:
+            sql_param['historical'] = '''
+          FULL OUTER JOIN (
+            SELECT * 
+            FROM historical_estimated_values
+            WHERE dataset_id=%(dataset_id)s 
+             AND scale_id=%(scale_id)s 
+             AND territory_id=%(territory_id)s 
+             AND epiyear=%(epiyear)s 
+             AND base_epiweek=%(epiweek)s 
+          ) AS historical
+            ON (
+              incidence.dataset_id=historical.dataset_id
+              AND incidence.scale_id=historical.scale_id
+              AND incidence.territory_id=historical.territory_id
+              AND incidence.epiyear=historical.epiyear
+              AND incidence.epiweek=historical.epiweek
+            )
+            ''' % sql_param
+            sql_param['where_extras'] += ' AND incidence.epiweek=%s' % week
+            sql_param['incidence_week_operator'] = '<='
 
         if territory_type_id is not None and territory_type_id > 0:
-            sql += ' AND territory_type_id=%s' % territory_type_id
+            sql_param['where_extras'] += (
+                ' AND territory.territory_type_id=%s' % territory_type_id
+            )
 
-        sql += ' ORDER BY incidence.epiweek'
+        if territory_id is not None:
+            sql_param['where_extras'] += (
+                ' AND incidence.territory_id=%s ' % territory_id
+            )
+
+        sql = sql % sql_param
 
         with self.conn.connect() as conn:
-            df = pd.read_sql(sql, conn)
-
-        return df.T.drop_duplicates().T
+            return pd.read_sql(sql, conn)
 
     def get_data_age_sex(
         self, dataset_id: int, scale_id: int, year: int,
