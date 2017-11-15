@@ -1,6 +1,6 @@
 from flask import render_template, Flask
 # local
-from . import flu_data
+from .flu_data import FluDB
 from .utils import cross_domain, calc_last_epiweek
 from .calc_flu_alert import (
     apply_filter_alert_by_epiweek,
@@ -17,6 +17,8 @@ app = Flask(
     static_folder='../static'
 )
 
+fluDB = FluDB()
+
 
 def compose_data_url(variables: str):
     """
@@ -25,12 +27,12 @@ def compose_data_url(variables: str):
     :return:
     """
     url_var = {
-        'data': '/data/<string:dataset>/<string:scale>',
+        'data': '/data/<int:dataset_id>/<int:scale_id>',
         'year': '<int:year>',
         'epiweek': '<int:epiweek>',
         'territory_type': '<string:territory_type>',
-        'state': '<string:state>',
-        'state_name': '<string:state_name>'
+        'territory_id': '<int:territory_id>',
+        'territory_name': '<string:territory_name>'
     }
 
     url = [
@@ -53,9 +55,9 @@ def index():
     :return:
     """
     # read data to get the list of available years
-    df = flu_data.read_data(
-        file_name='historical_estimated_values.csv',
-        dataset='srag', scale='incidence', state_code='BR'
+    df = fluDB.read_data(
+        table_name='historical_estimated_values',
+        dataset_id=1, scale_id=1, territory_id=0
     )
 
     # Here the code should receive the user-requested year.
@@ -89,35 +91,37 @@ def app_help():
 
 @app.route(compose_data_url('year/territory_type'))
 def get_data(
-    dataset: str, scale: str, year: int, territory_type: str
+    dataset_id: int, scale_id: str, year: int, territory_type: str
 ):
     """
 
-    :param dataset:
-    :param scale:
+    :param dataset_id:
+    :param scale_id:
     :param year:
     :param territory_type:
     :return:
     """
-    df = flu_data.get_data(dataset=dataset, scale=scale, year=year)
-    df = df[
-        df.tipo == ('Estado' if territory_type == 'state' else 'Regional')
-    ]
+    territory_type_id = 1 if territory_type == 'state' else 2
 
+    df = fluDB.get_data(
+        dataset_id=dataset_id, scale_id=scale_id, year=year,
+        territory_type_id=territory_type_id
+    )
     return apply_filter_alert_by_epiweek(df).to_json(orient='records')
 
 
 @app.route(compose_data_url('year/epiweek/weekly-incidence-curve'))
-@app.route(compose_data_url('year/epiweek/state/weekly-incidence-curve'))
+@app.route(compose_data_url('year/epiweek/territory/weekly-incidence-curve'))
 def data__weekly_incidence_curve(
-    dataset: str, scale: str, year: int, epiweek: int, state: str='Brasil'
+    dataset_id: int, scale_id: int, year: int, epiweek: int,
+    territory_name: str='Brasil'
 ):
     """
 
-    :param dataset:
-    :param scale:
+    :param dataset_id:
+    :param scale_id:
     :param year:
-    :param state:
+    :param territory_name:
     :return:
     """
     if not year > 0:
@@ -129,22 +133,19 @@ def data__weekly_incidence_curve(
         'intensidade_muito_alta'
     ]
 
-    st_code = flu_data.get_state_code_from_name(state)
+    territory_id = fluDB.get_territory_id_from_name(territory_name)
 
-    df = flu_data.get_data(
-        dataset=dataset, scale=scale, year=year,
-        historical_week=epiweek, state_code=st_code
+    df = fluDB.get_data(
+        dataset_id=dataset_id, scale_id=scale_id, year=year,
+        historical_week=epiweek, territory_id=territory_id
     )
 
     try:
-        df.loc[:, 'ci_lower'] = df.loc[:, '2.5%']
-        df.loc[:, 'ci_upper'] = df.loc[:, '97.5%']
-
         ks += ['estimated_cases', 'ci_lower', 'ci_upper']
 
         k = 'estimated_cases'
         ks.pop(ks.index(k))
-        ks.insert(ks.index('srag') + 1, k)
+        ks.insert(ks.index('value') + 1, k)
     except:
         pass
 
@@ -188,9 +189,9 @@ def data__incidence_levels(
     if not year > 0:
         return '[]'
 
-    state_code = flu_data.get_state_code_from_name(state_name)
+    state_code = fluDB.get_state_code_from_name(state_name)
 
-    df = flu_data.get_data(
+    df = fluDB.get_data(
         dataset=dataset, scale=scale, year=year,
         state_code=state_code, week=epiweek
     )
@@ -263,11 +264,11 @@ def data__data_table(
     ]
 
     if state_name is not None:
-        state_code = flu_data.get_state_code_from_name(state_name)
+        state_code = fluDB.get_state_code_from_name(state_name)
     else:
         state_code = None
 
-    df = flu_data.get_data(
+    df = fluDB.get_data(
         dataset=dataset, scale=scale, year=year, week=epiweek,
         state_code=state_code
     )
@@ -281,7 +282,7 @@ def data__data_table(
 
     # for a whole year view
     if not epiweek:
-        df = flu_data.group_data_by_season(df, season=year)
+        df = fluDB.group_data_by_season(df, season=year)
 
     # order by type
     df = df.assign(type_unit=1)
@@ -302,12 +303,12 @@ def data__data_table(
     if df.shape[0]:
         if epiweek:
             df.srag = df[['50%', '2.5%', '97.5%', 'situation']].apply(
-                lambda row: flu_data.report_incidence(
+                lambda row: fluDB.report_incidence(
                     row['50%'], row['situation'], row['2.5%'], row['97.5%']
                 ), axis=1)
         else:
             df.srag = df[['srag', 'situation']].apply(
-                lambda row: flu_data.report_incidence(
+                lambda row: fluDB.report_incidence(
                     row['srag'], row['situation']
                 ), axis=1)
 
@@ -351,10 +352,10 @@ def data__age_distribution(
     if not state:
         state = 'Brasil'
 
-    state_code = flu_data.get_state_code_from_name(state)
+    state_code = fluDB.get_state_code_from_name(state)
 
     df = pd.DataFrame(
-        flu_data.get_data_age_sex(
+        fluDB.get_data_age_sex(
             dataset=dataset, scale=scale,
             year=year, week=epiweek, state_code=state_code
         )
