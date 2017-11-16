@@ -211,10 +211,10 @@ def data__incidence_levels(
     df = apply_filter_alert_by_epiweek(df=df)
 
     se = pd.Series({
-        'low_level': df[df.alert == 1].count().l0,
-        'epidemic_level': df[df.alert == 2].count().l1,
-        'high_level': df[df.alert == 3].count().l2,
-        'very_high_level': df[df.alert == 4].count().l3
+        'low_level': df[df.alert == 1].count().low_level,
+        'epidemic_level': df[df.alert == 2].count().epidemic_level,
+        'high_level': df[df.alert == 3].count().high_level,
+        'very_high_level': df[df.alert == 4].count().very_high_level
     })
 
     rank = calc_alert_rank_whole_year(se)
@@ -370,15 +370,16 @@ def data__age_distribution(
         )
     ).round(2)
 
+    # TODO: rename the data on the front-end side
     df.rename(index={
-        '0_4_anos': '0-4 anos',
-        '5_9_anos': '5-9 anos',
-        '10_19_anos': '10-19 anos',
-        '20_29_anos': '20-29 anos',
-        '30_39_anos': '30-39 anos',
-        '40_49_anos': '40-49 anos',
-        '50_59_anos': '50-59 anos',
-        '60+_anos': '60+ anos'
+        'years_0_4': '0-4 anos',
+        'years_5_9': '5-9 anos',
+        'years_10_19': '10-19 anos',
+        'years_20_29': '20-29 anos',
+        'years_30_39': '30-39 anos',
+        'years_40_49': '40-49 anos',
+        'years_50_59': '50-59 anos',
+        'years_60_or_more': '60+ anos'
     }, inplace=True)
 
     # the replace is used when there is no data in the df

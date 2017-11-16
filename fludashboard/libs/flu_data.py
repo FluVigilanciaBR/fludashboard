@@ -70,11 +70,11 @@ class FluDB:
         Generate season level code based on counts over weekly activity
 
         """
-        if se.high + se.very_high > 4:
+        if se.high_level + se.very_high_level > 4:
             return 4  # 'red'
-        elif se.high + se.very_high >= 1:
+        elif se.high_level + se.very_high_level >= 1:
             return 3  # 'orange'
-        elif se.epidemic >= 1:
+        elif se.epidemic_level >= 1:
             return 2  # 'yellow'
         # else
         return 1  # 'green'
@@ -88,13 +88,15 @@ class FluDB:
         :return:
         """
         level_dict = {
-            'low': 'Baixa', 'epidemic': 'Epidêmica',
-            'high': 'Alta', 'very_high': 'Muito alta'
+            'low_level': 'Baixa', 'epidemic_level': 'Epidêmica',
+            'high_level': 'Alta', 'very_high_level': 'Muito alta'
         }
         season_basic_cols = [
-            'territory_id', 'unidade_da_federacao', 'epiyear', 'value'
+            'territory_id', 'territory_name', 'epiyear', 'value'
         ]
-        season_cols = season_basic_cols + ['tipo', 'situation_id', 'level']
+        season_cols = season_basic_cols + [
+            'territory_type_name', 'situation_id', 'situation_name', 'level'
+        ]
 
         df['level'] = df[list(level_dict.keys())].idxmax(axis=1)
 
@@ -103,40 +105,55 @@ class FluDB:
         situation = list(
             df_tmp[df_tmp.epiyear == season].situation_id.unique()
         )
-        l_incomplete = [1, 2, 'incomplete', 'Incompleto']
+        l_incomplete = [1, 2, 4]
         if set(l_incomplete).intersection(situation):
-            df_tmp.loc[df_tmp.epiyear == season, 'situation_id'] = 'incomplete'
+            # incomplete
+            df_tmp.loc[df_tmp.epiyear == season, 'situation_id'] = 4
         else:
+            # stable
             df_tmp.loc[df_tmp.epiyear == season, 'situation_id'] = 3
 
         if df_age_dist is not None:
             df_by_season = df_age_dist[[
-                'territory_id', 'unidade_da_federacao', 'epiyear', 'sexo',
-                'value', '0_4', '5_9', '10_19', '20_29',
-                '30_39', '40_49', '50_59', '60+'
+                'territory_id', 'territory_name', 'epiyear', 'gender',
+                'value', 'years_0_4', 'years_5_9', 'years_10_19',
+                'years_20_29', 'years_30_39', 'years_40_49', 'years_50_59',
+                'years_60_or_more'
             ]].groupby([
-                'territory_id', 'unidade_da_federacao', 'epiyear', 'sexo'
+                'territory_id', 'territory_name', 'epiyear', 'gender'
             ], as_index=False).sum()
         else:
             df_by_season = df_tmp[season_basic_cols].groupby(
-                ['territory_id', 'unidade_da_federacao', 'epiyear'],
+                ['territory_id', 'territory_name', 'epiyear'],
                 as_index=False
             ).sum()
+
+        situations_id = {
+            1: 'unknown',
+            2: 'estimated',
+            3: 'stable',
+            4: 'incomplete'
+        }
 
         df_by_season['situation_id'] = df_by_season.apply(
             self.get_season_situation(df_tmp), axis=1
         )
 
+        df_by_season['situation_name'] = df_by_season['situation_id'].map(
+            situations_id
+        )
+
         df_by_season_level = pd.crosstab([
-            df_tmp.territory_id, df_tmp.unidade_da_federacao, df_tmp.epiyear
+            df_tmp.territory_id, df_tmp.territory_name, df_tmp.epiyear
         ], df_tmp.level).reset_index()
 
         df_by_season_level.columns.name = None
 
-        for i in range(4):
-            _l = ('l%s' % i)
-            if not _l in df_by_season_level.keys():
-                df_by_season_level[_l] = 0
+        for lv in (
+            'low_level', 'epidemic_level', 'high_level', 'very_high_level'
+        ):
+            if not lv in df_by_season_level.keys():
+                df_by_season_level[lv] = 0
 
         df_by_season['level'] = df_by_season_level[
             list(level_dict.keys())
@@ -219,7 +236,10 @@ class FluDB:
         }
 
         sql = '''
-        SELECT %(fields)s FROM %(table_name)s 
+        SELECT %(fields)s, territory.name AS territory_name
+        FROM %(table_name)s 
+          INNER JOIN territory
+            ON (%(table_name)s.territory_id = territory.id)
         WHERE dataset_id=%(dataset_id)s 
           AND scale_id=%(scale_id)s
         '''
@@ -271,21 +291,11 @@ class FluDB:
         """
         sql = '''
         SELECT
-          (CASE WHEN historical.dataset_id IS NULL 
-                THEN incidence.dataset_id 
-                ELSE historical.dataset_id END) AS dataset_id,
-          (CASE WHEN historical.scale_id IS NULL 
-                THEN incidence.scale_id 
-                ELSE historical.scale_id END) AS scale_id,
-          (CASE WHEN historical.territory_id IS NULL 
-                THEN incidence.territory_id 
-                ELSE historical.territory_id END) AS territory_id,
-          (CASE WHEN historical.epiyear IS NULL 
-                THEN incidence.epiyear 
-                ELSE historical.epiyear END) AS epiyear,
-          (CASE WHEN historical.epiweek IS NULL 
-                THEN incidence.epiweek 
-                ELSE historical.epiweek END) AS epiweek,
+          mem_typical.dataset_id AS dataset_id,
+          mem_typical.scale_id AS scale_id,
+          mem_typical.territory_id AS territory_id,
+          mem_typical.year AS epiyear,
+          mem_typical.epiweek AS epiweek,
           incidence.value, 
           (CASE WHEN historical.situation_id IS NULL 
                 THEN incidence.situation_id 
@@ -338,14 +348,27 @@ class FluDB:
           territory_type.name AS territory_type_name,
           situation.name AS situation_name
         FROM
-          current_estimated_values AS incidence 
+          (
+            SELECT * FROM current_estimated_values
+            WHERE dataset_id=%(dataset_id)s 
+              AND scale_id=%(scale_id)s 
+              AND epiyear=%(epiyear)s 
+              AND epiweek %(incidence_week_operator)s %(epiweek)s
+              %(territory_id_condition)s
+          ) AS incidence 
           INNER JOIN territory
             ON (incidence.territory_id=territory.id)
           INNER JOIN territory_type
             ON (territory.territory_type_id=territory_type.id)
           INNER JOIN situation
             ON (incidence.situation_id=situation.id)
-          FULL OUTER JOIN mem_typical
+          FULL OUTER JOIN (
+            SELECT * FROM mem_typical
+            WHERE dataset_id=%(dataset_id)s 
+              AND scale_id=%(scale_id)s
+              AND year=%(epiyear)s 
+              %(territory_id_condition)s 
+            ) AS mem_typical
             ON (
               incidence.dataset_id=mem_typical.dataset_id
               AND incidence.scale_id=mem_typical.scale_id
@@ -353,18 +376,21 @@ class FluDB:
               AND incidence.epiyear=mem_typical.year
               AND incidence.epiweek=mem_typical.epiweek
             ) 
-          FULL OUTER JOIN mem_report
+          FULL OUTER JOIN (
+            SELECT * FROM mem_report
+            WHERE dataset_id=%(dataset_id)s 
+              AND scale_id=%(scale_id)s
+              AND year=%(epiyear)s 
+              %(territory_id_condition)s
+            ) AS mem_report
             ON (
-              incidence.dataset_id=mem_report.dataset_id
-              AND incidence.scale_id=mem_report.scale_id
-              AND incidence.territory_id=mem_report.territory_id
-              AND incidence.epiyear=mem_report.year
+              mem_typical.dataset_id=mem_report.dataset_id
+              AND mem_typical.scale_id=mem_report.scale_id
+              AND mem_typical.territory_id=mem_report.territory_id
+              AND mem_typical.year=mem_report.year
             )
           %(historical_table)s
-         WHERE incidence.dataset_id=%(dataset_id)s 
-           AND incidence.scale_id=%(scale_id)s 
-           AND incidence.epiyear=%(epiyear)s 
-           AND incidence.epiweek %(incidence_week_operator)s %(epiweek)s
+         WHERE 1=1
            %(where_extras)s
         ORDER BY epiyear, epiweek
         '''
@@ -382,16 +408,17 @@ class FluDB:
               FROM historical_estimated_values LIMIT 0
             ) AS historical ON (1=1)
             ''',
-            'incidence_week_operator': '='
+            'incidence_week_operator': '=',
+            'territory_id_condition': ''
         }
 
-        if week is None:
+        if week is None or week == 0:
             sql_param['epiweek'] = 54
             sql_param['incidence_week_operator'] = '<='
 
         # force week filter (week 0 == all weeks)
         if show_historical_weeks:
-            sql_param['historical'] = '''
+            sql_param['historical_table'] = '''
           FULL OUTER JOIN (
             SELECT * 
             FROM historical_estimated_values
@@ -417,8 +444,8 @@ class FluDB:
             )
 
         if territory_id is not None:
-            sql_param['where_extras'] += (
-                ' AND incidence.territory_id=%s ' % territory_id
+            sql_param['territory_id_condition'] += (
+                ' AND territory_id=%s ' % territory_id
             )
 
         sql = sql % sql_param
