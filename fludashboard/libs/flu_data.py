@@ -112,8 +112,8 @@ class FluDB:
         if df_age_dist is not None:
             df_by_season = df_age_dist[[
                 'territory_id', 'unidade_da_federacao', 'epiyear', 'sexo',
-                'value', '0_4_anos', '5_9_anos', '10_19_anos', '20_29_anos',
-                '30_39_anos', '40_49_anos', '50_59_anos', '60+_anos'
+                'value', '0_4', '5_9', '10_19', '20_29',
+                '30_39', '40_49', '50_59', '60+'
             ]].groupby([
                 'territory_id', 'unidade_da_federacao', 'epiyear', 'sexo'
             ], as_index=False).sum()
@@ -333,10 +333,19 @@ class FluDB:
           mem_report.regular_seasons,
           historical.base_epiyear, 
           historical.base_epiweek,
-          historical.base_epiyearweek
+          historical.base_epiyearweek,
+          territory.name AS territory_name,
+          territory_type.name AS territory_type_name,
+          situation.name AS situation_name
         FROM
-          current_estimated_values AS incidence
-          INNER JOIN mem_typical
+          current_estimated_values AS incidence 
+          INNER JOIN territory
+            ON (incidence.territory_id=territory.id)
+          INNER JOIN territory_type
+            ON (territory.territory_type_id=territory_type.id)
+          INNER JOIN situation
+            ON (incidence.situation_id=situation.id)
+          FULL OUTER JOIN mem_typical
             ON (
               incidence.dataset_id=mem_typical.dataset_id
               AND incidence.scale_id=mem_typical.scale_id
@@ -344,15 +353,13 @@ class FluDB:
               AND incidence.epiyear=mem_typical.year
               AND incidence.epiweek=mem_typical.epiweek
             ) 
-          INNER JOIN mem_report
+          FULL OUTER JOIN mem_report
             ON (
               incidence.dataset_id=mem_report.dataset_id
               AND incidence.scale_id=mem_report.scale_id
               AND incidence.territory_id=mem_report.territory_id
               AND incidence.epiyear=mem_report.year
-            ) 
-          INNER JOIN territory
-            ON (incidence.territory_id=territory.id)
+            )
           %(historical_table)s
          WHERE incidence.dataset_id=%(dataset_id)s 
            AND incidence.scale_id=%(scale_id)s 
@@ -402,7 +409,6 @@ class FluDB:
               AND incidence.epiweek=historical.epiweek
             )
             ''' % sql_param
-            sql_param['where_extras'] += ' AND incidence.epiweek=%s' % week
             sql_param['incidence_week_operator'] = '<='
 
         if territory_type_id is not None and territory_type_id > 0:
@@ -437,13 +443,13 @@ class FluDB:
         season = year  # alias
 
         age_cols = [
-            '0_4_anos', '5_9_anos', '10_19_anos', '20_29_anos', '30_39_anos',
-            '40_49_anos', '50_59_anos', '60+_anos'
+            'years_0_4', 'years_5_9', 'years_10_19', 'years_20_29',
+            'years_30_39', 'years_40_49', 'years_50_59', 'years_60_or_more'
         ]
 
         # data
         df_age_dist = self.read_data(
-            'clean_data_epiweek-weekly-incidence_w_situation',
+            'clean_data_epiweek_weekly_incidence_w_situation',
             dataset_id=dataset_id, scale_id=scale_id, year=season,
             territory_id=territory_id,
             low_memory=False
@@ -461,7 +467,7 @@ class FluDB:
                 df=df, df_age_dist=df_age_dist, season=season
             )
 
-        df = df[age_cols + ['sexo']].set_index('sexo').transpose()
+        df = df[age_cols + ['gender']].set_index('gender').transpose()
         df.rename(columns={'F': 'Mulheres', 'M': 'Homens'}, inplace=True)
 
         return df

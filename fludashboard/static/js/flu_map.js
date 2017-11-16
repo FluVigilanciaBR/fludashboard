@@ -142,7 +142,7 @@ class SRAGMap {
             });
           });
 
-          var stateName = feature.properties.nome;
+          var territoryName = feature.properties.nome;
           var week = parseInt($('#week').val() || 0);
           var year = parseInt($('#year').val() || 0);
           var territoryType = (
@@ -152,19 +152,19 @@ class SRAGMap {
 
           if (territoryType=='state') {
             // state
-            if ($('#selected-state').val() == stateName) {
-              stateName = '';
+            if ($('#selected-territory').val() == territoryName) {
+              territoryName = '';
               $('.territory-display').text(' - Brasil');
             } else {
               // bold the selected state
               layer.setStyle({
                 weight: 2
               });
-              $('.territory-display').text(' - ' + stateName);
+              $('.territory-display').text(' - ' + territoryName);
             }
           } else {
             // regions
-            var rid = _this.regionIds[stateName];
+            var rid = _this.regionIds[territoryName];
             var ridName = _this.regionNames[rid];
 
             _this.geojsonLayer.eachLayer(function (_layer) {
@@ -172,7 +172,7 @@ class SRAGMap {
 
               _layer.setStyle({color: '#333333'});
 
-              if (_rid == rid && $('#selected-state').val() != ridName) {
+              if (_rid == rid && $('#selected-territory').val() != ridName) {
                 _layer.setStyle({weight: 2});
                 _layer.bringToFront();
               } else {
@@ -181,23 +181,23 @@ class SRAGMap {
             });
 
             // state
-            if ($('#selected-state').val() == ridName) {
-              stateName = '';
+            if ($('#selected-territory').val() == ridName) {
+              territoryName = '';
               $('.territory-display').text(' - Brasil');
             } else {
               $('.territory-display').text(' - ' + ridName);
-              stateName = ridName;
+              territoryName = ridName;
             }
           }
 
-          $('#selected-state').val(stateName);
+          $('#selected-territory').val(territoryName);
 
-          clickExternalTrigger(dataset, scale, year, stateName, week);
+          clickExternalTrigger(dataset, scale, year, territoryName, week);
         }
       });
     };
 
-    var selectedState = $('#selected-state').val();
+    var selectedTerritory = $('#selected-territory').val();
     var territoryType = (
       $('input[name="radType[]"]:checked').attr('id') == 'radTypeState' ?
       'state' : 'region'
@@ -219,7 +219,7 @@ class SRAGMap {
 
           var weekState = $.grep(sragData, function(n,i){
             return (
-              n.unidade_da_federacao===layerName &&
+              n.territory_name===layerName &&
               (n.epiweek===week || week==0)
             );
           })[0];
@@ -228,7 +228,7 @@ class SRAGMap {
             styleProperties['fillColor'] = _this.fluColors[weekState['alert']];
           }
 
-          if (selectedState==layerName) {
+          if (selectedTerritory==layerName) {
             styleProperties['weight'] = 2;
           }
           return styleProperties;
@@ -251,7 +251,7 @@ class SRAGMap {
 
             /*var weekState = $.grep(sragData, function(n,i){
               return (
-                n.unidade_da_federacao===layerName &&
+                n.territory_name===layerName &&
                 (n.epiweek===week || week==0)
               );
             })[0];
@@ -260,7 +260,7 @@ class SRAGMap {
               styleProperties['fillColor'] = _this.fluColors[weekState['alert']];
             }*/
 
-            if (selectedState==_rid) {
+            if (selectedTerritory==_rid) {
               styleProperties['weight'] = 2;
             }
             return styleProperties;
@@ -296,7 +296,7 @@ class SRAGMap {
    */
   changeColorMap(df) {
     var _this = this;
-    var state = $('#selected-state').val();
+    var state = $('#selected-territory').val();
     var week = parseInt($('#week').val() || 0);
     var styleProperties= {
       fillColor: '#ffffff',
@@ -332,7 +332,7 @@ class SRAGMap {
         }
 
         var df_alert_state = $.grep(df_alert, function(n,i){
-          return n.unidade_da_federacao===territoryName
+          return n.territory_name===territoryName
         })[0];
 
         if (df_alert_state != undefined) {
@@ -366,7 +366,7 @@ class SRAGMap {
         };
 
         var df_alert_state = $.grep(df, function(n,i){
-          return n.unidade_da_federacao===territoryName;
+          return n.territory_name===territoryName;
         });
 
         $(df_alert_state).each(function(i){

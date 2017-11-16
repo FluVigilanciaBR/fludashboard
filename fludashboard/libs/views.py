@@ -263,9 +263,9 @@ def data__data_table(
         return '{"data": []}'
 
     ks = [
-        # 'unidade_da_federacao',
+        'territory_name',
         'epiweek',
-        'situation_id',
+        'situation_name',
         'value'
     ]
 
@@ -279,14 +279,12 @@ def data__data_table(
         territory_id=territory_id
     )
 
-    '''
     if territory_type == 'state':
-        mask = ~(df.tipo == 'Regional')
+        mask = ~(df.territory_type_name == 'Regional')
     else:
-        mask = ~(df.tipo == 'Estado')
-    
+        mask = ~(df.territory_type_name == 'Estado')
+
     df = df[mask]
-    '''
 
     # for a whole year view
     if not epiweek:
@@ -300,9 +298,8 @@ def data__data_table(
     except:
         pass
 
-    # , 'unidade_da_federacao'
     df.sort_values(
-        by=['type_unit', 'epiyear', 'epiweek'],
+        by=['type_unit', 'territory_name', 'epiyear', 'epiweek'],
         inplace=True
     )
     df.reset_index(drop=True, inplace=True)
@@ -326,17 +323,13 @@ def data__data_table(
 
         # change situation value by a informative text
         situation_dict = {
-            # 'stable'
-            3: 'Dado estável. Sujeito a pequenas alterações.',
-            # 'estimated'
-            2: 'Estimado. Sujeito a alterações.',
-            # 'unknown'
-            1: 'Dados incompletos. Sujeito a grandes alterações.',
-            # 'incomplete'
-            4: 'Dados incompletos. Sujeito a grandes alterações.'
+            'stable': 'Dado estável. Sujeito a pequenas alterações.',
+            'estimated': 'Estimado. Sujeito a alterações.',
+            'unknown': 'Dados incompletos. Sujeito a grandes alterações.',
+            'incomplete': 'Dados incompletos. Sujeito a grandes alterações.'
         }
 
-        df.situation = df.situation_id.map(
+        df.situation_name = df.situation_name.map(
             lambda x: situation_dict[x] if x else ''
         )
 
@@ -347,33 +340,33 @@ def data__data_table(
 
 @app.route(compose_data_url('year/age-distribution'))
 @app.route(compose_data_url('year/epiweek/age-distribution'))
-@app.route(compose_data_url('year/epiweek/state/age-distribution'))
+@app.route(compose_data_url('year/epiweek/territory_name/age-distribution'))
 @cross_domain(origin='*')
 def data__age_distribution(
-    dataset: str, scale: str, year: int,
-    epiweek: int=None, state: str=None
+    dataset_id: str, scale_id: str, year: int,
+    epiweek: int=None, territory_name: str=None
 ):
     """
 
-    :param dataset:
-    :param scale:
+    :param dataset_id:
+    :param scale_id:
     :param year:
     :param epiweek: 0 == all weeks
-    :param state:
+    :param territory_name:
     :return:
     """
     if not year > 0:
         return '[]'
 
-    if not state:
-        state = 'Brasil'
+    if not territory_name:
+        territory_name = 'Brasil'
 
-    state_code = fluDB.get_state_code_from_name(state)
+    territory_id = fluDB.get_territory_id_from_name(territory_name)
 
     df = pd.DataFrame(
         fluDB.get_data_age_sex(
-            dataset=dataset, scale=scale,
-            year=year, week=epiweek, state_code=state_code
+            dataset_id=dataset_id, scale_id=scale_id,
+            year=year, week=epiweek, territory_id=territory_id
         )
     ).round(2)
 
