@@ -170,48 +170,51 @@ def data__weekly_incidence_curve(
 
 @app.route(compose_data_url('year/levels'))
 @app.route(compose_data_url('year/epiweek/levels'))
-@app.route(compose_data_url('year/epiweek/state_name/levels'))
+@app.route(compose_data_url('year/epiweek/territory_name/levels'))
 def data__incidence_levels(
-    dataset: str, scale: str, year: int,
-    epiweek: int=None, state_name: str='Brasil'
+    dataset_id: int, scale_id: int, year: int,
+    epiweek: int=None, territory_name: str='Brasil'
 ):
     """
     When epiweek==None, the system will assume the whole year view.
     When state_name==None, the system will assume state_name=='Brasil'
 
-    :param dataset:
-    :param scale:
+    :param dataset_id:
+    :param scale_id:
     :param year:
     :param epiweek:
-    :param state_name:
+    :param territory_name:
     :return:
     """
     if not year > 0:
         return '[]'
 
-    state_code = fluDB.get_state_code_from_name(state_name)
+    territory_id = fluDB.get_territory_id_from_name(territory_name)
 
     df = fluDB.get_data(
-        dataset=dataset, scale=scale, year=year,
-        state_code=state_code, week=epiweek
+        dataset_id=dataset_id, scale_id=scale_id, year=year,
+        territory_id=territory_id, week=epiweek
     )
 
     if epiweek is not None and epiweek > 0:
-        ks = ['l0', 'l1', 'l2', 'l3']
+        ks = [
+            'low_level', 'epidemic_level',
+            'high_level', 'very_high_level'
+        ]
         df[ks] *= 100
         df[ks] = df[ks].round(2)
 
-        ks += ['situation']
+        ks += ['situation_id']
         return df[ks].to_json(orient='records')
 
     # prepare data for the whole year
     df = apply_filter_alert_by_epiweek(df=df)
 
     se = pd.Series({
-        'l0': df[df.alert == 1].count().l0,
-        'l1': df[df.alert == 2].count().l1,
-        'l2': df[df.alert == 3].count().l2,
-        'l3': df[df.alert == 4].count().l3
+        'low_level': df[df.alert == 1].count().l0,
+        'epidemic_level': df[df.alert == 2].count().l1,
+        'high_level': df[df.alert == 3].count().l2,
+        'very_high_level': df[df.alert == 4].count().l3
     })
 
     rank = calc_alert_rank_whole_year(se)
@@ -230,11 +233,14 @@ def data__incidence_levels(
 @app.route(compose_data_url('year/epiweek/data-table'))
 @app.route(compose_data_url('year/epiweek/territory_type/data-table'))
 @app.route(
-    compose_data_url('year/epiweek/territory_type/state_name/data-table')
+    compose_data_url(
+        'year/epiweek/territory_type' +
+        '/territory_name/data-table'
+    )
 )
 def data__data_table(
-    dataset: str, scale: str, year: int, epiweek: int=None,
-    territory_type: str=None, state_name: str=None
+    dataset_id: str, scale_id: str, year: int, epiweek: int=None,
+    territory_type: str=None, territory_name: str=None
 ):
     """
     1. Total number of cases in the selected year for eac
@@ -244,12 +250,12 @@ def data__data_table(
     3. Total number of cases in the selected year for selected State
     4. Number of cases in the selected week for selected State.
 
-    :param dataset:
-    :param scale:
+    :param dataset_id:
+    :param scale_id:
     :param year:
     :param epiweek:
     :param territory_type:
-    :param state_name:
+    :param territory_name:
     :return:
 
     """
@@ -257,28 +263,30 @@ def data__data_table(
         return '{"data": []}'
 
     ks = [
-        'unidade_da_federacao',
+        # 'unidade_da_federacao',
         'epiweek',
-        'situation',
-        'srag'
+        'situation_id',
+        'value'
     ]
 
-    if state_name is not None:
-        state_code = fluDB.get_state_code_from_name(state_name)
+    if territory_name is not None:
+        territory_id = fluDB.get_territory_id_from_name(territory_name)
     else:
-        state_code = None
+        territory_id = None
 
     df = fluDB.get_data(
-        dataset=dataset, scale=scale, year=year, week=epiweek,
-        state_code=state_code
+        dataset_id=dataset_id, scale_id=scale_id, year=year, week=epiweek,
+        territory_id=territory_id
     )
 
+    '''
     if territory_type == 'state':
         mask = ~(df.tipo == 'Regional')
     else:
         mask = ~(df.tipo == 'Estado')
-
+    
     df = df[mask]
+    '''
 
     # for a whole year view
     if not epiweek:
@@ -292,8 +300,9 @@ def data__data_table(
     except:
         pass
 
+    # , 'unidade_da_federacao'
     df.sort_values(
-        by=['type_unit', 'unidade_da_federacao', 'epiyear', 'epiweek'],
+        by=['type_unit', 'epiyear', 'epiweek'],
         inplace=True
     )
     df.reset_index(drop=True, inplace=True)
@@ -302,30 +311,37 @@ def data__data_table(
     # add more information into srag field
     if df.shape[0]:
         if epiweek:
-            df.srag = df[['50%', '2.5%', '97.5%', 'situation']].apply(
+            k = ['estimated_cases', 'ci_lower', 'ci_upper', 'situation_id']
+            df.value = df[k].apply(
                 lambda row: fluDB.report_incidence(
-                    row['50%'], row['situation'], row['2.5%'], row['97.5%']
+                    row['estimated_cases'],
+                    row['situation_id'],
+                    row['ci_lower'], row['ci_upper']
                 ), axis=1)
         else:
-            df.srag = df[['srag', 'situation']].apply(
+            df.value = df[['value', 'situation_id']].apply(
                 lambda row: fluDB.report_incidence(
-                    row['srag'], row['situation']
+                    row['value'], row['situation_id']
                 ), axis=1)
 
         # change situation value by a informative text
         situation_dict = {
-            'stable': 'Dado estável. Sujeito a pequenas alterações.',
-            'estimated': 'Estimado. Sujeito a alterações.',
-            'unknown': 'Dados incompletos. Sujeito a grandes alterações.',
-            'incomplete': 'Dados incompletos. Sujeito a grandes alterações.'
+            # 'stable'
+            3: 'Dado estável. Sujeito a pequenas alterações.',
+            # 'estimated'
+            2: 'Estimado. Sujeito a alterações.',
+            # 'unknown'
+            1: 'Dados incompletos. Sujeito a grandes alterações.',
+            # 'incomplete'
+            4: 'Dados incompletos. Sujeito a grandes alterações.'
         }
 
-        df.situation = df.situation.map(
+        df.situation = df.situation_id.map(
             lambda x: situation_dict[x] if x else ''
         )
 
     return '{"data": %s}' % df[ks].round({
-        'srag': 2
+        'value': 2
     }).to_json(orient='records')
 
 

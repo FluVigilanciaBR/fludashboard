@@ -302,23 +302,23 @@ class FluDB:
           (CASE WHEN historical.ci_upper IS NULL
                 THEN incidence.ci_upper 
                 ELSE historical.ci_upper END) AS ci_upper, 
-          (CASE WHEN historical.low IS NULL 
-                THEN incidence.low 
-                ELSE historical.low END) AS low, 
-          (CASE WHEN historical.epidemic IS NULL 
-                THEN incidence.epidemic 
-                ELSE historical.epidemic END) AS epidemic, 
-          (CASE WHEN historical.high IS NULL 
-                THEN incidence.high 
-                ELSE historical.high END) AS high, 
-          (CASE WHEN historical.very_high IS NULL 
-                THEN incidence.very_high 
-                ELSE historical.very_high END) AS very_high, 
+          (CASE WHEN historical.low_level IS NULL 
+                THEN incidence.low_level
+                ELSE historical.low_level END) AS low_level, 
+          (CASE WHEN historical.epidemic_level IS NULL 
+                THEN incidence.epidemic_level 
+                ELSE historical.epidemic_level END) AS epidemic_level, 
+          (CASE WHEN historical.high_level IS NULL 
+                THEN incidence.high_level 
+                ELSE historical.high_level END) AS high_level, 
+          (CASE WHEN historical.very_high_level IS NULL 
+                THEN incidence.very_high_level 
+                ELSE historical.very_high_level END) AS very_high_level, 
           incidence.run_date,
           mem_typical.population, 
-          mem_typical.typical_low, 
-          mem_typical.typical_median, 
-          mem_typical.typical_high,
+          mem_typical.low AS typical_low, 
+          mem_typical.median AS typical_median, 
+          mem_typical.high AS typical_high,
           mem_report.geom_average_peak, 
           mem_report.low_activity_region, 
           mem_report.pre_epidemic_threshold, 
@@ -336,12 +336,7 @@ class FluDB:
           historical.base_epiyearweek
         FROM
           current_estimated_values AS incidence
-          INNER JOIN (
-            SELECT dataset_id, scale_id, territory_id, year, epiweek, 
-              population, low AS typical_low, median AS typical_median, 
-              high AS typical_high 
-            FROM mem_typical 
-          ) AS mem_typical
+          INNER JOIN mem_typical
             ON (
               incidence.dataset_id=mem_typical.dataset_id
               AND incidence.scale_id=mem_typical.scale_id
