@@ -178,7 +178,6 @@ class Dashboard {
       var df = _this.sragData;
     }
 
-    //print_filter(df);
     var territoryName = $('#selected-territory').val() || 'Brasil';
 
     _this.sragMap.changeColorMap(_this.sragData);

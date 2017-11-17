@@ -356,10 +356,6 @@ class FluDB:
               AND epiweek %(incidence_week_operator)s %(epiweek)s
               %(territory_id_condition)s
           ) AS incidence 
-          INNER JOIN territory
-            ON (incidence.territory_id=territory.id)
-          INNER JOIN territory_type
-            ON (territory.territory_type_id=territory_type.id)
           INNER JOIN situation
             ON (incidence.situation_id=situation.id)
           FULL OUTER JOIN (
@@ -375,7 +371,11 @@ class FluDB:
               AND incidence.territory_id=mem_typical.territory_id
               AND incidence.epiyear=mem_typical.year
               AND incidence.epiweek=mem_typical.epiweek
-            ) 
+            )
+          INNER JOIN territory
+            ON (mem_typical.territory_id=territory.id)
+          INNER JOIN territory_type
+            ON (territory.territory_type_id=territory_type.id)
           FULL OUTER JOIN (
             SELECT * FROM mem_report
             WHERE dataset_id=%(dataset_id)s 
@@ -437,6 +437,10 @@ class FluDB:
             )
             ''' % sql_param
             sql_param['incidence_week_operator'] = '<='
+        else:
+            sql_param['where_extras'] += ' AND incidence.epiweek %s %s' % (
+                sql_param['incidence_week_operator'], sql_param['epiweek']
+            )
 
         if territory_type_id is not None and territory_type_id > 0:
             sql_param['where_extras'] += (
