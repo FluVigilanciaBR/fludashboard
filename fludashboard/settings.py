@@ -24,7 +24,7 @@ DATABASE = {
 # create yaml file
 if not os.path.exists(settings_path):
     settings_yaml = {
-        'WSGI_NUM_WORKERS': 4,
+        'WSGI_NUM_WORKERS': '4',
         'WSGI_HOST': '0.0.0.0',
         'WSGI_PORT': '8000',
         'WSGI_FLU_LOG': '.flu.log',
@@ -49,4 +49,4 @@ if not os.path.exists(settings_path):
 with open(os.path.join(settings_path), 'r') as f:
     globals().update(yaml.load(f))
 
-PATH = os.path.abspath(__file__)
+PATH = os.path.dirname(os.path.abspath(__file__))

@@ -8,5 +8,5 @@ echo '[II] Updating data ...'
 
 FLU_LOG="$HOME/$WSGI_FLU_LOG"
 
-echo '[II] Starting app ...',
-gunicorn -w $NUM_WORKERS -b $WSGI_BIND --log-file=$FLU_LOG $WSGI_APP
+echo '[II] Starting app ...'
+gunicorn -w $WSGI_NUM_WORKERS -b $WSGI_BIND --log-file=$FLU_LOG $WSGI_APP

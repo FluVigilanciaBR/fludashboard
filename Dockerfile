@@ -30,4 +30,5 @@ RUN conda install fludashboard
 
 EXPOSE 8000
 
+RUN python -m fludashboard.libs.migration
 RUN python -m fludashboard.runwsgi
