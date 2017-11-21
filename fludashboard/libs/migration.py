@@ -474,5 +474,5 @@ def migrate_from_csv_to_psql():
 
 
 if __name__ == '__main__':
-    update_data_files(False)
+    update_data_files(True)
     migrate_from_csv_to_psql()
