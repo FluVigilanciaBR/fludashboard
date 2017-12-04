@@ -25,11 +25,11 @@ class SRAGIncidenceChart{
    * @param {string} scale - data scale
    * @param {number} year - SRAG incidence year (e.g. 2013).
    * @param {number} week - SRAG incidence week (e.g. 2).
-   * @param {string} stateName - Federal state name (e.g. "Acre").
+   * @param {string} territoryName - Federal state name (e.g. "Acre").
    */
-  displayInfo(dataset, scale, year, week, stateName) {
+  displayInfo(dataset, scale, year, week, territoryName) {
     var url = [
-        '.', 'data', dataset, scale, year, week, stateName, 'levels'
+        '.', 'data', dataset, scale, year, week, territoryName, 'levels'
     ].join('/');
 
     $.getJSON({
@@ -80,15 +80,15 @@ class SRAGIncidenceChart{
    * @param {string} scale - data scale
    * @param {number} year - SRAG incidence year (e.g. 2013).
    * @param {number} week - SRAG incidence week (e.g. 2).
-   * @param {string} stateName- Federal state name (e.g. "Acre").
+   * @param {string} territoryName- Federal state name (e.g. "Acre").
    * @return {object} - Chart object.
    */
-  plot(dataset, scale, year, week, stateName) {
+  plot(dataset, scale, year, week, territoryName) {
     var _this = this;
     var y_label = '';
     var url = [
         '.', 'data', dataset, scale, year, week,
-        stateName, 'weekly-incidence-curve'
+        territoryName, 'weekly-incidence-curve'
     ].join('/');
 
     $(this.bindTo).empty();
@@ -107,38 +107,38 @@ class SRAGIncidenceChart{
         url: url,
         x: 'epiweek',
         names: {
-          corredor_baixo: 'Zona de Êxito',
-          corredor_mediano: 'Zona de Segurança',
-          corredor_alto: 'Zona de Alerta',
-          corredor_muito_alto: 'Zona de Surto',
-          srag: 'Casos notificados',
-          limiar_pre_epidemico: 'Limiar Pré epidêmico',
-          intensidade_alta: 'Intensidade Alta',
-          intensidade_muito_alta: 'Intensidade Muito Alta',
+          typical_low: 'Zona de Êxito',
+          typical_median: 'Zona de Segurança',
+          typical_high: 'Zona de Alerta',
+          typical_very_high: 'Zona de Surto',
+          value: 'Casos notificados',
+          pre_epidemic_threshold: 'Limiar Pré epidêmico',
+          high_threshold: 'Intensidade Alta',
+          very_high_threshold: 'Intensidade Muito Alta',
           estimated_cases: 'Casos estimados',
           ci_lower: 'Intervalo de confiança inferior',
           ci_upper: 'Intervalo de confiança superior',
           incomplete_data: 'Dados Incompletos'
         },
         types: {
-          corredor_baixo: 'area',
-          corredor_mediano: 'area',
-          corredor_alto: 'area',
-          corredor_muito_alto: 'area',
-          srag: 'line',
-          limiar_pre_epidemico: 'line',
-          intensidade_alta: 'line',
-          intensidade_muito_alta: 'line'
+          typical_low: 'area',
+          typical_median: 'area',
+          typical_high: 'area',
+          typical_very_high: 'area',
+          value: 'line',
+          pre_epidemic_threshold: 'line',
+          high_threshold: 'line',
+          very_high_threshold: 'line'
         },
         colors: {
-          corredor_baixo: '#00ff00',
-          corredor_mediano: '#ffff00',
-          corredor_alto: '#ff9900',
-          corredor_muito_alto: '#ff0000',
-          srag: '#000000',
-          limiar_pre_epidemico: '#00ff00',
-          intensidade_alta: '#0000ff',
-          intensidade_muito_alta: '#ff0000',
+          typical_low: '#00ff00',
+          typical_median: '#ffff00',
+          typical_high: '#ff9900',
+          typical_very_high: '#ff0000',
+          value: '#000000',
+          pre_epidemic_threshold: '#00ff00',
+          high_threshold: '#0000ff',
+          very_high_threshold: '#ff0000',
           estimated_cases: '#ff0000',
           ci_lower: '#000000',
           ci_upper: '#000000',
@@ -196,7 +196,7 @@ class SRAGIncidenceChart{
       }
     });
 
-    this.displayInfo(dataset, scale, year, week, stateName);
+    this.displayInfo(dataset, scale, year, week, territoryName);
 
     return chart;
   }
@@ -220,14 +220,14 @@ class SRAGAgeChart{
    * @param {string} scale - data scale
    * @param {number} year - SRAG incidence year.
    * @param {number} week - SRAG incidence week.
-   * @param {string} stateName- Federal state name (e.g. "Acre").
+   * @param {string} territoryName- Federal state name (e.g. "Acre").
    */
-  plot(dataset, scale, year, week, stateName) {
+  plot(dataset, scale, year, week, territoryName) {
     var _this = this;
     var y_label;
     var url = [
         '.', 'data', dataset, scale, year, week,
-        stateName, 'age-distribution'
+        territoryName, 'age-distribution'
     ].join('/');
 
     $(this.bindTo).empty();
