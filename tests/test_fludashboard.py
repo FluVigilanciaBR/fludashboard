@@ -91,7 +91,7 @@ class TestFludashboard(unittest.TestCase):
             resp = c.get(self.url + '2015/25/state/Acre/data-table')
             assert resp._status_code == 200
 
-            resp = c.get(self.url + '2015/25/region/Região Central/data-table')
+            resp = c.get(self.url + '2015/25/region/Regional Centro/data-table')
             assert resp._status_code == 200
 
     def test_data__age_distribution(self):

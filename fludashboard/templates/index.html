@@ -92,16 +92,16 @@
                 <div class="criteria-box">
                   <label>Conjunto de dados:</label> <br/>
                   <select name="dataset" id="dataset">
-                    <option value="srag" selected="selected">SRAG</option>
-                    <option value="sragflu">SRAGFLU</option>
-                    <option value="obitoflu">OBITOFLU</option>
+                    <option value="1" selected="selected">SRAG</option>
+                    <option value="2">SRAGFLU</option>
+                    <option value="3">OBITOFLU</option>
                   </select>
                 </div>
                 <div class="criteria-box">
                   <label>Escala:</label> <br/>
                   <select name="scale" id="scale">
-                    <option value="incidence" selected="selected">INCIDÊNCIA</option>
-                    <option value="cases">CASOS</option>
+                    <option value="1" selected="selected">INCIDÊNCIA</option>
+                    <option value="2">CASOS</option>
                   </select>
                 </div>
                 <div class="criteria-box">
@@ -131,7 +131,7 @@
                       value="{{current_epiweek}}" min="1" max="52" />
                   </div>
                 </div>
-                <input type="hidden" id="selected-state" value=""/>
+                <input type="hidden" id="selected-territory" value=""/>
               </div>
             </div>
           </div>

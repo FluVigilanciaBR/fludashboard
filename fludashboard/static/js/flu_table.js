@@ -49,9 +49,9 @@ class SRAGTable {
    * @param {string} scale - data scale
    * @param {number} year - SRAG incidence year (e.g. 2013).
    * @param {number} week - SRAG incidence week (e.g. 2).
-   * @param {string} stateName - Federal state name (e.g. "Acre").
+   * @param {string} territoryName - Federal state name (e.g. "Acre").
    */
-  makeTable(dataset, scale, year, week, stateName) {
+  makeTable(dataset, scale, year, week, territoryName) {
     var columns = [];
     var _tmp = '';
     var territoryType = (
@@ -77,8 +77,8 @@ class SRAGTable {
 
     var _tmp = territoryType;
 
-    if (stateName) {
-      _tmp = _tmp + '/' + stateName;
+    if (territoryName) {
+      _tmp = _tmp + '/' + territoryName;
     }
 
     var url = [
@@ -87,9 +87,9 @@ class SRAGTable {
 
     tableSettings['ajax'] = url;
     tableSettings['columns'] = [
-      {'data': 'unidade_da_federacao'},
-      {'data': 'situation'},
-      {'data': 'srag'}
+      {'data': 'territory_name'},
+      {'data': 'situation_name'},
+      {'data': 'value'}
     ];
     tableSettings["autoWidth"] = false;
 

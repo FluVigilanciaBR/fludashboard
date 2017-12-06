@@ -26,14 +26,9 @@ RUN conda config --set show_channel_urls True && \
     conda clean --tarballs --packages && \
     conda config --add channels conda-forge
 
-# Add and install requirements.txt before we send the code so we don't have to
-# install everything again whenever any file in this directory changes (this
-# helps build the container a *lot* faster by using the cache.
-# ADD requirements.txt /tmp/requirements.txt
-# RUN conda install --file /tmp/requirements.txt
-
 RUN conda install fludashboard
 
 EXPOSE 8000
 
+RUN python -m fludashboard.libs.migration
 RUN python -m fludashboard.runwsgi

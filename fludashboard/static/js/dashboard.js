@@ -92,11 +92,11 @@ class Dashboard {
 
     // selection type
     $('#radTypeState').change(function(){
-      $('#selected-state').val('');
+      $('#selected-territory').val('');
       _this.load_graphs();
     });
     $('#radTypeRegion').change(function(){
-      $('#selected-state').val('');
+      $('#selected-territory').val('');
       _this.load_graphs();
     });
 
@@ -178,13 +178,12 @@ class Dashboard {
       var df = _this.sragData;
     }
 
-    //print_filter(df);
-    var stateName = $('#selected-state').val() || 'Brasil';
+    var territoryName = $('#selected-territory').val() || 'Brasil';
 
     _this.sragMap.changeColorMap(_this.sragData);
-    _this.sragIncidenceChart.plot(dataset, scale, year, week, stateName);
-    _this.sragAgeChart.plot(dataset, scale, year, week, stateName);
-    _this.sragTable.makeTable(dataset, scale, year, week, stateName);
+    _this.sragIncidenceChart.plot(dataset, scale, year, week, territoryName);
+    _this.sragAgeChart.plot(dataset, scale, year, week, territoryName);
+    _this.sragTable.makeTable(dataset, scale, year, week, territoryName);
   }
 
   /**
@@ -192,7 +191,7 @@ class Dashboard {
    * @param {object} error - data about any error.
    */
   makeGraphs(error) {
-    var stateName = $('#selected-state').val() || 'Brasil';
+    var territoryName = $('#selected-territory').val() || 'Brasil';
     var dataset = $('#dataset option:selected').val();
     var scale = $('#scale option:selected').val();
     var week = parseInt($('#week').val() || 0);
@@ -202,18 +201,18 @@ class Dashboard {
     this.sragMap.makeMap(
       this.statesBR, this.sragData, dataset, scale, year, week,
       function(
-        dataset, scale, year, stateName, week
+        dataset, scale, year, territoryName, week
       ) {
-        _this.sragIncidenceChart.plot(dataset, scale, year, week, stateName);
-        _this.sragAgeChart.plot(dataset, scale, year, week, stateName);
-        _this.sragTable.makeTable(dataset, scale, year, week, stateName);
+        _this.sragIncidenceChart.plot(dataset, scale, year, week, territoryName);
+        _this.sragAgeChart.plot(dataset, scale, year, week, territoryName);
+        _this.sragTable.makeTable(dataset, scale, year, week, territoryName);
       }
     );
 
     this.changeWeek();
 
-    this.sragIncidenceChart.plot(dataset, scale, year, week, stateName);
-    this.sragAgeChart.plot(dataset, scale, year, week, stateName);
-    this.sragTable.makeTable(dataset, scale, year, week, stateName);
+    this.sragIncidenceChart.plot(dataset, scale, year, week, territoryName);
+    this.sragAgeChart.plot(dataset, scale, year, week, territoryName);
+    this.sragTable.makeTable(dataset, scale, year, week, territoryName);
   }
 }
