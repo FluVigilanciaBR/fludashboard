@@ -2,3 +2,4 @@ include LICENSE  MANIFEST.in *.rst *.txt
 recursive-include fludashboard *
 recursive-include test *
 recursive-include doc *
+global-exclude *.csv
