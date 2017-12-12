@@ -12,13 +12,15 @@ def get_season_level(se):
     :param se: pd.Series
     :return: int
     """
-    _max = max([se.l3, se.l2, se.l1, se.l0])
+    _max = max([
+        se.very_high_level, se.high_level, se.epidemic_level, se.low_level
+    ])
 
     return (
         0 if np.isnan(_max) else
-        1 if se.l0 == _max else
-        2 if se.l1 == _max else
-        3 if se.l2 == _max else
+        1 if se.low_level == _max else
+        2 if se.epidemic_level == _max else
+        3 if se.high_level == _max else
         4
     )
 
@@ -30,12 +32,12 @@ def calc_alert_rank_whole_year(se):
     :param se: pd.Series
     :return:
     """
-    high_threshold = se.l3 + se.l2
+    high_threshold = se.very_high_level + se.high_level
 
     return (
         4 if high_threshold >= 5 else
         3 if high_threshold > 1 else
-        2 if se.l1 >= 1 else
+        2 if se.epidemic_level >= 1 else
         1
     )
 
