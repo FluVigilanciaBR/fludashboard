@@ -1,6 +1,5 @@
 FROM debian:testing
 
-# RUN apt-get update && apt-get install -q -y locales python3 python3-pip python3-setuptools python3-numpy python3-pandas libpq-dev python3-gdal libgdal-dev
 RUN apt-get update && apt-get install -q -y locales wget bzip2
 
 # Set locale
@@ -30,5 +29,9 @@ RUN conda install fludashboard
 
 EXPOSE 8000
 
+# copy ~/.flu.yaml to current dir before build
+ADD .flu.yaml /root/.flu.yaml
+
 RUN python -m fludashboard.libs.migration
+RUN conda install gunicorn -y
 RUN python -m fludashboard.runwsgi
