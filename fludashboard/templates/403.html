@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Situação da Gripe</title>
+  <link rel="stylesheet" href="./static/libs/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="./static/libs/keen/keen-dashboards.css">
+  <link rel="stylesheet" href="./static/css/custom.css">
+  <link rel="icon"
+      type="image/png"
+      href="/static/img/info_gripe_icon.ico"
+  />
+  <style type="text/css">
+    iframe.super-header {
+      padding: 0;
+      margin: 0;
+      border: 0;
+      width: 100%;
+      height: 140px;
+    }
+
+    .navbar {
+      margin: 0!important;
+    }
+
+  html, document, body {
+    margin: 0!important;
+    padding: 0!important;
+  }
+
+  .navbar-fixed {
+    border-width: 0 0 1px;
+    -webkit-transform: translate3d(0,0,0);
+    -o-transform: translate3d(0,0,0);
+    transform: translate3d(0,0,0);
+    border-radius: 0;
+  }
+
+  @media (min-width: 768px)
+  .navbar-fixed {
+      border-radius: 0;
+  }
+
+  .document.container-fluid {
+    margin: 10px 20px 10px 20px;
+  }
+
+
+  </style>
+</head>
+<body class="application">
+  <div class="navbar navbar-inverse navbar-fixed" role="navigation">
+
+    <iframe src="./super-header" class="super-header" scrolling="no"></iframe>
+
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="./"><strong>Monitoramento de casos reportados de síndrome respiratória aguda
+            grave (SRAG) no SINAN</strong></a>
+        <a href="/help"
+          style="display:inline;font-weight:bold;color:white;cursor:pointer;"
+        >[Ajuda]</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="document container-fluid page">
+
+    <div class="row">
+      <div class="col-md-4"></div>
+      <div class="col-md-4">
+        <div class="page-error">
+          Acesso não autorizado.
+        </div>
+      </div>
+      <div class="col-md-4"></div>
+    </div>
+
+  </div>
+
+  <script src="./static/js/dashboard.js"></script>
+
+</body>
+</html>

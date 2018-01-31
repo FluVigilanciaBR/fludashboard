@@ -164,3 +164,13 @@ input.tab.selected {
     stroke-width: 2px!important;
     stroke-dasharray: 2;
 }
+
+.page-error {
+    background: #fafafa!important;
+    margin: 100px!important;
+    padding: 20px!important;
+    display: block!important;
+    font-size: 28px!important;
+    vertical-align: middle!important;
+    text-align: center!important;
+}
