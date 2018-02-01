@@ -1,10 +1,11 @@
 from flask import render_template, Flask
 # local
-from .flu_data import FluDB
-from .utils import cross_domain, calc_last_epiweek
 from .calc_flu_alert import (
     apply_filter_alert_by_epiweek,
     calc_alert_rank_whole_year)
+from .flu_data import FluDB
+from ..settings import APP_AVAILABLE
+from .utils import cross_domain, calc_last_epiweek
 
 import pandas as pd
 
@@ -67,6 +68,9 @@ def index():
 
     :return:
     """
+    if not APP_AVAILABLE:
+        return render_template("unavailable.html")
+
     # read data to get the list of available years
     df = fluDB.read_data(
         table_name='historical_estimated_values',

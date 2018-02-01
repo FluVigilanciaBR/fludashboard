@@ -165,9 +165,8 @@ input.tab.selected {
     stroke-dasharray: 2;
 }
 
-.page-error {
-    background: #fafafa!important;
-    margin: 100px!important;
+.message-box-error {
+    margin: 40px!important;
     padding: 20px!important;
     display: block!important;
     font-size: 28px!important;
