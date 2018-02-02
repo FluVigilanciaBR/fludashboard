@@ -11,6 +11,7 @@ WSGI_FLU_LOG = None
 
 APP_HOST = None
 APP_PORT = None
+APP_AVAILABLE = True
 
 DEBUG = None
 DATABASE = {
@@ -30,6 +31,7 @@ if not os.path.exists(settings_path):
         'WSGI_FLU_LOG': '.flu.log',
         'APP_HOST': '0.0.0.0',
         'APP_PORT': '5000',
+        'APP_AVAILABLE': True,
         'DEBUG': False,
         'DATABASE': {
             'NAME': '<DATABASE_HERE>',

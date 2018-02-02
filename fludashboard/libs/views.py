@@ -1,10 +1,11 @@
 from flask import render_template, Flask
 # local
-from .flu_data import FluDB
-from .utils import cross_domain, calc_last_epiweek
 from .calc_flu_alert import (
     apply_filter_alert_by_epiweek,
     calc_alert_rank_whole_year)
+from .flu_data import FluDB
+from ..settings import APP_AVAILABLE
+from .utils import cross_domain, calc_last_epiweek
 
 import pandas as pd
 
@@ -41,6 +42,21 @@ def compose_data_url(variables: str):
     return '/'.join(url)
 
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+
+@app.errorhandler(403)
+def page_forbidden(e):
+    return render_template('403.html'), 403
+
+
+@app.errorhandler(500)
+def page_error_server(e):
+    return render_template('500.html'), 500
+
+
 @app.route("/super-header")
 def super_header():
     return render_template("super-header.html")
@@ -52,6 +68,9 @@ def index():
 
     :return:
     """
+    if not APP_AVAILABLE:
+        return render_template("unavailable.html")
+
     # read data to get the list of available years
     df = fluDB.read_data(
         table_name='historical_estimated_values',
