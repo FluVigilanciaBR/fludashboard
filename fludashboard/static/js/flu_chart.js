@@ -5,6 +5,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// CONSTANTS
+DATASET_TITLE = {
+    1: 'SRAG',
+    2: 'SRAG por Influenza',
+    3: 'Óbitos por Influenza'
+};
+
 /**
  * SRAGIncidenceChart is used to show Incidence Flu Chart.
   */
@@ -54,20 +61,20 @@ class SRAGIncidenceChart{
 
         var data = d[0];
 
-        if (data['situation'] == 'stable') {
+        if (data['situation_id'] == 3) {
           $('.classification', _level).text(
-            data['l0'] == 100 ?
-              'Baixa' : data['l1'] == 100 ?
-              'Epidêmica' : data['l2'] == 100 ?
-              'Alta' : data['l3'] == 100 ?
+            data['low_level'] == 100 ?
+              'Baixa' : data['epidemic_level'] == 100 ?
+              'Epidêmica' : data['high_level'] == 100 ?
+              'Alta' : data['very_higi_level'] == 100 ?
               'Muito Alta' : '(Não encontrada.)'
           );
           _level.removeClass('hidden');
         } else {
-          $('.low', _prob).text(data['l0']);
-          $('.epidemic', _prob).text(data['l1']);
-          $('.high', _prob).text(data['l2']);
-          $('.very-high', _prob).text(data['l3']);
+          $('.low', _prob).text(data['low_level']);
+          $('.epidemic', _prob).text(data['epidemic_level']);
+          $('.high', _prob).text(data['high_level']);
+          $('.very-high', _prob).text(data['very_high_level']);
           _prob.removeClass('hidden');
         }
       }
@@ -90,16 +97,24 @@ class SRAGIncidenceChart{
         '.', 'data', dataset, scale, year, week,
         territoryName, 'weekly-incidence-curve'
     ].join('/');
+    var title = '';
 
     $(this.bindTo).empty();
 
-    if (scale == 'incidence') {
-        $('#chart-incidence-case-title').text('Curva de Incidência');
-        y_label = 'Incidência (por 100 mil habitantes)';
+    if (scale == 1) {
+        title = 'Curva de incidência de ';
+        y_label = 'Incidência de ' + DATASET_TITLE[dataset] + ' (por 100 mil habitantes)';
     } else {
-        $('#chart-incidence-case-title').text('Série temporal');
-        y_label = 'Número de casos';
+        title = 'Série temporal de ';
+        if (dataset == 3) {
+          y_label = 'Número de ';
+        } else {
+          y_label = 'Número de casos de '
+        }
+         y_label = y_label + DATASET_TITLE[dataset];
     }
+    title = title + DATASET_TITLE[dataset];
+    $('#chart-incidence-case-title').text(title);
 
     var chart = c3.generate({
       bindto: _this.bindTo,
@@ -232,10 +247,15 @@ class SRAGAgeChart{
 
     $(this.bindTo).empty();
 
-    if (scale == 'incidence') {
-        y_label = 'Incidência (por 100 mil habitantes)';
+    if (scale == 1) {
+        y_label = 'Incidência de ' + DATASET_TITLE[dataset] + ' (por 100 mil habitantes)';
     } else {
-        y_label = 'Número de casos';
+        if (dataset == 3) {
+          y_label = 'Número de ';
+        } else {
+          y_label = 'Número de casos de '
+        }
+         y_label = y_label + DATASET_TITLE[dataset];
     }
 
     return c3.generate({
