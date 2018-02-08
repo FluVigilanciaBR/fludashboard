@@ -24,7 +24,7 @@ class SRAGTable {
    */
   getDataTableContent(scale) {
     var label = (
-        scale == 'incidence' ?
+        scale == 1 ?
         'Incidência (por 100 mil habitantes)' :
         'Número de casos'
     );
@@ -94,11 +94,19 @@ class SRAGTable {
     tableSettings["autoWidth"] = false;
 
     // title
-    if (scale == 'incidence') {
-        $('#table-incidence-case-title').text('Incidência');
+    var title = '';
+    if (scale == 1) {
+        title = 'Incidência de ';
     } else {
-        $('#table-incidence-case-title').text('Número de casos');
+        if (dataset == 3) {
+          title = 'Número de ';
+        } else {
+          title = 'Número de casos de '
+        }
     }
+
+    title = title + DATASET_TITLE[dataset];
+    $('#table-incidence-case-title').text(title);
 
     // create new table
     $('#divTable').html(this.getDataTableContent(scale));

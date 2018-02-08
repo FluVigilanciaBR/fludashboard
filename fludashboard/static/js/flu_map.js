@@ -7,9 +7,9 @@
 
 // CONSTANTS
 DATASET_TITLE = {
-    'srag': 'SRAG',
-    'sragflu': 'SRAG por Influenza',
-    'obitoflu': 'Óbitos por Influenza'
+    1: 'SRAG',
+    2: 'SRAG por Influenza',
+    3: 'Óbitos por Influenza'
 };
 
 /**
@@ -115,7 +115,7 @@ class SRAGMap {
     var _this = this;
     var title = '';
 
-    title = (scale == 'incidence') ?
+    title = (scale == 1) ?
         'Mapa de incidência de ':
         'Mapa de situação de ';
     title = title + DATASET_TITLE[dataset];
