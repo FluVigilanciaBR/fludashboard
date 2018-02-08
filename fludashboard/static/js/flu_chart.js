@@ -113,7 +113,12 @@ class SRAGIncidenceChart{
         }
          y_label = y_label + DATASET_TITLE[dataset];
     }
-    title = title + DATASET_TITLE[dataset];
+
+    if (dataset == 1) {
+      title = title + DATASET_TITLE[dataset];
+    } else {
+      title = title + DATASET_TITLE[dataset] + " (diagnóstico laboratorial ou clínico-epidemiológico)";
+    }
     $('#chart-incidence-case-title').text(title);
 
     var chart = c3.generate({
