@@ -391,7 +391,6 @@ def data__age_distribution(
 
     # TODO: rename the data on the front-end side
     df.rename(index={
-        'years_0_4': '0-4 anos',
         'years_5_9': '5-9 anos',
         'years_10_19': '10-19 anos',
         'years_20_29': '20-29 anos',
@@ -400,6 +399,11 @@ def data__age_distribution(
         'years_50_59': '50-59 anos',
         'years_60_or_more': '60+ anos'
     }, inplace=True)
+    if scale_id == 1:
+        df.rename(index={'years_0_4': '0-4 anos'}, inplace=True)
+    else:
+        df.rename(index={'years_lt_2': '< 2 anos', 'years_2_4': '2-4 anos'}, inplace=True)
+        df.drop(['years_0_4'], 0, inplace=True)
 
     # the replace is used when there is no data in the df
     return ('index' + df.to_csv()).replace('""', '')

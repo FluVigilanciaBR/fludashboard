@@ -473,10 +473,15 @@ class FluDB:
         """
         season = year  # alias
 
-        age_cols = [
+        if scale_id == 1:
+            age_cols = ['years_0_4']
+        else:
+            age_cols = ['years_lt_2', 'years_2_4']
+
+        age_cols.extend([
             'years_0_4', 'years_5_9', 'years_10_19', 'years_20_29',
             'years_30_39', 'years_40_49', 'years_50_59', 'years_60_or_more'
-        ]
+        ])
 
         # data
         df_age_dist = self.read_data(
@@ -500,5 +505,8 @@ class FluDB:
 
         df = df[age_cols + ['gender']].set_index('gender').transpose()
         df.rename(columns={'F': 'Mulheres', 'M': 'Homens'}, inplace=True)
+        if 'I' in df.columns:
+            df.rename(columns={'I': 'Sexo ignorado'}, inplace=True)
+            df = df[['Mulheres', 'Homens', 'Sexo ignorado', 'Total']]
 
         return df

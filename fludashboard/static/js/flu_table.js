@@ -105,7 +105,11 @@ class SRAGTable {
         }
     }
 
-    title = title + DATASET_TITLE[dataset];
+    if (dataset == 1) {
+      title = title + DATASET_TITLE[dataset];
+    } else {
+      title = title + DATASET_TITLE[dataset] + " (diagnóstico laboratorial ou clínico-epidemiológico)";
+    }
     $('#table-incidence-case-title').text(title);
 
     // create new table
