@@ -73,7 +73,7 @@ def index():
 
     # read data to get the list of available years
     df = fluDB.read_data(
-        table_name='historical_estimated_values',
+        table_name='current_estimated_values',
         dataset_id=1, scale_id=1, territory_id=0
     )
 
@@ -81,8 +81,8 @@ def index():
     # By default should be the current or latest available
     list_of_years = list(set(df.epiyear))
 
-    epiyear = df.base_epiyear.max()
-    epiweek = df.base_epiweek.max()
+    epiyear = df.epiyear.max()
+    epiweek = df.epiweek.max()
 
     last_week_years = {
         y: calc_last_epiweek(y) for y in list_of_years
@@ -169,7 +169,7 @@ def data__weekly_incidence_curve(
         pass
 
     try:
-        min_week = int(df.loc[df['situation_id'] == 0, 'epiweek'].min())
+        min_week = int(df.loc[df['situation_id'] == 4, 'epiweek'].min())
         mask = df['epiweek'] >= min_week
 
         df['incomplete_data'] = None
@@ -180,7 +180,7 @@ def data__weekly_incidence_curve(
         pass
 
     # cheating: using a new field corredor_muito_alto just for plotting
-    df['typical_very_high'] = df.very_high_threshold.max() * 1.02
+    df['typical_very_high'] = df[['very_high_threshold', 'ci_upper', 'value']].max().max() * 1.02
     # change keys' order
     ks.insert(ks.index('typical_high') + 1, 'typical_very_high')
 
