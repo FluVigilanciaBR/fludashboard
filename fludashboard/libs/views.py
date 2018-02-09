@@ -180,7 +180,10 @@ def data__weekly_incidence_curve(
         pass
 
     # cheating: using a new field corredor_muito_alto just for plotting
-    df['typical_very_high'] = df.very_high_threshold.max() * 1.1
+        # cheating: using a new field corredor_muito_alto just for plotting
+        df['typical_very_high'] = df[[
+            'very_high_threshold', 'ci_upper', 'value', 'typical_high'
+        ]].max().max() * 1.1
     # change keys' order
     ks.insert(ks.index('typical_high') + 1, 'typical_very_high')
 
