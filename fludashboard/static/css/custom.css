@@ -126,7 +126,7 @@ input.tab.selected {
   stroke-dasharray: 4,4;
 }
 
-.c3-shapes.c3-shapes-very-high-threshold.c3-lines.c3-lines-very-high-threshold > path {
+.c3-shapes.c3-shapes-typical-very-high.c3-lines.c3-lines-typical-very-high > path {
   stroke: rgba(255, 0, 0, 255) !important;
   opacity: 0 !important;
   visibility; hidden;
