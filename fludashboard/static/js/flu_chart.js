@@ -185,7 +185,9 @@ class SRAGIncidenceChart{
           label: {
             text: y_label,
             position: 'outer-middle'
-          }
+          },
+          min: 0,
+          padding: {top:0, bottom:0}
         },
       },
       /*regions: [
