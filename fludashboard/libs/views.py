@@ -182,7 +182,7 @@ def data__weekly_incidence_curve(
     if len(df[~pd.isna(df.estimated_cases)]) > 0:
         est_min_week =  df.epiweek[~pd.isna(df.estimated_cases)].min()
         if est_min_week > 1:
-            df.estimated_cases[df.epiweek == est_min_week-1] = df.value[df.epiweek == est_min_week-1]
+            df.loc[(df.epiweek == est_min_week-1), 'estimated_cases'] = df.value[df.epiweek == est_min_week-1]
 
     # cheating: using a new field corredor_muito_alto just for plotting
     # cheating: using a new field corredor_muito_alto just for plotting
@@ -411,7 +411,6 @@ def data__age_distribution(
         df.rename(index={'years_0_4': '0-4 anos'}, inplace=True)
     else:
         df.rename(index={'years_lt_2': '< 2 anos', 'years_2_4': '2-4 anos'}, inplace=True)
-        df.drop(['years_0_4'], 0, inplace=True)
 
     # the replace is used when there is no data in the df
     return ('index' + df.to_csv()).replace('""', '')

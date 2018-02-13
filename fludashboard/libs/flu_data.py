@@ -114,12 +114,12 @@ class FluDB:
             df_tmp.loc[df_tmp.epiyear == season, 'situation_id'] = 3
 
         if df_age_dist is not None:
-            df_by_season = df_age_dist[[
-                'territory_id', 'territory_name', 'epiyear', 'gender',
-                'value', 'years_0_4', 'years_5_9', 'years_10_19',
-                'years_20_29', 'years_30_39', 'years_40_49', 'years_50_59',
-                'years_60_or_more'
-            ]].groupby([
+            tgt_cols = ['territory_id', 'territory_name', 'epiyear', 'gender',
+                        'value', 'years_lt_2', 'years_2_4', 'years_0_4', 'years_5_9', 'years_10_19',
+                        'years_20_29', 'years_30_39', 'years_40_49', 'years_50_59',
+                        'years_60_or_more']
+
+            df_by_season = df_age_dist[tgt_cols].groupby([
                 'territory_id', 'territory_name', 'epiyear', 'gender'
             ], as_index=False).sum()
         else:
@@ -391,6 +391,7 @@ class FluDB:
             'territory_id': territory_id,
             'epiweek': week,
             'epiyear': year,
+            'base_epiweek_condition': ' AND base_epiweek = %s' % week,
             'estimates_columns_selection': '''
             incidence.mean  AS "mean",
             incidence.median AS estimated_cases, 
@@ -416,9 +417,23 @@ class FluDB:
 
         }
 
+        if territory_id is not None:
+            sql_param['territory_id_condition'] += (
+                ' AND territory_id=%s ' % territory_id
+            )
+
         if week is None or week == 0:
             sql_param['epiweek'] = 54
             sql_param['incidence_week_operator'] = '<='
+            sql_param['base_epiweek_condition'] = '''
+            AND base_epiweek = (
+                SELECT MAX(base_epiweek)
+                FROM historical_estimated_values
+                WHERE base_epiyear = %(epiyear)s\
+                AND dataset_id = %(dataset_id)s
+                AND scale_id = %(scale_id)s
+                %(territory_id_condition)s )
+            ''' % sql_param
 
         # force week filter (week 0 == all weeks)
         if show_historical_weeks:
@@ -449,8 +464,9 @@ class FluDB:
             WHERE dataset_id=%(dataset_id)s 
              AND scale_id=%(scale_id)s 
              AND territory_id=%(territory_id)s 
-             AND base_epiyear=%(epiyear)s 
-             AND base_epiweek=%(epiweek)s 
+             AND base_epiyear=%(epiyear)s
+             AND situation_id = 2
+             %(base_epiweek_condition)s
           ) AS historical
             ON (
               mem_typical.epiweek=historical.epiweek
@@ -465,11 +481,6 @@ class FluDB:
         if territory_type_id is not None and territory_type_id > 0:
             sql_param['where_extras'] += (
                 ' AND territory.territory_type_id=%s' % territory_type_id
-            )
-
-        if territory_id is not None:
-            sql_param['territory_id_condition'] += (
-                ' AND territory_id=%s ' % territory_id
             )
 
         sql = sql % sql_param
@@ -499,7 +510,7 @@ class FluDB:
             age_cols = ['years_lt_2', 'years_2_4']
 
         age_cols.extend([
-            'years_0_4', 'years_5_9', 'years_10_19', 'years_20_29',
+            'years_5_9', 'years_10_19', 'years_20_29',
             'years_30_39', 'years_40_49', 'years_50_59', 'years_60_or_more'
         ])
 
