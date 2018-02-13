@@ -391,7 +391,7 @@ class FluDB:
             'territory_id': territory_id,
             'epiweek': week,
             'epiyear': year,
-            'base_epiweek_condition': ' AND base_epiweek = %s' % week,
+            'base_epiweek_condition': '',
             'estimates_columns_selection': '''
             incidence.mean  AS "mean",
             incidence.median AS estimated_cases, 
@@ -433,6 +433,17 @@ class FluDB:
                 AND dataset_id = %(dataset_id)s
                 AND scale_id = %(scale_id)s
                 %(territory_id_condition)s )
+            ''' % sql_param
+        else:
+            sql_param['base_epiweek_condition'] = '''
+            AND base_epiweek = (
+                SELECT MAX(LEAST(base_epiweek, %(epiweek)s))
+                FROM historical_estimated_values
+                WHERE base_epiyear=%(epiyear)s
+                    AND dataset_id = %(dataset_id)s
+                    AND scale_id = %(scale_id)s
+                    AND base_epiweek <= %(epiweek)s
+                    %(territory_id_condition)s )
             ''' % sql_param
 
         # force week filter (week 0 == all weeks)
