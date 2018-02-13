@@ -327,7 +327,21 @@ class FluDB:
           situation.name AS situation_name
         FROM
           (
-            SELECT * FROM current_estimated_values
+            SELECT
+            epiyear,
+            epiweek,
+            dataset_id,
+            scale_id,
+            territory_id,
+            situation_id,
+            "value",
+            low_level,
+            epidemic_level,
+            high_level,
+            very_high_level,
+            run_date 
+            %(incidence_table_select)s
+            FROM current_estimated_values
             WHERE dataset_id=%(dataset_id)s 
               AND scale_id=%(scale_id)s 
               AND epiyear=%(epiyear)s 
@@ -353,6 +367,7 @@ class FluDB:
             ON (mem_typical.territory_id=territory.id)
           INNER JOIN territory_type
             ON (territory.territory_type_id=territory_type.id)
+          %(historical_table)s
           FULL OUTER JOIN (
             SELECT * FROM mem_report
             WHERE dataset_id=%(dataset_id)s 
@@ -365,7 +380,6 @@ class FluDB:
               AND mem_typical.territory_id=mem_report.territory_id
               AND mem_typical.year=mem_report.year
             )
-          %(historical_table)s
          WHERE 1=1
            %(where_extras)s
         ORDER BY epiyear, epiweek
@@ -378,7 +392,7 @@ class FluDB:
             'epiweek': week,
             'epiyear': year,
             'estimates_columns_selection': '''
-            incidence.mean  AS mean,
+            incidence.mean  AS "mean",
             incidence.median AS estimated_cases, 
             incidence.ci_lower AS ci_lower, 
             incidence.ci_upper AS ci_upper, 
@@ -392,7 +406,14 @@ class FluDB:
             ''',
             'incidence_week_operator': '=',
             'territory_id_condition': '',
-            'situation_id_condition': ''
+            'situation_id_condition': '',
+            'incidence_table_select': ''' 
+            ,mean,
+            median,
+            ci_lower,
+            ci_upper
+            '''
+
         }
 
         if week is None or week == 0:
@@ -408,13 +429,10 @@ class FluDB:
             historical.ci_lower AS ci_lower, 
             historical.ci_upper AS ci_upper, 
             '''
+            sql_param['incidence_table_select'] = ''
             sql_param['historical_table'] = '''
-          FULL OUTER JOIN (
+          LEFT JOIN (
             SELECT territory_id,
-                dataset_id,
-                scale_id,
-                situation_id,
-                epiyear,
                 epiweek,
                 mean,
                 median,
@@ -435,11 +453,7 @@ class FluDB:
              AND base_epiweek=%(epiweek)s 
           ) AS historical
             ON (
-              incidence.dataset_id=historical.dataset_id
-              AND incidence.scale_id=historical.scale_id
-              AND incidence.territory_id=historical.territory_id
-              AND incidence.epiyear=historical.epiyear
-              AND mem_typical.epiweek=historical.epiweek
+              mem_typical.epiweek=historical.epiweek
             )
             ''' % sql_param
             sql_param['incidence_week_operator'] = '<='
