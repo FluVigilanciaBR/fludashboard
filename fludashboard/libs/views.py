@@ -179,9 +179,14 @@ def data__weekly_incidence_curve(
     except:
         pass
 
+    if len(df[~pd.isna(df.estimated_cases)]) > 0:
+        est_min_week =  df.epiweek[~pd.isna(df.estimated_cases)].min()
+        if est_min_week > 1:
+            df.estimated_cases[df.epiweek == est_min_week-1] = df.value[df.epiweek == est_min_week-1]
+
     # cheating: using a new field corredor_muito_alto just for plotting
-        # cheating: using a new field corredor_muito_alto just for plotting
-        df['typical_very_high'] = df[[
+    # cheating: using a new field corredor_muito_alto just for plotting
+    df['typical_very_high'] = df[[
             'very_high_threshold', 'ci_upper', 'value', 'typical_high'
         ]].max().max() * 1.1
     # change keys' order
