@@ -66,7 +66,7 @@ class SRAGIncidenceChart{
             data['low_level'] == 100 ?
               'Baixa' : data['epidemic_level'] == 100 ?
               'Epidêmica' : data['high_level'] == 100 ?
-              'Alta' : data['very_higi_level'] == 100 ?
+              'Alta' : data['very_high_level'] == 100 ?
               'Muito Alta' : '(Não encontrada.)'
           );
           _level.removeClass('hidden');
@@ -185,7 +185,9 @@ class SRAGIncidenceChart{
           label: {
             text: y_label,
             position: 'outer-middle'
-          }
+          },
+          min: 0,
+          padding: {top:0, bottom:0}
         },
       },
       /*regions: [
