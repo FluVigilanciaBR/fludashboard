@@ -7,6 +7,7 @@ from .flu_data import FluDB
 from ..settings import APP_AVAILABLE
 from .utils import cross_domain, calc_last_epiweek
 
+import numpy as np
 import pandas as pd
 
 
@@ -228,21 +229,43 @@ def data__incidence_levels(
             'low_level', 'epidemic_level',
             'high_level', 'very_high_level'
         ]
+
         df[ks] *= 100
         df[ks] = df[ks].round(2)
 
-        ks += ['situation_id']
+        ks += ['situation_id', 'regular_seasons']
+
         return df[ks].to_json(orient='records')
+
+    ks = [
+        'low_level', 'epidemic_level',
+        'high_level', 'very_high_level'
+    ]
 
     # prepare data for the whole year
     df = apply_filter_alert_by_epiweek(df=df)
 
+    low_level = df[df.alert == 1].count().low_level
+    epidemic_level = df[df.alert == 2].count().epidemic_level
+    high_level = df[df.alert == 3].count().high_level
+    very_high_level = df[df.alert == 4].count().very_high_level
+
+    if scale_id == 1:
+        total_level = low_level + epidemic_level + high_level + very_high_level
+
+        low_level = np.round((low_level/total_level)*100, 2)
+        epidemic_level = np.round((epidemic_level/total_level)*100, 2)
+        high_level = np.round((high_level/total_level)*100, 2)
+        very_high_level = np.round((very_high_level/total_level)*100, 2)
+
     se = pd.Series({
-        'low_level': df[df.alert == 1].count().low_level,
-        'epidemic_level': df[df.alert == 2].count().epidemic_level,
-        'high_level': df[df.alert == 3].count().high_level,
-        'very_high_level': df[df.alert == 4].count().very_high_level
+        'low_level': low_level,
+        'epidemic_level': epidemic_level,
+        'high_level': high_level,
+        'very_high_level': very_high_level
     })
+
+    regular_seasons = df.loc[0, 'regular_seasons']
 
     rank = calc_alert_rank_whole_year(se)
 
@@ -253,7 +276,10 @@ def data__incidence_levels(
     se['l%s' % (rank-1)] = 1
     se['situation'] = ''
 
-    return (pd.DataFrame(se).T*100).round(2).to_json(orient='records')
+    df = pd.DataFrame(se).T
+    df['regular_seasons'] = regular_seasons
+
+    return df.to_json(orient='records')
 
 
 @app.route(compose_data_url('year/data-table'))
