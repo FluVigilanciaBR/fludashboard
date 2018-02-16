@@ -187,9 +187,11 @@ def data__weekly_incidence_curve(
 
     # cheating: using a new field corredor_muito_alto just for plotting
     # cheating: using a new field corredor_muito_alto just for plotting
+    df['typical_very_high'] = df.typical_high + df.typical_median + df.typical_low
     df['typical_very_high'] = df[[
-            'very_high_threshold', 'ci_upper', 'value', 'typical_high'
+            'very_high_threshold', 'ci_upper', 'value', 'typical_very_high'
         ]].max().max() * 1.1
+    df['typical_very_high'] = df.typical_very_high - (df.typical_high + df.typical_median + df.typical_low)
     # change keys' order
     ks.insert(ks.index('typical_high') + 1, 'typical_very_high')
 
@@ -333,9 +335,11 @@ def data__data_table(
     )
 
     if territory_type == 'state':
-        mask = ~(df.territory_type_name == 'Regional')
+        mask = ~(df.territory_type_name.isin(['Regional', 'Região']))
+    elif territory_type == 'region':
+        mask = ~(df.territory_type_name.isin(['Estado', 'Região']))
     else:
-        mask = ~(df.territory_type_name == 'Estado')
+        mask = ~(df.territory_type_name.isin(['Estado', 'Regional']))
 
     df = df[mask]
 

@@ -141,7 +141,7 @@ class SRAGIncidenceChart{
           typical_low: 'Zona de Êxito',
           typical_median: 'Zona de Segurança',
           typical_high: 'Zona de Alerta',
-          typical_very_high: 'Zona de Surto',
+          typical_very_high: 'Zona de Surto/Epidemia',
           value: 'Casos notificados',
           pre_epidemic_threshold: 'Limiar Pré epidêmico',
           high_threshold: 'Intensidade Alta',
@@ -174,7 +174,9 @@ class SRAGIncidenceChart{
           ci_lower: '#000000',
           ci_upper: '#000000',
           incomplete_data: '#ff0000',
-        }
+        },
+        groups: [['typical_very_high', 'typical_high', 'typical_median', 'typical_low']],
+        order: false,
       },
       axis: {
         x: {
@@ -281,7 +283,14 @@ class SRAGAgeChart{
       data: {
         url: url,
         x: 'index',
-        type: 'bar'
+        type: 'bar',
+        colors: {
+          Mulheres: '#ff0000',
+          Homens: '#0000ff',
+          "Sexo ignorado": '#00ff00',
+          Total: '#ff9900'
+        },
+        fillOpacity: 0.8
       },
       axis: {
         x: {

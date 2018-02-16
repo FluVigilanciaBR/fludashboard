@@ -90,6 +90,49 @@ class SRAGMap {
       'RegL': 'Regional Leste',
     };
 
+    this.regiongeoIds = {
+      // 1
+      'Acre': 'N',
+      'Amapá': 'N',
+      'Amazonas': 'N',
+      'Pará': 'N',
+      'Rondônia': 'N',
+      'Roraima': 'N',
+      'Tocantins': 'N',
+      // 2
+      'Alagoas': 'NE',
+      'Bahia': 'NE',
+      'Ceará': 'NE',
+      'Maranhão': 'NE',
+      'Paraíba': 'NE',
+      'Pernambuco': 'NE',
+      'Piauí': 'NE',
+      'Rio Grande do Norte': 'NE',
+      'Sergipe': 'NE',
+      // 3
+      'Espírito Santo': 'SE',
+      'Rio de Janeiro': 'SE',
+      'São Paulo': 'SE',
+      'Minas Gerais': 'SE',
+      // 4
+      'Paraná': 'S',
+      'Rio Grande do Sul': 'S',
+      'Santa Catarina': 'S',
+      // 5
+      'Distrito Federal': 'CO',
+      'Goiás': 'CO',
+      'Mato Grosso': 'CO',
+      'Mato Grosso do Sul': 'CO',
+    };
+
+    this.regiongeoNames = {
+      'N': 'Região Norte',
+      'NE': 'Região Nordeste',
+      'SE': 'Região Sudeste',
+      'CO': 'Região Centro-oeste',
+      'S': 'Região Sul',
+    };
+
     this.legend = new L.Control.Legend({
       position: 'bottomright',
       collapsed: false,
@@ -149,10 +192,14 @@ class SRAGMap {
           var territoryName = feature.properties.nome;
           var week = parseInt($('#week').val() || 0);
           var year = parseInt($('#year').val() || 0);
-          var territoryType = (
-            $('input[name="radType[]"]:checked').attr('id') == 'radTypeState' ?
-            'state' : 'region'
-          );
+          var territoryType = '';
+          if ($('input[name="radType[]"]:checked').attr('id') == 'radTypeState') {
+            territoryType = 'state';
+          } else if ($('input[name="radType[]"]:checked').attr('id') == 'radTypeRegion') {
+            territoryType = 'region';
+          } else {
+            territoryType = 'regiongeo';
+          }
 
           if (territoryType=='state') {
             // state
@@ -166,13 +213,39 @@ class SRAGMap {
               });
               $('.territory-display').text(' - ' + territoryName);
             }
-          } else {
+          } else if (territoryType=='region') {
             // regions
             var rid = _this.regionIds[territoryName];
             var ridName = _this.regionNames[rid];
 
             _this.geojsonLayer.eachLayer(function (_layer) {
               var _rid = _this.regionIds[_layer.feature.properties.nome];
+
+              _layer.setStyle({color: '#333333'});
+
+              if (_rid == rid && $('#selected-territory').val() != ridName) {
+                _layer.setStyle({weight: 2});
+                _layer.bringToFront();
+              } else {
+                _layer.setStyle({weight: 1});
+              }
+            });
+
+            // state
+            if ($('#selected-territory').val() == ridName) {
+              territoryName = '';
+              $('.territory-display').text(' - Brasil');
+            } else {
+              $('.territory-display').text(' - ' + ridName);
+              territoryName = ridName;
+            }
+          } else {
+            // geopolitical regions
+            var rid = _this.regiongeoIds[territoryName];
+            var ridName = _this.regiongeoNames[rid];
+
+            _this.geojsonLayer.eachLayer(function (_layer) {
+              var _rid = _this.regiongeoIds[_layer.feature.properties.nome];
 
               _layer.setStyle({color: '#333333'});
 
@@ -202,10 +275,14 @@ class SRAGMap {
     };
 
     var selectedTerritory = $('#selected-territory').val();
-    var territoryType = (
-      $('input[name="radType[]"]:checked').attr('id') == 'radTypeState' ?
-      'state' : 'region'
-    );
+    var territoryType = '';
+    if ($('input[name="radType[]"]:checked').attr('id') == 'radTypeState') {
+      territoryType = 'state';
+    } else if ($('input[name="radType[]"]:checked').attr('id') == 'radTypeRegionGeo') {
+      territoryType = 'regiongeo';
+    } else {
+      territoryType = 'region';
+    }
 
     if (territoryType=='state') {
       // show geojson on the map
@@ -238,13 +315,45 @@ class SRAGMap {
           return styleProperties;
         }
       });
-    } else {
+    } else if (territoryType=='region') {
       // region
       this.geojsonLayer = L.geoJson(geoJsonBr, {
         onEachFeature: onEachFeature,
         style: function(feature) {
             var layerName = feature.properties.nome;
             var _rid = _this.regionIds[layerName];
+
+            var styleProperties= {
+                fillColor: '#fffff',
+                color: '#333333',
+                fillOpacity: 0.5,
+                weight: 1,
+            };
+
+            /*var weekState = $.grep(sragData, function(n,i){
+              return (
+                n.territory_name===layerName &&
+                (n.epiweek===week || week==0)
+              );
+            })[0];
+
+            if (weekState != undefined) {
+              styleProperties['fillColor'] = _this.fluColors[weekState['alert']];
+            }*/
+
+            if (selectedTerritory==_rid) {
+              styleProperties['weight'] = 2;
+            }
+            return styleProperties;
+          }
+      });
+    } else {
+      // geopolitical region
+      this.geojsonLayer = L.geoJson(geoJsonBr, {
+        onEachFeature: onEachFeature,
+        style: function(feature) {
+            var layerName = feature.properties.nome;
+            var _rid = _this.regiongeoIds[layerName];
 
             var styleProperties= {
                 fillColor: '#fffff',
@@ -309,10 +418,14 @@ class SRAGMap {
       weight: 1,
     };
 
-    var territoryType = (
-      $('input[name="radType[]"]:checked').attr('id') == 'radTypeState' ?
-      'state' : 'region'
-    );
+    var territoryType = '';
+    if ($('input[name="radType[]"]:checked').attr('id') == 'radTypeState') {
+      territoryType = 'state';
+    } else if ($('input[name="radType[]"]:checked').attr('id') == 'radTypeRegionGeo') {
+      territoryType = 'regiongeo';
+    } else {
+      territoryType = 'region';
+    }
 
     if(week>0) {
       // when by week criteria is selected
@@ -326,8 +439,10 @@ class SRAGMap {
 
         if (territoryType=='state') {
           territoryName = layerName;
-        } else {
+        } else if (territoryType=='region') {
           territoryName = _this.regionNames[_this.regionIds[layerName]];
+        } else {
+          territoryName = _this.regiongeoNames[_this.regiongeoIds[layerName]];
         }
 
         layer.setStyle(styleProperties);
@@ -353,8 +468,10 @@ class SRAGMap {
 
         if (territoryType=='state') {
           territoryName = layerName;
-        } else {
+        } else if (territoryType=='region') {
           territoryName = _this.regionNames[_this.regionIds[layerName]];
+        } else {
+          territoryName = _this.regiongeoNames[_this.regiongeoIds[layerName]];
         }
 
         layer.setStyle(styleProperties);

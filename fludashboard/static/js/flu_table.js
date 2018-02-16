@@ -54,10 +54,15 @@ class SRAGTable {
   makeTable(dataset, scale, year, week, territoryName) {
     var columns = [];
     var _tmp = '';
-    var territoryType = (
-      $('input[name="radType[]"]:checked').attr('id') == 'radTypeState' ?
-      'state' : 'region'
-    );
+    var territoryType = '';
+    if ($('input[name="radType[]"]:checked').attr('id') == 'radTypeState') {
+      territoryType = 'state';
+    } else if ($('input[name="radType[]"]:checked').attr('id') == 'radTypeRegion') {
+      territoryType = 'region';
+    } else {
+      territoryType = 'regiongeo';
+    }
+
     var tableSettings = {
       "dom": 'Bfrt',
       "language": {
