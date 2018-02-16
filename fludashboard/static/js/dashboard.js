@@ -17,6 +17,10 @@
  *   object.
  * @property {SRAGAgeChart} sragAgeChart - SRAGAgeChart object.
  */
+
+/*
+# TODO: properly incorporate regiongeo as in flu_table.js, views.py, index.html
+ */
 class Dashboard {
   /**
    * @param {dict} lastWeekYears - Dictionary with the last week of each

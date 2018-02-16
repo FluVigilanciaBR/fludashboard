@@ -91,7 +91,7 @@ def index():
 
     return render_template(
         "index.html",
-        current_epiweek=None,
+        current_epiweek=epiweek,
         list_of_years=sorted(list_of_years, reverse=True),
         last_year=epiyear,
         last_week_years=last_week_years
@@ -335,9 +335,11 @@ def data__data_table(
     )
 
     if territory_type == 'state':
-        mask = ~(df.territory_type_name == 'Regional')
+        mask = ~(df.territory_type_name.isin(['Regional', 'Região']))
+    elif territory_type == 'region':
+        mask = ~(df.territory_type_name.isin(['Estado', 'Região']))
     else:
-        mask = ~(df.territory_type_name == 'Estado')
+        mask = ~(df.territory_type_name.isin(['Estado', 'Regional']))
 
     df = df[mask]
 
