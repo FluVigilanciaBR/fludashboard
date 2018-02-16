@@ -6,14 +6,16 @@
   <link rel="stylesheet" href="./static/libs/keen/keen-dashboards.css">
   <link rel="stylesheet" href="./static/libs/dc/dc.min.css">
   <link rel="stylesheet" href="./static/css/custom.css">
-  <link rel="stylesheet" href="./static/libs/leaflet/leaflet.css" />
-  <link rel="stylesheet" href="./static/libs/c3/c3.min.css" />
-  <link rel="stylesheet" href="./static/libs/datatables/datatables.min.css" />
-  <link rel="stylesheet" href="./static/libs/datatables/ext/buttons.dataTables.min.css" />
-  <link rel="stylesheet" href="./static/libs/leaflet/legend/leaflet-legend.css" />
+  <link rel="stylesheet" href="./static/libs/leaflet/leaflet.css"/>
+  <link rel="stylesheet" href="./static/libs/c3/c3.min.css"/>
+  <link rel="stylesheet" href="./static/libs/datatables/datatables.min.css"/>
+  <link rel="stylesheet"
+        href="./static/libs/datatables/ext/buttons.dataTables.min.css"/>
+  <link rel="stylesheet"
+        href="./static/libs/leaflet/legend/leaflet-legend.css"/>
   <link rel="icon"
-      type="image/png"
-      href="/static/img/info_gripe_icon.ico"
+        type="image/png"
+        href="/static/img/info_gripe_icon.ico"
   />
   <style type="text/css">
     iframe.super-header {
@@ -51,245 +53,261 @@
   }
 
 
+
   </style>
 </head>
 <body class="application">
-  <div class="navbar navbar-inverse navbar-fixed" role="navigation">
+<div class="navbar navbar-inverse navbar-fixed" role="navigation">
 
-    <iframe src="./super-header" class="super-header" scrolling="no"></iframe>
+  <iframe src="./super-header" class="super-header" scrolling="no"></iframe>
 
-    <div class="container-fluid">
-      <div class="navbar-header">
-        <a class="navbar-brand" href="./"><strong>Monitoramento de casos reportados de síndrome respiratória aguda
-            grave (SRAG) no SINAN</strong></a>
-        <a href="/help"
-          style="display:inline;font-weight:bold;color:white;cursor:pointer;"
-        >[Ajuda]</a>
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="./"><strong>Monitoramento de casos
+        reportados de síndrome respiratória aguda
+        grave (SRAG) no SINAN</strong></a>
+      <a href="/help"
+         style="display:inline;font-weight:bold;color:white;cursor:pointer;"
+      >[Ajuda]</a>
+    </div>
+  </div>
+</div>
+
+<div class="document container-fluid page">
+
+  <div class="row">
+
+    <div class="col-md-12">
+
+      <div class="row">
+
+        <!-- Time Chart -->
+        <div class="col-md-12">
+          <div class="chart-wrapper">
+            <div class="chart-stage">
+              <div class="criteria-box">
+                <input
+                    id="btn-detailed"
+                    type="button" value="Detalhado (semana)"
+                    class="tab selected">
+                <input
+                    id="btn-resumed"
+                    type="button" value="Resumido (ano)" class="tab">
+              </div>
+              <div class="criteria-box">
+                <label>Conjunto de dados:</label> <br/>
+                <select name="dataset" id="dataset">
+                  <option value="1" selected="selected">SRAG</option>
+                  <option value="2">SRAGFLU</option>
+                  <option value="3">OBITOFLU</option>
+                </select>
+              </div>
+              <div class="criteria-box">
+                <label>Escala:</label> <br/>
+                <select name="scale" id="scale">
+                  <option value="1" selected="selected">INCIDÊNCIA</option>
+                  <option value="2">CASOS</option>
+                </select>
+              </div>
+              <div class="criteria-box">
+                <input type="radio" id="radTypeState" name="radType[]"
+                       checked="checked"> Por UF
+                <br/>
+                <input type="radio" id="radTypeRegion" name="radType[]"> Por
+                Região
+              </div>
+              <div class="criteria-box">
+                <strong>Ano:</strong>
+                <br/>
+                <select id='year'>
+                  {%for year in list_of_years:%}
+                  <option value='{{year}}'
+                          {{
+                  'selected="selected"' if year==last_year else ''}}
+                  >{{year}}</option>
+                  {%endfor%}
+                </select>
+              </div>
+              <div id="div-week" class="criteria-box">
+                <div data-role="main" class="ui-content">
+                  <label for="week">Semana:</label>
+                  <input type id="week-display" value="{{current_epiweek}}"
+                         style="width:30px;text-align:center;padding:1px;"
+                         maxlength="2"
+                  />
+                  <input type="range" id="week"
+                         value="{{current_epiweek}}" min="1" max="52"/>
+                </div>
+              </div>
+              <input type="hidden" id="selected-territory" value=""/>
+            </div>
+          </div>
+        </div>
+        <!-- Time Chart -->
       </div>
     </div>
   </div>
+  <div class="row">
 
-  <div class="document container-fluid page">
-
-    <div class="row">
-
-      <div class="col-md-12">
-
-        <div class="row">
-
-          <!-- Time Chart -->
-          <div class="col-md-12">
-            <div class="chart-wrapper">
-              <div class="chart-stage">
-                <div class="criteria-box">
-                  <input
-                    id="btn-detailed"
-                    type="button" value="Detalhado (semana)" class="tab selected">
-                  <input
-                    id="btn-resumed"
-                    type="button" value="Resumido (ano)" class="tab">
-                </div>
-                <div class="criteria-box">
-                  <label>Conjunto de dados:</label> <br/>
-                  <select name="dataset" id="dataset">
-                    <option value="1" selected="selected">SRAG</option>
-                    <option value="2">SRAGFLU</option>
-                    <option value="3">OBITOFLU</option>
-                  </select>
-                </div>
-                <div class="criteria-box">
-                  <label>Escala:</label> <br/>
-                  <select name="scale" id="scale">
-                    <option value="1" selected="selected">INCIDÊNCIA</option>
-                    <option value="2">CASOS</option>
-                  </select>
-                </div>
-                <div class="criteria-box">
-                  <input type="radio" id="radTypeState" name="radType[]" checked="checked"> Por UF
-                  <br/>
-                  <input type="radio" id="radTypeRegion" name="radType[]"> Por Região
-                </div>
-                <div class="criteria-box">
-                  <strong>Ano:</strong>
-                  <br/>
-                  <select id='year'>
-                    {%for year in list_of_years:%}
-                    <option value='{{year}}'
-                      {{'selected="selected"' if year==last_year else ''}}
-                    >{{year}}</option>
-                    {%endfor%}
-                  </select>
-                </div>
-                <div id="div-week" class="criteria-box">
-                  <div data-role="main" class="ui-content">
-                    <label for="week">Semana:</label>
-        <input type id="week-display" value="{{current_epiweek}}"
-                      style="width:30px;text-align:center;padding:1px;"
-          maxlength="2"
-        />
-                    <input type="range" id="week"
-                      value="{{current_epiweek}}" min="1" max="52" />
-                  </div>
-                </div>
-                <input type="hidden" id="selected-territory" value=""/>
-              </div>
-            </div>
-          </div>
-          <!-- Time Chart -->
+    <!-- Map -->
+    <div class="col-md-5">
+      <div class="chart-wrapper">
+        <div class="chart-title">
+          <strong id="map-incidence-case-title">
+            Mapa de incidência de SRAG
+          </strong>
         </div>
+        <div class="chart-stage">
+          <div id="map" class="content-height"></div>
+        </div>
+      </div>
+      <div id="legend">
+        <strong>N&iacute;vel de atividade</strong><br/>
+        <svg width="120" height="90">
+          <rect x="10" y="15" height="10" width="10"
+                class="legend-square alert-green"/>
+          <text x="20" y="20" transform="translate(8,4)">Baixa</text>
+
+          <rect x="10" y="35" height="10" width="10"
+                class="legend-square alert-yellow"/>
+          <text x="20" y="40" transform="translate(8,4)">Epid&ecirc;mica</text>
+
+          <rect x="10" y="55" height="10" width="10"
+                class="legend-square alert-orange"/>
+          <text x="20" y="60" transform="translate(8,4)">Alta</text>
+
+          <rect x="10" y="75" height="10" width="10"
+                class="legend-square alert-red"/>
+          <text x="20" y="80" transform="translate(8,4)">Muito Alta</text>
+        </svg>
       </div>
     </div>
-    <div class="row">
+    <!-- Map -->
 
-      <!-- Map -->
-      <div class="col-md-5">
-        <div class="chart-wrapper">
-          <div class="chart-title">
-            <strong id="map-incidence-case-title">
-              Mapa de incidência de SRAG
-            </strong>
-          </div>
-          <div class="chart-stage">
-            <div id="map" class="content-height"></div>
-          </div>
-        </div>
-        <div id="legend">
-          <strong>N&iacute;vel de atividade</strong><br/>
-          <svg width="120" height="90">
-            <rect x="10" y="15" height="10" width="10"
-                  class="legend-square alert-green" />
-            <text x="20" y="20" transform="translate(8,4)">Baixa</text>
+    <div class="col-md-7">
+      <div class="row">
 
-            <rect x="10" y="35" height="10" width="10"
-                  class="legend-square alert-yellow" />
-            <text x="20" y="40" transform="translate(8,4)">Epid&ecirc;mica</text>
+        <!-- Resources Pie -->
+        <div class="col-md-12">
+          <div class="chart-wrapper">
+            <div class="chart-title">
+              <strong><span
+                  id="chart-incidence-case-title">Curva de Incidência</span>
+                <span class="territory-display"></span>
+              </strong>
+            </div>
+            <div class="chart-stage chart-incidence">
+              <!-- info panel -->
+              <div id="chart-incidence-activity-level-panel">
+                <p class="seasons hidden">
+                  <strong class="chart-extra-text">Temporadas
+                    regulares:</strong>
+                  <span class="chart-extra-text"></span> <br/>
+                </p>
 
-            <rect x="10" y="55" height="10" width="10"
-                  class="legend-square alert-orange" />
-            <text x="20" y="60" transform="translate(8,4)">Alta</text>
-
-            <rect x="10" y="75" height="10" width="10"
-                  class="legend-square alert-red" />
-            <text x="20" y="80" transform="translate(8,4)">Muito Alta</text>
-          </svg>
-        </div>
-      </div>
-      <!-- Map -->
-
-      <div class="col-md-7">
-        <div class="row">
-
-          <!-- Resources Pie -->
-          <div class="col-md-12">
-            <div class="chart-wrapper">
-              <div class="chart-title">
-                <strong><span id="chart-incidence-case-title">Curva de Incidência</span>
-                  <span class="territory-display"></span>
-                </strong>
-              </div>
-              <div class="chart-stage chart-incidence">
-                <!-- info panel -->
-                <div id="chart-incidence-activity-level-panel">
-                  <p class="prob hidden">
-                    <strong class="chart-extra-text">
-                      Probabilidade do n&iacute;vel de atividade:
-                    </strong><br/>
-                    <span class="chart-extra-text">
+                <p class="prob hidden">
+                  <strong class="chart-extra-text">
+                    Probabilidade do n&iacute;vel de atividade:
+                  </strong><br/>
+                  <span class="chart-extra-text">
                       Baixa: <span class="low"></span>%
                     </span> <br/>
-                    <span class="chart-extra-text">
+                  <span class="chart-extra-text">
                       Epidêmica: <span class="epidemic"></span>%
                     </span> <br/>
-                    <span class="chart-extra-text">
+                  <span class="chart-extra-text">
                       Alta: <span class="high"></span>%
                     </span> <br/>
-                    <span class="chart-extra-text">
+                  <span class="chart-extra-text">
                       Muito Alta: <span class="very-high"></span>%
                     </span>
-                  </p>
+                </p>
 
-                  <p class="level hidden">
-                    <strong class="chart-extra-text">N&iacute;vel de atividade:</strong><br/>
-                    <span class="chart-extra-text classification"></span> <br/>
-                  </p>
-                </div>
-                <!-- info panel:end -->
-
-                <!-- chart -->
-                <div id="weekly-incidence-curve-chart" class="content-height"></div>
-                <!-- chart:end -->
+                <p class="level hidden">
+                  <strong class="chart-extra-text">N&iacute;vel de
+                    atividade:</strong><br/>
+                  <span class="chart-extra-text classification"></span> <br/>
+                </p>
               </div>
+              <!-- info panel:end -->
+
+              <!-- chart -->
+              <div id="weekly-incidence-curve-chart"
+                   class="content-height"></div>
+              <!-- chart:end -->
             </div>
           </div>
-          <!-- Resources Pie -->
-
         </div>
+        <!-- Resources Pie -->
+
       </div>
     </div>
-    <div class="row">
-      <!-- Table -->
-      <div class="col-md-5">
-        <div class="chart-wrapper">
-          <div class="chart-title">
-            <strong>
-              <span id="table-incidence-case-title">Incidência</span>
-              <span class="period-display">na semana epidemiológica</span>
-              <span class="week-display"></span>
-              <span class="territory-display"></span>
-            </strong>
-          </div>
-          <div class="chart-stage content-height" id="divTable"
-               style="overflow-y:auto;">
-
-          </div>
-        </div>
-      </div>
-
-      <!-- Gender/Age Distribution -->
-      <div class="col-md-7">
-        <div class="chart-wrapper">
-          <div class="chart-title">
-            <strong>Distribui&ccedil;&atilde;o por G&ecirc;nero/Idade
+  </div>
+  <div class="row">
+    <!-- Table -->
+    <div class="col-md-5">
+      <div class="chart-wrapper">
+        <div class="chart-title">
+          <strong>
+            <span id="table-incidence-case-title">Incidência</span>
             <span class="period-display">na semana epidemiológica</span>
             <span class="week-display"></span>
             <span class="territory-display"></span>
-            </strong>
-          </div>
-          <div class="chart-stage content-height">
-            <div id="age-chart" class="content-height"></div>
-          </div>
+          </strong>
+        </div>
+        <div class="chart-stage content-height" id="divTable"
+             style="overflow-y:auto;">
+
         </div>
       </div>
     </div>
 
+    <!-- Gender/Age Distribution -->
+    <div class="col-md-7">
+      <div class="chart-wrapper">
+        <div class="chart-title">
+          <strong>Distribui&ccedil;&atilde;o por G&ecirc;nero/Idade
+            <span class="period-display">na semana epidemiológica</span>
+            <span class="week-display"></span>
+            <span class="territory-display"></span>
+          </strong>
+        </div>
+        <div class="chart-stage content-height">
+          <div id="age-chart" class="content-height"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <script src="./static/libs/jquery/jquery.js"></script>
-  <script src="./static/libs/bootstrap/bootstrap.min.js"></script>
-  <script src="./static/libs/crossfilter/crossfilter.min.js"></script>
-  <script src="./static/libs/d3/d3.min.js"></script>
-  <script src="./static/libs/dc/dc.min.js"></script>
-  <script src="./static/libs/queue/queue.js"></script>
-  <script src="./static/libs/keen/keen.min.js"></script>
-  <script src="./static/libs/leaflet/leaflet.js"></script>
-  <script src="./static/libs/leaflet/legend/leaflet-legend.js"></script>
-  <script src="./static/libs/c3/c3.min.js"></script>
-  <script src="./static/libs/datatables/datatables.min.js"></script>
-  <script src="./static/libs/datatables/ext/jquery.dataTables.min.js"></script>
-  <script src="./static/libs/datatables/ext/dataTables.buttons.min.js"></script>
-  <script src="./static/libs/datatables/ext/jszip.min.js"></script>
-  <script src="./static/libs/datatables/ext/vfs_fonts.js"></script>
-  <script src="./static/libs/datatables/ext/buttons.html5.min.js"></script>
-  <script src="./static/js/flu_table.js"></script>
-  <script src="./static/js/flu_map.js"></script>
-  <script src="./static/js/flu_chart.js"></script>
-  <script src="./static/js/dashboard.js"></script>
+</div>
 
-  <script language="JavaScript">
+<script src="./static/libs/jquery/jquery.js"></script>
+<script src="./static/libs/bootstrap/bootstrap.min.js"></script>
+<script src="./static/libs/crossfilter/crossfilter.min.js"></script>
+<script src="./static/libs/d3/d3.min.js"></script>
+<script src="./static/libs/dc/dc.min.js"></script>
+<script src="./static/libs/queue/queue.js"></script>
+<script src="./static/libs/keen/keen.min.js"></script>
+<script src="./static/libs/leaflet/leaflet.js"></script>
+<script src="./static/libs/leaflet/legend/leaflet-legend.js"></script>
+<script src="./static/libs/c3/c3.min.js"></script>
+<script src="./static/libs/datatables/datatables.min.js"></script>
+<script src="./static/libs/datatables/ext/jquery.dataTables.min.js"></script>
+<script src="./static/libs/datatables/ext/dataTables.buttons.min.js"></script>
+<script src="./static/libs/datatables/ext/jszip.min.js"></script>
+<script src="./static/libs/datatables/ext/vfs_fonts.js"></script>
+<script src="./static/libs/datatables/ext/buttons.html5.min.js"></script>
+<script src="./static/js/flu_table.js"></script>
+<script src="./static/js/flu_map.js"></script>
+<script src="./static/js/flu_chart.js"></script>
+<script src="./static/js/dashboard.js"></script>
+
+<script language="JavaScript">
     $(document).ready(function(){
       dashboard = new Dashboard({{last_week_years}});
       dashboard.init();
     });
-  </script>
+
+</script>
 </body>
 </html>

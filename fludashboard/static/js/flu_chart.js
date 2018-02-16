@@ -45,6 +45,7 @@ class SRAGIncidenceChart{
         // hidden  all
         var _prob = $('#chart-incidence-activity-level-panel .prob');
         var _level = $('#chart-incidence-activity-level-panel .level');
+        var _seasons = $('#chart-incidence-activity-level-panel .seasons');
 
         if (!_prob.hasClass('hidden')) {
           _prob.addClass('hidden');
@@ -52,6 +53,10 @@ class SRAGIncidenceChart{
 
         if (!_level.hasClass('hidden')) {
           _level.addClass('hidden');
+        }
+
+        if (!_seasons.hasClass('hidden')) {
+          _seasons.addClass('hidden');
         }
 
         // if no data returned
@@ -75,8 +80,14 @@ class SRAGIncidenceChart{
           $('.epidemic', _prob).text(data['epidemic_level']);
           $('.high', _prob).text(data['high_level']);
           $('.very-high', _prob).text(data['very_high_level']);
-          _prob.removeClass('hidden');
+
+          if (week > 0) {
+            _prob.removeClass('hidden');
+          }
         }
+
+        $('span', _seasons).text(data['regular_seasons']);
+        _seasons.removeClass('hidden');
       }
     });
   }
