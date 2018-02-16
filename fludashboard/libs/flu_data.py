@@ -306,8 +306,8 @@ class FluDB:
           %(estimates_columns_selection)s
           mem_typical.population, 
           mem_typical.low AS typical_low, 
-          mem_typical.median AS typical_median, 
-          mem_typical.high AS typical_high,
+          mem_typical.median-mem_typical.low AS typical_median, 
+          mem_typical.high-mem_typical.median AS typical_high,
           mem_report.geom_average_peak, 
           mem_report.low_activity_region, 
           mem_report.pre_epidemic_threshold as pre_epidemic_threshold, 
@@ -448,7 +448,12 @@ class FluDB:
 
         # force week filter (week 0 == all weeks)
         if show_historical_weeks:
-            sql_param['situation_id_condition'] = ' AND situation_id = 3'
+            with self.conn.connect() as conn:
+                epiyearmax = conn.execute('SELECT MAX(epiyear) FROM current_estimated_values').fetchone()[0]
+            if year < epiyearmax:
+                sql_param['situation_id_condition'] = ' AND situation_id = 3'
+            else:
+                sql_param['situation_id_condition'] = ' AND epiweek <= (%(epiweek)s - 4)' % sql_param
             sql_param['estimates_columns_selection'] = '''
             historical.mean  AS mean,
             historical.median AS estimated_cases, 

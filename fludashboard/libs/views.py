@@ -90,7 +90,7 @@ def index():
 
     return render_template(
         "index.html",
-        current_epiweek=epiweek,
+        current_epiweek=None,
         list_of_years=sorted(list_of_years, reverse=True),
         last_year=epiyear,
         last_week_years=last_week_years
@@ -186,9 +186,11 @@ def data__weekly_incidence_curve(
 
     # cheating: using a new field corredor_muito_alto just for plotting
     # cheating: using a new field corredor_muito_alto just for plotting
+    df['typical_very_high'] = df.typical_high + df.typical_median + df.typical_low
     df['typical_very_high'] = df[[
-            'very_high_threshold', 'ci_upper', 'value', 'typical_high'
+            'very_high_threshold', 'ci_upper', 'value', 'typical_very_high'
         ]].max().max() * 1.1
+    df['typical_very_high'] = df.typical_very_high - (df.typical_high + df.typical_median + df.typical_low)
     # change keys' order
     ks.insert(ks.index('typical_high') + 1, 'typical_very_high')
 

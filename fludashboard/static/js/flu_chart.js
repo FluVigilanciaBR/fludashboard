@@ -60,22 +60,23 @@ class SRAGIncidenceChart{
         }
 
         var data = d[0];
-
-        if (data['situation_id'] == 3) {
-          $('.classification', _level).text(
-            data['low_level'] == 100 ?
-              'Baixa' : data['epidemic_level'] == 100 ?
-              'Epidêmica' : data['high_level'] == 100 ?
-              'Alta' : data['very_high_level'] == 100 ?
-              'Muito Alta' : '(Não encontrada.)'
-          );
-          _level.removeClass('hidden');
-        } else {
-          $('.low', _prob).text(data['low_level']);
-          $('.epidemic', _prob).text(data['epidemic_level']);
-          $('.high', _prob).text(data['high_level']);
-          $('.very-high', _prob).text(data['very_high_level']);
-          _prob.removeClass('hidden');
+        if ($('#btn-detailed').classList.contains('selected')) {
+          if (data['situation_id'] == 3) {
+            $('.classification', _level).text(
+              data['low_level'] == 100 ?
+                'Baixa' : data['epidemic_level'] == 100 ?
+                'Epidêmica' : data['high_level'] == 100 ?
+                'Alta' : data['very_high_level'] == 100 ?
+                'Muito Alta' : '(Não encontrada.)'
+            );
+            _level.removeClass('hidden');
+          } else {
+            $('.low', _prob).text(data['low_level']);
+            $('.epidemic', _prob).text(data['epidemic_level']);
+            $('.high', _prob).text(data['high_level']);
+            $('.very-high', _prob).text(data['very_high_level']);
+            _prob.removeClass('hidden');
+          }
         }
       }
     });
@@ -127,10 +128,10 @@ class SRAGIncidenceChart{
         url: url,
         x: 'epiweek',
         names: {
-          typical_low: 'Zona de Êxito',
-          typical_median: 'Zona de Segurança',
+          typical_very_high: 'Zona de Surto/Epidemia',
           typical_high: 'Zona de Alerta',
-          typical_very_high: 'Zona de Surto',
+          typical_median: 'Zona de Segurança',
+          typical_low: 'Zona de Êxito',
           value: 'Casos notificados',
           pre_epidemic_threshold: 'Limiar Pré epidêmico',
           high_threshold: 'Intensidade Alta',
@@ -141,10 +142,10 @@ class SRAGIncidenceChart{
           incomplete_data: 'Dados Incompletos'
         },
         types: {
-          typical_low: 'area',
-          typical_median: 'area',
-          typical_high: 'area',
           typical_very_high: 'area',
+          typical_high: 'area',
+          typical_median: 'area',
+          typical_low: 'area',
           value: 'line',
           pre_epidemic_threshold: 'line',
           high_threshold: 'line',
@@ -163,7 +164,9 @@ class SRAGIncidenceChart{
           ci_lower: '#000000',
           ci_upper: '#000000',
           incomplete_data: '#ff0000',
-        }
+        },
+        groups: [['typical_very_high', 'typical_high', 'typical_median', 'typical_low']],
+        order: false,
       },
       axis: {
         x: {
@@ -270,7 +273,14 @@ class SRAGAgeChart{
       data: {
         url: url,
         x: 'index',
-        type: 'bar'
+        type: 'bar',
+        colors: {
+          Mulheres: '#ff0000',
+          Homens: '#0000ff',
+          "Sexo ignorado": '#00ff00',
+          Total: '#ff9900'
+        },
+        fillOpacity: 0.8
       },
       axis: {
         x: {

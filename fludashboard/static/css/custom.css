@@ -122,14 +122,31 @@ input.tab.selected {
 }
 
 .c3-line-ci-lower, .c3-line-ci-upper  {
-  stroke-width: 4px!important;
+  stroke-width: 2px!important;
   stroke-dasharray: 4,4;
 }
 
 .c3-shapes.c3-shapes-typical-very-high.c3-lines.c3-lines-typical-very-high > path {
   stroke: rgba(255, 0, 0, 255) !important;
   opacity: 0 !important;
-  visibility; hidden;
+}
+
+.c3-lines-typical-high {
+  opacity: 0 !important;
+}
+.c3-lines-typical-median {
+  opacity: 0 !important;
+}
+.c3-lines-typical-low {
+  opacity: 0 !important;
+}
+
+.c3-area {
+  opacity: 0.5 !important;
+}
+
+.c3-bar {
+  opacity: 0.8 !important;
 }
 
 .c3-legend-item-value line{

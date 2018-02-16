@@ -95,7 +95,12 @@ def migrate_from_csv_to_psql():
         'RegN': 1001,
         'RegL': 1002,
         'RegC': 1003,
-        'RegS': 1004
+        'RegS': 1004,
+        'N': 1,
+        'NE': 2,
+        'SE': 3,
+        'S': 4,
+        'CO': 5
     }
 
     # ### Territory Table
@@ -200,7 +205,7 @@ def migrate_from_csv_to_psql():
     dfs[dataset].scale_id = dfs[dataset].scale_id.map(scale_id)
     dfs[dataset].situation_id = dfs[dataset].situation_id.map(situation_id)
     regions_indeces = dfs[dataset].territory_id.isin([
-        'BR', 'RegN', 'RegL', 'RegC', 'RegS'
+        'BR', 'RegN', 'RegL', 'RegC', 'RegS', 'N', 'NE', 'SE', 'S', 'CO'
     ])
     dfs[dataset].loc[regions_indeces, 'territory_id'] = dfs[dataset].loc[
         regions_indeces, 'territory_id'
@@ -245,7 +250,7 @@ def migrate_from_csv_to_psql():
     dfs[dataset].scale_id = dfs[dataset].scale_id.map(scale_id)
     dfs[dataset].situation_id = dfs[dataset].situation_id.map(situation_id)
     regions_indeces = dfs[dataset].territory_id.isin([
-        'BR', 'RegN', 'RegL', 'RegC', 'RegS'
+        'BR', 'RegN', 'RegL', 'RegC', 'RegS', 'N', 'NE', 'SE', 'S', 'CO'
     ])
     dfs[dataset].loc[regions_indeces, 'territory_id'] = dfs[dataset].loc[
         regions_indeces, 'territory_id'
@@ -309,7 +314,7 @@ def migrate_from_csv_to_psql():
     dfs[dataset].scale_id = dfs[dataset].scale_id.map(scale_id)
     dfs[dataset].situation_id = dfs[dataset].situation_id.map(situation_id)
     regions_indeces = dfs[dataset].territory_id.isin([
-        'BR', 'RegN', 'RegL', 'RegC', 'RegS'
+        'BR', 'RegN', 'RegL', 'RegC', 'RegS', 'N', 'NE', 'SE', 'S', 'CO'
     ])
     dfs[dataset].loc[regions_indeces, 'territory_id'] = dfs[dataset].loc[
         regions_indeces, 'territory_id'
@@ -361,7 +366,7 @@ def migrate_from_csv_to_psql():
     dfs[dataset].dataset_id = dfs[dataset].dataset_id.map(dataset_id)
     dfs[dataset].scale_id = dfs[dataset].scale_id.map(scale_id)
     regions_indeces = dfs[dataset].territory_id.isin([
-        'BR', 'RegN', 'RegL', 'RegC', 'RegS'
+        'BR', 'RegN', 'RegL', 'RegC', 'RegS', 'N', 'NE', 'SE', 'S', 'CO'
     ])
     dfs[dataset].loc[regions_indeces, 'territory_id'] = dfs[dataset].loc[
         regions_indeces, 'territory_id'
@@ -402,7 +407,7 @@ def migrate_from_csv_to_psql():
     dfs[dataset].dataset_id = dfs[dataset].dataset_id.map(dataset_id)
     dfs[dataset].scale_id = dfs[dataset].scale_id.map(scale_id)
     regions_indeces = dfs[dataset].territory_id.isin([
-        'BR', 'RegN', 'RegL', 'RegC', 'RegS'
+        'BR', 'RegN', 'RegL', 'RegC', 'RegS', 'N', 'NE', 'SE', 'S', 'CO'
     ])
     dfs[dataset].loc[regions_indeces, 'territory_id'] = dfs[dataset].loc[
         regions_indeces, 'territory_id'

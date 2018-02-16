@@ -115,13 +115,17 @@ class SRAGMap {
     var _this = this;
     var title = '';
 
-    title = (scale == 1) ?
-        'Mapa de incidência de ':
-        'Mapa de situação de ';
-    if (dataset == 1) {
-      title = title + DATASET_TITLE[dataset];
+    if ($('#btn-detailed').className == 'tab selected') {
+      title = (scale == 1) ?
+          'Mapa de incidência de ' :
+          'Mapa de situação de ';
+      if (dataset == 1) {
+        title = title + DATASET_TITLE[dataset];
+      } else {
+        title = title + DATASET_TITLE[dataset] + " (diagnóstico laboratorial ou clínico-epidemiológico)";
+      }
     } else {
-      title = title + DATASET_TITLE[dataset] + " (diagnóstico laboratorial ou clínico-epidemiológico)";
+      title = 'Mapa do nível de alerta do plano de contingência';
     }
     $('#map-incidence-case-title').text(title);
 
