@@ -87,10 +87,11 @@
                 <input
                     id="btn-detailed"
                     type="button" value="Detalhado (semana)"
-                    class="tab selected">
+                    class="tab">
                 <input
                     id="btn-resumed"
-                    type="button" value="Resumido (ano)" class="tab">
+                    type="button" value="Resumido (ano)"
+                    class="tab selected">
               </div>
               <div class="criteria-box">
                 <label>Conjunto de dados:</label> <br/>
@@ -109,13 +110,18 @@
               </div>
               <div class="criteria-box">
                 <input type="radio" id="radTypeState" name="radType[]"
-                       checked="checked"> Por UF
+                       checked="checked"
+                       value="state"> Por UF
                 <br/>
-                <input type="radio" id="radTypeRegionGeo" name="radType[]"> Por
-                região geopolítica
+                <input type="radio" id="radTypeRegionGeo"
+                       name="radType[]"
+                       value="region_geo"
+                > Por região geopolítica
                 <br/>
-                <input type="radio" id="radTypeRegion" name="radType[]"> Por
-                padrão de circulação
+                <input type="radio" id="radTypeRegion"
+                       name="radType[]"
+                       value="region"
+                > Por padrão de circulação
               </div>
               <div class="criteria-box">
                 <strong>Ano:</strong>

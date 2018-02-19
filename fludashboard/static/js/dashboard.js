@@ -18,6 +18,18 @@
  * @property {SRAGAgeChart} sragAgeChart - SRAGAgeChart object.
  */
 
+
+function getTerritoryType() {
+    switch ($('input[name="radType[]"]:checked').attr('id')) {
+        case 'radTypeState':
+            return 'state';
+        case 'radTypeRegionGeo':
+            return 'region_geo';
+        case 'radTypeRegion':
+            return 'region';
+    }
+}
+
 /*
 # TODO: properly incorporate regiongeo as in flu_table.js, views.py, index.html
  */
@@ -30,10 +42,7 @@ class Dashboard {
     var _this = this;
     this.group_by = 'week'; // year or week
     // state or region
-    this.delimitation = (
-      $('input[name="radType[]"]:checked').attr('id') == 'radTypeState' ?
-      'state' : 'region'
-    );
+    this.delimitation = getTerritoryType();
     this.lastWeek = $('#week').val() || 0;
     this.lastWeekYears = lastWeekYears;
     this.sragData = {};
@@ -119,6 +128,28 @@ class Dashboard {
    * starts up the charts
    */
   init() {
+    if ($('#btn-detailed').hasClass('selected')) {
+      $('#week').attr('min', 1);
+      $('#week').val(_this.lastWeek);
+      $('#div-week').removeClass('hidden');
+      $('#btn-resumed').removeClass('selected');
+      $('#btn-detailed').addClass('selected');
+      $('.period-display').text('na semana epidemiológica');
+    } else {
+      $('#div-week').addClass('hidden');
+      var _week = parseInt($('#week').val() || 0);
+
+      if (_week > 0) {
+        this.lastWeek = _week;
+      }
+
+      $('#week').attr('min', 0);
+      $('#week').val(0);
+      $('#btn-detailed').removeClass('selected');
+      $('#btn-resumed').addClass('selected');
+      $('.period-display').text('no ano epidemiológico');
+
+    }
     this.load_graphs();
     $('.week-display').text($('#week').val() || 0);
   }
@@ -135,10 +166,7 @@ class Dashboard {
       _this.makeGraphs(error);
     };
 
-    var delimitation = (
-      $('input[name="radType[]"]:checked').attr('id') == 'radTypeState' ?
-      'state' : 'region'
-    );
+    var delimitation = getTerritoryType();
 
     var url = [
         '.', 'data',
