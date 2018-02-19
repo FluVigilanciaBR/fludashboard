@@ -59,30 +59,12 @@ class Dashboard {
     $('#year').change(function () {_this.load_graphs();});
 
     $('#btn-detailed').click(function(){
-      $('#week').attr('min', 1);
-      $('#week').val(_this.lastWeek);
-      $('#div-week').removeClass('hidden');
-      $('#btn-resumed').removeClass('selected');
-      $('#btn-detailed').addClass('selected');
-      $('.period-display').text('na semana epidemiológica');
-
+      _this.prepare_detailed_dashboard();
       _this.changeWeek();
     });
 
     $('#btn-resumed').click(function(){
-      $('#div-week').addClass('hidden');
-      var _week = parseInt($('#week').val() || 0);
-
-      if (_week > 0) {
-        _this.lastWeek = _week;
-      }
-
-      $('#week').attr('min', 0);
-      $('#week').val(0);
-      $('#btn-detailed').removeClass('selected');
-      $('#btn-resumed').addClass('selected');
-      $('.period-display').text('no ano epidemiológico');
-
+      _this.prepare_resumed_dashboard();
       _this.changeWeek();
     });
 
@@ -129,13 +111,25 @@ class Dashboard {
    */
   init() {
     if ($('#btn-detailed').hasClass('selected')) {
+      this.prepare_detailed_dashboard();
+    } else {
+      this.prepare_resumed_dashboard();
+    }
+    this.load_graphs();
+    $('.week-display').text($('#week').val() || 0);
+  }
+
+
+  prepare_detailed_dashboard() {
       $('#week').attr('min', 1);
-      $('#week').val(_this.lastWeek);
+      $('#week').val(this.lastWeek);
       $('#div-week').removeClass('hidden');
       $('#btn-resumed').removeClass('selected');
       $('#btn-detailed').addClass('selected');
       $('.period-display').text('na semana epidemiológica');
-    } else {
+  }
+
+  prepare_resumed_dashboard() {
       $('#div-week').addClass('hidden');
       var _week = parseInt($('#week').val() || 0);
 
@@ -148,10 +142,6 @@ class Dashboard {
       $('#btn-detailed').removeClass('selected');
       $('#btn-resumed').addClass('selected');
       $('.period-display').text('no ano epidemiológico');
-
-    }
-    this.load_graphs();
-    $('.week-display').text($('#week').val() || 0);
   }
 
   /**
