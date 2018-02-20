@@ -8,7 +8,7 @@
 /**
  * Allows control over all dashboard functionalities.
  * @property {string} group_by - Data aggregation criterion (year|week).
- * @property {string} delimitation - Data aggregation criterion (state|region).
+ * @property {string} territoryTypeId - Data aggregation criterion (state|region).
  * @property {number} lastWeek - The last week defined (e.g. 2).
  * @property {object} sragData - SRAG data object.
  * @property {SRAGTable} sragTable - SRAGTable object.
@@ -19,15 +19,10 @@
  */
 
 
-function getTerritoryType() {
-    switch ($('input[name="radType[]"]:checked').attr('id')) {
-        case 'radTypeState':
-            return 'state';
-        case 'radTypeRegionGeo':
-            return 'region_geo';
-        case 'radTypeRegion':
-            return 'region';
-    }
+function getTerritoryTypeId() {
+    return parseInt(
+        $('input[name="radTerritoryType[]"]:checked').val()
+    );
 }
 
 /*
@@ -42,7 +37,7 @@ class Dashboard {
     var _this = this;
     this.group_by = 'week'; // year or week
     // state or region
-    this.delimitation = getTerritoryType();
+    this.territoryTypeId = getTerritoryTypeId();
     this.lastWeek = $('#week').val() || 0;
     this.lastWeekYears = lastWeekYears;
     this.sragData = {};
@@ -86,11 +81,15 @@ class Dashboard {
     });
 
     // selection type
-    $('#radTypeState').change(function(){
+    $('#radTerritoryTypeState').change(function(){
       $('#selected-territory').val('');
       _this.load_graphs();
     });
-    $('#radTypeRegion').change(function(){
+    $('#radTerritoryTypeRegion').change(function(){
+      $('#selected-territory').val('');
+      _this.load_graphs();
+    });
+    $('#radTerritoryTypeRegional').change(function(){
       $('#selected-territory').val('');
       _this.load_graphs();
     });
@@ -156,14 +155,14 @@ class Dashboard {
       _this.makeGraphs(error);
     };
 
-    var delimitation = getTerritoryType();
+    var territoryTypeId = getTerritoryTypeId();
 
     var url = [
         '.', 'data',
         $('#dataset option:selected').val(),
         $('#scale option:selected').val(),
         $('#year').val() || 0,
-        delimitation
+        territoryTypeId
     ].join('/');
 
     queue()
