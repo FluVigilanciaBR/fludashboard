@@ -30,7 +30,7 @@ def compose_data_url(variables: str):
         'data': '/data/<int:dataset_id>/<int:scale_id>',
         'year': '<int:year>',
         'epiweek': '<int:epiweek>',
-        'territory_type': '<string:territory_type>',
+        'territory_type_id': '<int:territory_type_id>',
         'territory_id': '<int:territory_id>',
         'territory_name': '<string:territory_name>'
     }
@@ -107,20 +107,18 @@ def app_help():
     return render_template("help.html")
 
 
-@app.route(compose_data_url('year/territory_type'))
+@app.route(compose_data_url('year/territory_type_id'))
 def get_data(
-    dataset_id: int, scale_id: str, year: int, territory_type: str
+    dataset_id: int, scale_id: str, year: int, territory_type_id: int
 ):
     """
 
     :param dataset_id:
     :param scale_id:
     :param year:
-    :param territory_type:
+    :param territory_type_id:
     :return:
     """
-    territory_type_id = 1 if territory_type == 'state' else 2
-
     df = fluDB.get_data(
         dataset_id=dataset_id, scale_id=scale_id, year=year,
         territory_type_id=territory_type_id, show_historical_weeks=False
@@ -286,16 +284,16 @@ def data__incidence_levels(
 
 @app.route(compose_data_url('year/data-table'))
 @app.route(compose_data_url('year/epiweek/data-table'))
-@app.route(compose_data_url('year/epiweek/territory_type/data-table'))
+@app.route(compose_data_url('year/epiweek/territory_type_id/data-table'))
 @app.route(
     compose_data_url(
-        'year/epiweek/territory_type' +
+        'year/epiweek/territory_type_id' +
         '/territory_name/data-table'
     )
 )
 def data__data_table(
     dataset_id: str, scale_id: str, year: int, epiweek: int=None,
-    territory_type: str=None, territory_name: str=None
+    territory_type_id: str=None, territory_name: str=None
 ):
     """
     1. Total number of cases in the selected year for eac
@@ -309,7 +307,7 @@ def data__data_table(
     :param scale_id:
     :param year:
     :param epiweek:
-    :param territory_type:
+    :param territory_type_id:
     :param territory_name:
     :return:
 
@@ -334,11 +332,11 @@ def data__data_table(
         territory_id=territory_id
     )
 
-    if territory_type == 'state':
+    if territory_type_id == 1:  # state
         mask = ~(df.territory_type_name.isin(['Regional', 'Região']))
-    elif territory_type == 'region':
+    elif territory_type_id == 2:  # regional
         mask = ~(df.territory_type_name.isin(['Estado', 'Região']))
-    else:
+    else:  # region
         mask = ~(df.territory_type_name.isin(['Estado', 'Regional']))
 
     df = df[mask]

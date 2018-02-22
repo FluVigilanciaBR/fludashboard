@@ -49,7 +49,7 @@ class SRAGMap {
     this.osm.addTo(this.map);
     this.geojsonLayer = {};
 
-    this.regionIds = {
+    this.regionalIds = {
       // 1
       'Acre': 'RegN',
       'Amapá': 'RegN',
@@ -83,14 +83,14 @@ class SRAGMap {
       'São Paulo': 'RegS',
     };
 
-    this.regionNames = {
+    this.regionalNames = {
       'RegC': 'Regional Centro',
       'RegN': 'Regional Norte',
       'RegS': 'Regional Sul',
       'RegL': 'Regional Leste',
     };
 
-    this.regiongeoIds = {
+    this.regionIds = {
       // 1
       'Acre': 'N',
       'Amapá': 'N',
@@ -125,12 +125,12 @@ class SRAGMap {
       'Mato Grosso do Sul': 'CO',
     };
 
-    this.regiongeoNames = {
-      'N': 'Região Norte',
-      'NE': 'Região Nordeste',
-      'SE': 'Região Sudeste',
-      'CO': 'Região Centro-oeste',
-      'S': 'Região Sul',
+    this.regionNames = {
+      'N': 'Norte',
+      'NE': 'Nordeste',
+      'SE': 'Sudeste',
+      'CO': 'Centro-oeste',
+      'S': 'Sul',
     };
 
     this.legend = new L.Control.Legend({
@@ -192,16 +192,9 @@ class SRAGMap {
           var territoryName = feature.properties.nome;
           var week = parseInt($('#week').val() || 0);
           var year = parseInt($('#year').val() || 0);
-          var territoryType = '';
-          if ($('input[name="radType[]"]:checked').attr('id') == 'radTypeState') {
-            territoryType = 'state';
-          } else if ($('input[name="radType[]"]:checked').attr('id') == 'radTypeRegion') {
-            territoryType = 'region';
-          } else {
-            territoryType = 'regiongeo';
-          }
+          var territoryTypeId = getTerritoryTypeId();
 
-          if (territoryType=='state') {
+          if (territoryTypeId==1) {
             // state
             if ($('#selected-territory').val() == territoryName) {
               territoryName = '';
@@ -213,13 +206,13 @@ class SRAGMap {
               });
               $('.territory-display').text(' - ' + territoryName);
             }
-          } else if (territoryType=='region') {
+          } else if (territoryTypeId==2) {
             // regions
-            var rid = _this.regionIds[territoryName];
-            var ridName = _this.regionNames[rid];
+            var rid = _this.regionalIds[territoryName];
+            var ridName = _this.regionalNames[rid];
 
             _this.geojsonLayer.eachLayer(function (_layer) {
-              var _rid = _this.regionIds[_layer.feature.properties.nome];
+              var _rid = _this.regionalIds[_layer.feature.properties.nome];
 
               _layer.setStyle({color: '#333333'});
 
@@ -241,11 +234,11 @@ class SRAGMap {
             }
           } else {
             // geopolitical regions
-            var rid = _this.regiongeoIds[territoryName];
-            var ridName = _this.regiongeoNames[rid];
+            var rid = _this.regionIds[territoryName];
+            var ridName = _this.regionNames[rid];
 
             _this.geojsonLayer.eachLayer(function (_layer) {
-              var _rid = _this.regiongeoIds[_layer.feature.properties.nome];
+              var _rid = _this.regionIds[_layer.feature.properties.nome];
 
               _layer.setStyle({color: '#333333'});
 
@@ -275,16 +268,9 @@ class SRAGMap {
     };
 
     var selectedTerritory = $('#selected-territory').val();
-    var territoryType = '';
-    if ($('input[name="radType[]"]:checked').attr('id') == 'radTypeState') {
-      territoryType = 'state';
-    } else if ($('input[name="radType[]"]:checked').attr('id') == 'radTypeRegionGeo') {
-      territoryType = 'regiongeo';
-    } else {
-      territoryType = 'region';
-    }
+    var territoryTypeId = getTerritoryTypeId();
 
-    if (territoryType=='state') {
+    if (territoryTypeId==1) {
       // show geojson on the map
       this.geojsonLayer = L.geoJson(geoJsonBr, {
         onEachFeature: onEachFeature,
@@ -315,13 +301,13 @@ class SRAGMap {
           return styleProperties;
         }
       });
-    } else if (territoryType=='region') {
+    } else if (territoryTypeId==2) {
       // region
       this.geojsonLayer = L.geoJson(geoJsonBr, {
         onEachFeature: onEachFeature,
         style: function(feature) {
             var layerName = feature.properties.nome;
-            var _rid = _this.regionIds[layerName];
+            var _rid = _this.regionalIds[layerName];
 
             var styleProperties= {
                 fillColor: '#fffff',
@@ -353,7 +339,7 @@ class SRAGMap {
         onEachFeature: onEachFeature,
         style: function(feature) {
             var layerName = feature.properties.nome;
-            var _rid = _this.regiongeoIds[layerName];
+            var _rid = _this.regionIds[layerName];
 
             var styleProperties= {
                 fillColor: '#fffff',
@@ -418,14 +404,7 @@ class SRAGMap {
       weight: 1,
     };
 
-    var territoryType = '';
-    if ($('input[name="radType[]"]:checked').attr('id') == 'radTypeState') {
-      territoryType = 'state';
-    } else if ($('input[name="radType[]"]:checked').attr('id') == 'radTypeRegionGeo') {
-      territoryType = 'regiongeo';
-    } else {
-      territoryType = 'region';
-    }
+    var territoryTypeId = getTerritoryTypeId();
 
     if(week>0) {
       // when by week criteria is selected
@@ -437,12 +416,12 @@ class SRAGMap {
         var layerName = layer.feature.properties.nome;
         var territoryName = '';
 
-        if (territoryType=='state') {
+        if (territoryTypeId==1) {
           territoryName = layerName;
-        } else if (territoryType=='region') {
-          territoryName = _this.regionNames[_this.regionIds[layerName]];
+        } else if (territoryTypeId==2) {
+          territoryName = _this.regionalNames[_this.regionalIds[layerName]];
         } else {
-          territoryName = _this.regiongeoNames[_this.regiongeoIds[layerName]];
+          territoryName = _this.regionNames[_this.regionIds[layerName]];
         }
 
         layer.setStyle(styleProperties);
@@ -466,12 +445,12 @@ class SRAGMap {
         var layerName = layer.feature.properties.nome;
         var territoryName = '';
 
-        if (territoryType=='state') {
+        if (territoryTypeId==1) {
           territoryName = layerName;
-        } else if (territoryType=='region') {
-          territoryName = _this.regionNames[_this.regionIds[layerName]];
+        } else if (territoryTypeId==2) {
+          territoryName = _this.regionalNames[_this.regionalIds[layerName]];
         } else {
-          territoryName = _this.regiongeoNames[_this.regiongeoIds[layerName]];
+          territoryName = _this.regionNames[_this.regionIds[layerName]];
         }
 
         layer.setStyle(styleProperties);

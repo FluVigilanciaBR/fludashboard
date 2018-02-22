@@ -8,7 +8,7 @@
 /**
  * Allows control over all dashboard functionalities.
  * @property {string} group_by - Data aggregation criterion (year|week).
- * @property {string} delimitation - Data aggregation criterion (state|region).
+ * @property {string} territoryTypeId - Data aggregation criterion (state|region).
  * @property {number} lastWeek - The last week defined (e.g. 2).
  * @property {object} sragData - SRAG data object.
  * @property {SRAGTable} sragTable - SRAGTable object.
@@ -17,6 +17,13 @@
  *   object.
  * @property {SRAGAgeChart} sragAgeChart - SRAGAgeChart object.
  */
+
+
+function getTerritoryTypeId() {
+    return parseInt(
+        $('input[name="radTerritoryType[]"]:checked').val()
+    );
+}
 
 /*
 # TODO: properly incorporate regiongeo as in flu_table.js, views.py, index.html
@@ -30,10 +37,7 @@ class Dashboard {
     var _this = this;
     this.group_by = 'week'; // year or week
     // state or region
-    this.delimitation = (
-      $('input[name="radType[]"]:checked').attr('id') == 'radTypeState' ?
-      'state' : 'region'
-    );
+    this.territoryTypeId = getTerritoryTypeId();
     this.lastWeek = $('#week').val() || 0;
     this.lastWeekYears = lastWeekYears;
     this.sragData = {};
@@ -50,30 +54,12 @@ class Dashboard {
     $('#year').change(function () {_this.load_graphs();});
 
     $('#btn-detailed').click(function(){
-      $('#week').attr('min', 1);
-      $('#week').val(_this.lastWeek);
-      $('#div-week').removeClass('hidden');
-      $('#btn-resumed').removeClass('selected');
-      $('#btn-detailed').addClass('selected');
-      $('.period-display').text('na semana epidemiológica');
-
+      _this.prepare_detailed_dashboard();
       _this.changeWeek();
     });
 
     $('#btn-resumed').click(function(){
-      $('#div-week').addClass('hidden');
-      var _week = parseInt($('#week').val() || 0);
-
-      if (_week > 0) {
-        _this.lastWeek = _week;
-      }
-
-      $('#week').attr('min', 0);
-      $('#week').val(0);
-      $('#btn-detailed').removeClass('selected');
-      $('#btn-resumed').addClass('selected');
-      $('.period-display').text('no ano epidemiológico');
-
+      _this.prepare_resumed_dashboard();
       _this.changeWeek();
     });
 
@@ -95,11 +81,15 @@ class Dashboard {
     });
 
     // selection type
-    $('#radTypeState').change(function(){
+    $('#radTerritoryTypeState').change(function(){
       $('#selected-territory').val('');
       _this.load_graphs();
     });
-    $('#radTypeRegion').change(function(){
+    $('#radTerritoryTypeRegion').change(function(){
+      $('#selected-territory').val('');
+      _this.load_graphs();
+    });
+    $('#radTerritoryTypeRegional').change(function(){
       $('#selected-territory').val('');
       _this.load_graphs();
     });
@@ -119,8 +109,38 @@ class Dashboard {
    * starts up the charts
    */
   init() {
+    if ($('#btn-detailed').hasClass('selected')) {
+      this.prepare_detailed_dashboard();
+    } else {
+      this.prepare_resumed_dashboard();
+    }
     this.load_graphs();
     $('.week-display').text($('#week').val() || 0);
+  }
+
+
+  prepare_detailed_dashboard() {
+      $('#week').attr('min', 1);
+      $('#week').val(this.lastWeek);
+      $('#div-week').removeClass('hidden');
+      $('#btn-resumed').removeClass('selected');
+      $('#btn-detailed').addClass('selected');
+      $('.period-display').text('na semana epidemiológica');
+  }
+
+  prepare_resumed_dashboard() {
+      $('#div-week').addClass('hidden');
+      var _week = parseInt($('#week').val() || 0);
+
+      if (_week > 0) {
+        this.lastWeek = _week;
+      }
+
+      $('#week').attr('min', 0);
+      $('#week').val(0);
+      $('#btn-detailed').removeClass('selected');
+      $('#btn-resumed').addClass('selected');
+      $('.period-display').text('no ano epidemiológico');
   }
 
   /**
@@ -135,17 +155,14 @@ class Dashboard {
       _this.makeGraphs(error);
     };
 
-    var delimitation = (
-      $('input[name="radType[]"]:checked').attr('id') == 'radTypeState' ?
-      'state' : 'region'
-    );
+    var territoryTypeId = getTerritoryTypeId();
 
     var url = [
         '.', 'data',
         $('#dataset option:selected').val(),
         $('#scale option:selected').val(),
         $('#year').val() || 0,
-        delimitation
+        territoryTypeId
     ].join('/');
 
     queue()

@@ -188,7 +188,8 @@ class FluDB:
         territory_id: int=None, year: int=None, week: int=None,
         base_year: int=None, base_week: int=None,
         historical_week: int=None, return_sql=False,
-        extra_fields: list=None, selected_fields: list=None, **kwargs
+        extra_fields: list=None, selected_fields: list=None,
+        excluded_fields: list=[], **kwargs
     ):
         """
 
@@ -204,6 +205,7 @@ class FluDB:
         :param return_sql:
         :param extra_fields:
         :param selected_fields:
+        :param excluded_fields:
         :param kwargs:
         :return:
 
@@ -222,7 +224,7 @@ class FluDB:
 
             selected_fields = [
                 f[0] for f in selected_fields
-                if f[0] not in ['dataset_id', 'scale_id']
+                if f[0] not in ['dataset_id', 'scale_id'] + excluded_fields
             ]
 
         if extra_fields is not None:
@@ -534,8 +536,9 @@ class FluDB:
         df_age_dist = self.read_data(
             'clean_data_epiweek_weekly_incidence_w_situation',
             dataset_id=dataset_id, scale_id=scale_id, year=season,
-            territory_id=territory_id,
-            low_memory=False
+            territory_id=territory_id, low_memory=False, excluded_fields=[
+                'ADNO', 'PARA1', 'PARA2', 'PARA3'
+            ]
         )
 
         if week is not None and week > 0:
