@@ -393,6 +393,7 @@ class FluDB:
             'territory_id': territory_id,
             'epiweek': week,
             'epiyear': year,
+            'epiweekstop': 54,
             'base_epiweek_condition': '',
             'estimates_columns_selection': '''
             incidence.mean  AS "mean",
@@ -436,7 +437,14 @@ class FluDB:
                 AND scale_id = %(scale_id)s
                 %(territory_id_condition)s )
             ''' % sql_param
+            with self.conn.connect() as conn:
+                sql_param['epiweekstop'] = conn.execute('''
+                SELECT MAX(epiweek) FROM current_estimated_values
+                WHERE epiyear = %(epiyear)s
+                  AND "value" IS NOT NULL
+                ''' % sql_param).fetchone()[0] - 4
         else:
+            sql_param['epiweekstop'] = week - 4
             sql_param['base_epiweek_condition'] = '''
             AND base_epiweek = (
                 SELECT MAX(LEAST(base_epiweek, %(epiweek)s))
@@ -455,7 +463,7 @@ class FluDB:
             if year < epiyearmax:
                 sql_param['situation_id_condition'] = ' AND situation_id = 3'
             else:
-                sql_param['situation_id_condition'] = ' AND epiweek <= (%(epiweek)s - 4)' % sql_param
+                sql_param['situation_id_condition'] = ' AND epiweek <= %(epiweekstop)s' % sql_param
             sql_param['estimates_columns_selection'] = '''
             historical.mean  AS mean,
             historical.median AS estimated_cases, 
