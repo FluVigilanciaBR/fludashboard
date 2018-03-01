@@ -20,7 +20,8 @@ def update_data_files(update_data: bool):
     %(wget_prefix)s/current_estimated_values.csv && \
     %(wget_prefix)s/historical_estimated_values.csv && \
     %(wget_prefix)s/mem-report.csv && \
-    %(wget_prefix)s/mem-typical.csv''' % {
+    %(wget_prefix)s/mem-typical.csv && \
+    %(wget_prefix)s/delay_table.csv''' % {
         'path_data': path_data,
         'wget_prefix': wget_prefix
     }
@@ -96,11 +97,13 @@ def migrate_from_csv_to_psql():
         'RegL': 1002,
         'RegC': 1003,
         'RegS': 1004,
+        'RegNI': 9999,
         'N': 1,
         'NE': 2,
         'SE': 3,
         'S': 4,
-        'CO': 5
+        'CO': 5,
+        'RNI': 9
     }
 
     # ### Territory Table
@@ -152,6 +155,8 @@ def migrate_from_csv_to_psql():
         {'id': 52, 'initials': 'GO', 'name': 'Goiás', 'territory_type_id': 1},
         {'id': 53, 'initials': 'DF', 'name': 'Distrito Federal',
          'territory_type_id': 1},
+        {'id': 99, 'initials': 'NI', 'name': 'Não informado',
+         'territory_type_id': 1},
         {'id': 0, 'initials': 'BR', 'name': 'Brasil', 'territory_type_id': 4},
         {'id': 1003, 'initials': 'RegC', 'name': 'Regional Centro',
          'territory_type_id': 2},
@@ -161,6 +166,8 @@ def migrate_from_csv_to_psql():
          'territory_type_id': 2},
         {'id': 1004, 'initials': 'RegS', 'name': 'Regional Sul',
          'territory_type_id': 2},
+        {'id': 9999, 'initials': 'RegSNI', 'name': 'Regional não informada',
+         'territory_type_id': 2},
         {'id': 1, 'initials': 'N', 'name': 'Norte', 'territory_type_id': 3},
         {'id': 2, 'initials': 'NE', 'name': 'Nordeste',
          'territory_type_id': 3},
@@ -168,6 +175,7 @@ def migrate_from_csv_to_psql():
         {'id': 5, 'initials': 'CO', 'name': 'Centro-oeste',
          'territory_type_id': 3},
         {'id': 4, 'initials': 'S', 'name': 'Sul', 'territory_type_id': 3},
+        {'id': 9, 'initials': 'RNI', 'name': 'Região não informada', 'territory_type_id': 3},
     ])
 
     df_territory.set_index('id', inplace=True)
@@ -205,7 +213,7 @@ def migrate_from_csv_to_psql():
     dfs[dataset].scale_id = dfs[dataset].scale_id.map(scale_id)
     dfs[dataset].situation_id = dfs[dataset].situation_id.map(situation_id)
     regions_indeces = dfs[dataset].territory_id.isin([
-        'BR', 'RegN', 'RegL', 'RegC', 'RegS', 'N', 'NE', 'SE', 'S', 'CO'
+        'BR', 'RegN', 'RegL', 'RegC', 'RegS', 'RegNI', 'N', 'NE', 'SE', 'S', 'CO', 'RNI'
     ])
     dfs[dataset].loc[regions_indeces, 'territory_id'] = dfs[dataset].loc[
         regions_indeces, 'territory_id'
@@ -250,7 +258,7 @@ def migrate_from_csv_to_psql():
     dfs[dataset].scale_id = dfs[dataset].scale_id.map(scale_id)
     dfs[dataset].situation_id = dfs[dataset].situation_id.map(situation_id)
     regions_indeces = dfs[dataset].territory_id.isin([
-        'BR', 'RegN', 'RegL', 'RegC', 'RegS', 'N', 'NE', 'SE', 'S', 'CO'
+        'BR', 'RegN', 'RegL', 'RegC', 'RegS', 'RegNI', 'N', 'NE', 'SE', 'S', 'CO', 'RNI'
     ])
     dfs[dataset].loc[regions_indeces, 'territory_id'] = dfs[dataset].loc[
         regions_indeces, 'territory_id'
@@ -314,7 +322,7 @@ def migrate_from_csv_to_psql():
     dfs[dataset].scale_id = dfs[dataset].scale_id.map(scale_id)
     dfs[dataset].situation_id = dfs[dataset].situation_id.map(situation_id)
     regions_indeces = dfs[dataset].territory_id.isin([
-        'BR', 'RegN', 'RegL', 'RegC', 'RegS', 'N', 'NE', 'SE', 'S', 'CO'
+        'BR', 'RegN', 'RegL', 'RegC', 'RegS', 'RegNI', 'N', 'NE', 'SE', 'S', 'CO', 'RNI'
     ])
     dfs[dataset].loc[regions_indeces, 'territory_id'] = dfs[dataset].loc[
         regions_indeces, 'territory_id'
@@ -366,7 +374,7 @@ def migrate_from_csv_to_psql():
     dfs[dataset].dataset_id = dfs[dataset].dataset_id.map(dataset_id)
     dfs[dataset].scale_id = dfs[dataset].scale_id.map(scale_id)
     regions_indeces = dfs[dataset].territory_id.isin([
-        'BR', 'RegN', 'RegL', 'RegC', 'RegS', 'N', 'NE', 'SE', 'S', 'CO'
+        'BR', 'RegN', 'RegL', 'RegC', 'RegS', 'RegNI', 'N', 'NE', 'SE', 'S', 'CO', 'RNI'
     ])
     dfs[dataset].loc[regions_indeces, 'territory_id'] = dfs[dataset].loc[
         regions_indeces, 'territory_id'
@@ -407,7 +415,7 @@ def migrate_from_csv_to_psql():
     dfs[dataset].dataset_id = dfs[dataset].dataset_id.map(dataset_id)
     dfs[dataset].scale_id = dfs[dataset].scale_id.map(scale_id)
     regions_indeces = dfs[dataset].territory_id.isin([
-        'BR', 'RegN', 'RegL', 'RegC', 'RegS', 'N', 'NE', 'SE', 'S', 'CO'
+        'BR', 'RegN', 'RegL', 'RegC', 'RegS', 'RegNI', 'N', 'NE', 'SE', 'S', 'CO', 'RNI'
     ])
     dfs[dataset].loc[regions_indeces, 'territory_id'] = dfs[dataset].loc[
         regions_indeces, 'territory_id'
@@ -423,6 +431,52 @@ def migrate_from_csv_to_psql():
     pks[dataset] = ['dataset_id', 'scale_id', 'territory_id', 'year',
                     'epiweek']
 
+    dfs[dataset].set_index(pks[dataset], inplace=True)
+
+    # ## 7. delay_table
+
+    dataset = 'delay_table'
+
+    migration_rules = {
+        'UF': 'territory_id',
+        'Notific2Digita_DelayDays': 'notification2digitalization',
+        'SinPri2Digita_DelayDays': 'symptoms2digitalization',
+        'SinPri2Antivir_DelayDays': 'symptoms2antiviral',
+        'SinPri2Notific_DelayDays': 'symptoms2notification',
+        'SinPri2Coleta_DelayDays': 'symptoms2sample',
+        'Notific2Encerra_DelayDays': 'notification2closure',
+        'Coleta2IFI_DelayDays': 'sample2ifi',
+        'Coleta2PCR_DelayDays': 'sample2pcr',
+        'Regional': 'regional',
+        'Regiao': 'region',
+        'dado': 'dataset_id'
+    }
+
+    dfs[dataset].rename(columns=migration_rules, inplace=True)
+
+    # apply categories
+    dfs[dataset].dataset_id = dfs[dataset].dataset_id.map(dataset_id)
+    dfs[dataset].territory_id = dfs[dataset].territory_id.astype(int)
+    dfs[dataset].regional = dfs[dataset].regional.map(region_id).astype(int)
+    dfs[dataset].region = dfs[dataset].region.map(region_id).astype(int)
+
+    # remove unnecessary fields
+    dfs[dataset].drop([
+        'Notific2Digita_DelayWeeks',
+        'SinPri2Digita_DelayWeeks',
+        'SinPri2Antivir_DelayWeeks',
+        'SinPri2Notific_DelayWeeks',
+        'SinPri2Coleta_DelayWeeks',
+        'Notific2Encerra_DelayWeeks',
+        'Coleta2IFI_DelayWeeks',
+        'Coleta2PCR_DelayWeeks',
+    ], axis=1, inplace=True)
+
+    # add index
+    dfs[dataset]['id'] = dfs[dataset].index
+
+    # primary keys
+    pks[dataset] = ['id', 'territory_id', 'epiyear', 'epiweek']
     dfs[dataset].set_index(pks[dataset], inplace=True)
 
     # ## SQL Migration
