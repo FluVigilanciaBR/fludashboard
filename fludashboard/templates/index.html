@@ -3,7 +3,6 @@
 <head>
   <title>Situação da Gripe</title>
   <link rel="stylesheet" href="./static/libs/bootstrap/bootstrap.min.css">
-  <link rel="stylesheet" href="./static/libs/keen/keen-dashboards.css">
   <link rel="stylesheet" href="./static/libs/dc/dc.min.css">
   <link rel="stylesheet" href="./static/css/custom.css">
   <link rel="stylesheet" href="./static/libs/leaflet/leaflet.css"/>
@@ -18,46 +17,12 @@
         href="/static/img/info_gripe_icon.ico"
   />
   <style type="text/css">
-    iframe.super-header {
-      padding: 0;
-      margin: 0;
-      border: 0;
-      width: 100%;
-      height: 140px;
-    }
-
-    .navbar {
-      margin: 0!important;
-    }
-
-  html, document, body {
-    margin: 0!important;
-    padding: 0!important;
-  }
-
-  .navbar-fixed {
-    border-width: 0 0 1px;
-    -webkit-transform: translate3d(0,0,0);
-    -o-transform: translate3d(0,0,0);
-    transform: translate3d(0,0,0);
-    border-radius: 0;
-  }
-
-  @media (min-width: 768px)
-  .navbar-fixed {
-      border-radius: 0;
-  }
-
-  .document.container-fluid {
-    margin: 10px 20px 10px 20px;
-  }
-
 
   </style>
 </head>
-<body class="application">
-<div class="navbar navbar-inverse navbar-fixed" role="navigation">
+<body>
 
+<div class="navbar navbar-dark bg-primary" role="navigation">
   <iframe src="./super-header" class="super-header" scrolling="no"></iframe>
 
   <div class="container-fluid">
@@ -70,19 +35,15 @@
       >[Ajuda]</a>
     </div>
   </div>
-
-<div class="document container-fluid page">
+</div>
+<div class="document container-fluid">
 
   <div class="row">
 
-    <div class="col-md-12">
-
-      <div class="row">
-
+    <div class="col-md-12 mt-3 mb-1">
         <!-- Time Chart -->
-        <div class="col-md-12">
-          <div class="chart-wrapper">
-            <div class="chart-stage">
+          <div class="card p-3">
+            <div class="card-block">
               <div class="criteria-box">
                 <input
                     id="btn-detailed"
@@ -133,8 +94,7 @@
                 <select id='year'>
                   {%for year in list_of_years:%}
                   <option value='{{year}}'
-                          {{
-                  'selected="selected"' if year==last_year else ''}}
+                    {{'selected="selected"' if year==last_year else ''}}
                   >{{year}}</option>
                   {%endfor%}
                 </select>
@@ -155,20 +115,18 @@
           </div>
         </div>
         <!-- Time Chart -->
-      </div>
-    </div>
   </div>
-  <div class="row">
 
+  <div class="row my-3">
     <!-- Map -->
     <div class="col-md-5">
-      <div class="chart-wrapper">
-        <div class="chart-title">
+      <div class="card">
+        <div class="card-header">
           <strong id="map-incidence-case-title">
             Mapa de incidência de SRAG
           </strong>
         </div>
-        <div class="chart-stage">
+        <div class="card-block">
           <div id="map" class="content-height"></div>
         </div>
       </div>
@@ -196,18 +154,14 @@
     <!-- Map -->
 
     <div class="col-md-7">
-      <div class="row">
-
-        <!-- Resources Pie -->
-        <div class="col-md-12">
-          <div class="chart-wrapper">
-            <div class="chart-title">
+          <div class="card">
+            <div class="card-header">
               <strong><span
                   id="chart-incidence-case-title">Curva de Incidência</span>
                 <span class="territory-display"></span>
               </strong>
             </div>
-            <div class="chart-stage chart-incidence">
+            <div class="card-block chart-incidence">
               <!-- info panel -->
               <div id="chart-incidence-activity-level-panel">
                 <p class="seasons hidden">
@@ -251,14 +205,12 @@
         </div>
         <!-- Resources Pie -->
 
-      </div>
-    </div>
   </div>
-  <div class="row">
+  <div class="row my-3">
     <!-- Table -->
     <div class="col-md-5">
-      <div class="chart-wrapper">
-        <div class="chart-title">
+      <div class="card">
+        <div class="card-header p-2">
           <strong>
             <span id="table-incidence-case-title">Incidência</span>
             <span class="period-display">na semana epidemiológica</span>
@@ -266,7 +218,7 @@
             <span class="territory-display"></span>
           </strong>
         </div>
-        <div class="chart-stage content-height" id="divTable"
+        <div class="card-block p-2 content-height" id="divTable"
              style="overflow-y:auto;">
 
         </div>
@@ -275,30 +227,34 @@
 
     <!-- Gender/Age Distribution -->
     <div class="col-md-7">
-      <div class="chart-wrapper">
-        <div class="chart-title">
+      <div class="card">
+        <div class="card-header">
           <strong>Distribui&ccedil;&atilde;o por G&ecirc;nero/Idade
             <span class="period-display">na semana epidemiológica</span>
             <span class="week-display"></span>
             <span class="territory-display"></span>
           </strong>
         </div>
-        <div class="chart-stage content-height">
+        <div class="card-block content-height">
           <div id="age-chart" class="content-height"></div>
         </div>
       </div>
     </div>
   </div>
 
+  <div class="row">
+
+  </div>
+
 </div>
 
 <script src="./static/libs/jquery/jquery.js"></script>
 <script src="./static/libs/bootstrap/bootstrap.min.js"></script>
+<script src="./static/libs/popper/popper.min.js"></script>
 <script src="./static/libs/crossfilter/crossfilter.min.js"></script>
 <script src="./static/libs/d3/d3.min.js"></script>
 <script src="./static/libs/dc/dc.min.js"></script>
 <script src="./static/libs/queue/queue.js"></script>
-<script src="./static/libs/keen/keen.min.js"></script>
 <script src="./static/libs/leaflet/leaflet.js"></script>
 <script src="./static/libs/leaflet/legend/leaflet-legend.js"></script>
 <script src="./static/libs/c3/c3.min.js"></script>
