@@ -5,6 +5,7 @@ html, body {
 html, document, body {
     margin: 0!important;
     padding: 0!important;
+    background: #dfdfdf;
 }
 
 iframe.super-header {
@@ -31,10 +32,6 @@ iframe.super-header {
 @media (min-width: 768px)
 .navbar-fixed {
     border-radius: 0;
-}
-
-.document {
-    background: #dfdfdf;
 }
 
 .hidden {
@@ -133,10 +130,6 @@ input.tab.selected {
 }
 
 .message-box-error {
-    margin: 40px!important;
-    padding: 20px!important;
-    display: block!important;
-    font-size: 28px!important;
     vertical-align: middle!important;
     text-align: center!important;
 }
