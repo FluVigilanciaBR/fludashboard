@@ -2,9 +2,39 @@ html, body {
   overflow-x: hidden;
 }
 
-.dc-chart g.row text {
-    fill: black;
-    font-size: 12px;
+html, document, body {
+    margin: 0!important;
+    padding: 0!important;
+}
+
+iframe.super-header {
+  padding: 0;
+  margin: 0;
+  border: 0;
+  width: 100%;
+  height: 140px;
+}
+
+.navbar {
+  margin: 0!important;
+  padding: 0!important;
+}
+
+.navbar-fixed {
+    border-width: 0 0 1px;
+    -webkit-transform: translate3d(0,0,0);
+    -o-transform: translate3d(0,0,0);
+    transform: translate3d(0,0,0);
+    border-radius: 0;
+}
+
+@media (min-width: 768px)
+.navbar-fixed {
+    border-radius: 0;
+}
+
+.document {
+    background: #dfdfdf;
 }
 
 .hidden {
@@ -102,6 +132,23 @@ input.tab.selected {
   float: right;
 }
 
+.message-box-error {
+    margin: 40px!important;
+    padding: 20px!important;
+    display: block!important;
+    font-size: 28px!important;
+    vertical-align: middle!important;
+    text-align: center!important;
+}
+
+
+/* DC / C3 */
+
+.dc-chart g.row text {
+    fill: black;
+    font-size: 12px;
+}
+
 .c3-region.alert-red {
   fill: red;
 }
@@ -180,13 +227,4 @@ input.tab.selected {
 .c3-legend-item-ci-upper line {
     stroke-width: 2px!important;
     stroke-dasharray: 2;
-}
-
-.message-box-error {
-    margin: 40px!important;
-    padding: 20px!important;
-    display: block!important;
-    font-size: 28px!important;
-    vertical-align: middle!important;
-    text-align: center!important;
 }
