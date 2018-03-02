@@ -182,6 +182,7 @@ class Dashboard {
     var scale = $('#scale option:selected').val();
     var week = parseInt($('#week').val() || 0);
     var year = parseInt($('#year').val() || 0);
+    var territoryName = $('#selected-territory').val() || 'Brasil';
 
     $('.week-display').text(week);
 
@@ -189,6 +190,16 @@ class Dashboard {
       fillColor: 'white',
       weight: 1
     };
+
+    var etiological_url = [
+        '.', 'data',
+        dataset,
+        scale,
+        year,
+        week,
+        territoryName,
+        'etiological-agents'
+    ].join('/');
 
     if(week>0) {
       var df = $.grep(_this.sragData, function(n,i){
@@ -205,6 +216,7 @@ class Dashboard {
     _this.sragIncidenceChart.plot(dataset, scale, year, week, territoryName);
     _this.sragAgeChart.plot(dataset, scale, year, week, territoryName);
     _this.sragTable.makeTable(dataset, scale, year, week, territoryName);
+    $('#etiological-chart').load(etiological_url);
   }
 
   /**
@@ -227,13 +239,26 @@ class Dashboard {
         _this.sragIncidenceChart.plot(dataset, scale, year, week, territoryName);
         _this.sragAgeChart.plot(dataset, scale, year, week, territoryName);
         _this.sragTable.makeTable(dataset, scale, year, week, territoryName);
+        // etiological chart
+        var etiological_url = [
+            '.', 'data',
+            dataset,
+            scale,
+            year,
+            week,
+            territoryName,
+            'etiological-agents'
+        ].join('/');
+        $('#etiological-chart').load(etiological_url);
       }
     );
 
     this.changeWeek();
-
+    /*
     this.sragIncidenceChart.plot(dataset, scale, year, week, territoryName);
     this.sragAgeChart.plot(dataset, scale, year, week, territoryName);
     this.sragTable.makeTable(dataset, scale, year, week, territoryName);
+    $('#etiological-chart').load(etiological_url);
+    */
   }
 }
