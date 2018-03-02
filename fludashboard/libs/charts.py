@@ -86,8 +86,8 @@ def ethio_ts(df=pd.DataFrame, scale_id=int, year=int):
     )
 
     return _plot_html(
-        figure_or_data=fig, config={'height': '500px'}, validate=True,
-        default_width='100%', default_height='500px', global_requirejs=''
+        figure_or_data=fig, config={}, validate=True,
+        default_width='100%', default_height=200, global_requirejs=''
     )[0]
 
 
@@ -129,5 +129,5 @@ def opportunities_boxplot(df: pd.DataFrame, week: int=None):
 
     return _plot_html(
         figure_or_data=figure, config={}, validate=True,
-        default_width='100%', default_height=200, global_requirejs=''
+        default_width='100%', default_height=500, global_requirejs=''
     )[0]
