@@ -1,7 +1,7 @@
 from plotly import tools
-from plotly.offline import download_plotlyjs, iplot
 from plotly.offline.offline import _plot_html
 
+import cufflinks as cf
 import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
@@ -84,10 +84,50 @@ def ethio_ts(df=pd.DataFrame, scale_id=int, year=int):
         showlegend=False,
         # yaxis='Teste'
     )
-    # , , global_requirejs
-    html_div, div_id, width, height = _plot_html(
-        figure_or_data=fig, config={}, validate=True,
-        default_width='100%', default_height=200, global_requirejs=''
+
+    return _plot_html(
+        figure_or_data=fig, config={'height': '500px'}, validate=True,
+        default_width='100%', default_height='500px', global_requirejs=''
+    )[0]
+
+
+def opportunities_boxplot(df: pd.DataFrame, week: int=None):
+    """
+
+    :param df:
+    :param week:
+    :return:
+
+    """
+    title_param = {
+        'name': df.territory_name.unique()[0],
+        'week': ''
+    }
+
+    if week not in [0, None]:
+        title_param['week'] = 'até a semana epidemiológica %s ' % week
+
+    title = 'Distribuição de oportunidades %(week)s- %(name)s' % title_param
+
+    # Set ymax to higher upper fence:
+    q1 = df.iloc[:, :-1].quantile(.25, axis=0)
+    q3 = df.iloc[:, :-1].quantile(.75, axis=0)
+    ymax = (q3 + 3 * (q3 - q1)).max()
+
+    # Set bottom and right margin to avoid xaxis labels beeing cut off
+    figure = df.iplot(
+        kind='box',
+        boxpoints='outliers',
+        margin={'b': 130, 'r': 100},
+        showlegend=False,
+        title=title,
+        yTitle='Dias',
+        asFigure=True
     )
 
-    return html_div
+    figure['layout']['yaxis1'].update(range=[0, ymax])
+
+    return _plot_html(
+        figure_or_data=figure, config={}, validate=True,
+        default_width='100%', default_height=200, global_requirejs=''
+    )[0]
