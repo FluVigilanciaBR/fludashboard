@@ -280,7 +280,7 @@
           </div>
           <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo">
             <!-- removed: data-parent="#accordion" from #collapseTwo-->
-            <div class="card-body">
+            <div class="card-body" id="etiological-chart">
               <!--#136-->
             </div>
           </div>
@@ -307,11 +307,11 @@
 <script src="./static/libs/datatables/ext/jszip.min.js"></script>
 <script src="./static/libs/datatables/ext/vfs_fonts.js"></script>
 <script src="./static/libs/datatables/ext/buttons.html5.min.js"></script>
+<script src="./static/libs/plotlyjs/plotly-latest.min.js"></script>
 <script src="./static/js/flu_table.js"></script>
 <script src="./static/js/flu_map.js"></script>
 <script src="./static/js/flu_chart.js"></script>
 <script src="./static/js/dashboard.js"></script>
-
 <script language="JavaScript">
     $(document).ready(function(){
       dashboard = new Dashboard({{last_week_years}});

@@ -568,3 +568,85 @@ class FluDB:
             df = df[['Mulheres', 'Homens', 'Sexo ignorado', 'Total']]
 
         return df
+
+    def get_etiological_data(
+        self, dataset_id: int, scale_id: int, year: int,
+        week: int=None, territory_id: int=None
+    ):
+        """
+        Generate timeseries for each ethiological agent and other relevant lab data
+
+        :param dataset_id: SRAG (1) or SRAGFLU (2) or OBITOFLU (3)
+        :param scale_id: Incidence (1) or cases (2)
+        :param year: epidemiological year
+        :param week: epidemiological week or all (None or 0)
+        :param territory_id:
+        """
+
+        sql_param = {
+            'epiweek': week,
+            'epiyear': year,
+            'territory_id': territory_id,
+            'dataset_id': dataset_id,
+            'scale_id': scale_id
+        }
+
+        if week == None or week == 0:
+            sql_param['epiweek'] = 53
+        if territory_id == None:
+            sql_param['territory_id'] = 0
+
+        sql = '''
+        SELECT
+            notification.epiweek AS epiweek,
+            notification.positive_cases AS "Testes positivos",
+            notification.flu_a AS "Influenza A",
+            notification.flu_b AS "Influenza B",
+            notification.vsr AS "VSR",
+            notification."ADNO" AS "Adenovirus",
+            notification."PARA1" AS "Parainfluenza 1",
+            notification."PARA2" AS "Parainfluenza 2",
+            notification."PARA3" AS "Parainfluenza 3",
+            notification.negative AS "Testes negativos",
+            notification.not_tested AS "Casos sem teste laboratorial",
+            notification.delayed AS "Casos aguardando resultado",
+            notification.testing_ignored AS "Casos sem informação laboratorial",
+            territory.name AS territory_name
+        FROM
+            (SELECT 
+                epiweek,
+                epiyear,
+                dataset_id,
+                scale_id,
+                gender,
+                positive_cases,
+                flu_a,
+                flu_b,
+                vsr,
+                "ADNO",
+                "PARA1",
+                "PARA2",
+                "PARA3",
+                negative,
+                not_tested,
+                delayed,
+                testing_ignored,
+                territory_id
+            FROM
+                clean_data_epiweek_weekly_incidence_w_situation
+            WHERE
+                epiyear=%(epiyear)s
+                AND dataset_id=%(dataset_id)s
+                AND territory_id=%(territory_id)s
+                AND scale_id=%(scale_id)s
+                AND gender='Total'
+                AND epiweek <= %(epiweek)s
+            ) as notification
+            LEFT JOIN territory
+                ON (notification.territory_id=territory.id)
+            WHERE 1=1
+        ORDER BY epiweek
+        ''' % sql_param
+
+        with self.conn.connect() as conn:
+            return pd.read_sql(sql, conn)

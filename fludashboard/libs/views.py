@@ -1,10 +1,12 @@
-from flask import render_template, Flask
+from flask import render_template, Flask, Response
 # local
+from ..settings import APP_AVAILABLE
 from .calc_flu_alert import (
     apply_filter_alert_by_epiweek,
-    calc_alert_rank_whole_year)
+    calc_alert_rank_whole_year
+)
+from .charts import ethio_ts
 from .flu_data import FluDB
-from ..settings import APP_AVAILABLE
 from .utils import cross_domain, calc_last_epiweek
 
 import numpy as np
@@ -442,3 +444,20 @@ def data__age_distribution(
 
     # the replace is used when there is no data in the df
     return ('index' + df.to_csv()).replace('""', '')
+
+
+@app.route(compose_data_url('year/etiological-agents'))
+@app.route(compose_data_url('year/epiweek/etiological-agents'))
+@app.route(compose_data_url('year/epiweek/territory_name/etiological-agents'))
+def etiological_agents(
+    dataset_id: str, scale_id: str, year: int,
+    epiweek: int=None, territory_name: str=None
+):
+    territory_id = fluDB.get_territory_id_from_name(territory_name)
+
+    df = FluDB().get_etiological_data(
+        dataset_id=dataset_id, scale_id=scale_id, year=year,
+        week=epiweek, territory_id=territory_id
+    )
+
+    return Response(ethio_ts(df, scale_id=scale_id, year=year))
