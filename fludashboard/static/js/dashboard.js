@@ -191,7 +191,7 @@ class Dashboard {
       weight: 1
     };
 
-    var etiological_url = [
+    var etiological_url = encodeURI([
         '.', 'data',
         dataset,
         scale,
@@ -199,10 +199,10 @@ class Dashboard {
         week,
         territoryName,
         'etiological-agents'
-    ].join('/');
+    ].join('/'));
 
     // opportunities chart
-    var opportunities_url = [
+    var opportunities_url = encodeURI([
         '.', 'data',
         dataset,
         scale,
@@ -210,7 +210,7 @@ class Dashboard {
         week,
         territoryName,
         'opportunities-boxplot'
-    ].join('/');
+    ].join('/'));
 
 
     if(week>0) {
@@ -254,7 +254,7 @@ class Dashboard {
         _this.sragTable.makeTable(dataset, scale, year, week, territoryName);
 
         // etiological chart
-        var etiological_url = [
+        var etiological_url = encodeURI([
             '.', 'data',
             dataset,
             scale,
@@ -262,11 +262,11 @@ class Dashboard {
             week,
             territoryName,
             'etiological-agents'
-        ].join('/');
+        ].join('/'));
         $('#etiological-chart').load(etiological_url);
 
         // opportunities chart
-        var opportunities_url = [
+        var opportunities_url = encodeURI([
             '.', 'data',
             dataset,
             scale,
@@ -274,7 +274,7 @@ class Dashboard {
             week,
             territoryName,
             'opportunities-boxplot'
-        ].join('/');
+        ].join('/'));
         $('#opportunities-chart').load(opportunities_url);
 
       }

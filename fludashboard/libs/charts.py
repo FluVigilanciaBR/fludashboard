@@ -10,6 +10,9 @@ import plotly.graph_objs as go
 from .episem import episem, lastepiday
 
 
+cf.set_config_file(theme='white')
+
+
 def ethio_ts(df=pd.DataFrame, scale_id=int, year=int):
     cols = [
         'Testes positivos',
