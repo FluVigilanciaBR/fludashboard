@@ -109,16 +109,18 @@ def opportunities_boxplot(df: pd.DataFrame, week: int=None):
 
     title = 'Distribuição de oportunidades %(week)s- %(name)s' % title_param
 
+    df_plot = df.iloc[:, :-1].dropna(how='all', axis=1)
+
     # Set ymax to higher upper fence:
-    q1 = df.iloc[:, :-1].quantile(.25, axis=0)
-    q3 = df.iloc[:, :-1].quantile(.75, axis=0)
-    ymax = (q3 + 3 * (q3 - q1)).max()
+    q1 = df_plot.quantile(.25, axis=0)
+    q3 = df_plot.quantile(.75, axis=0)
+    ymax = (q3 + 1 * (q3 - q1)).max()
 
     # Set bottom and right margin to avoid xaxis labels beeing cut off
-    figure = df.iplot(
+    figure = df_plot.iplot(
         kind='box',
-        boxpoints='outliers',
-        margin={'b': 130, 'r': 100},
+        boxpoints=False,
+        margin={'b': 130, 'r': 120},
         showlegend=False,
         title=title,
         yTitle='Dias',
