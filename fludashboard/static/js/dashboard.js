@@ -191,7 +191,7 @@ class Dashboard {
       weight: 1
     };
 
-    var etiological_url = [
+    var etiological_url = encodeURI([
         '.', 'data',
         dataset,
         scale,
@@ -199,7 +199,19 @@ class Dashboard {
         week,
         territoryName,
         'etiological-agents'
-    ].join('/');
+    ].join('/'));
+
+    // opportunities chart
+    var opportunities_url = encodeURI([
+        '.', 'data',
+        dataset,
+        scale,
+        year,
+        week,
+        territoryName,
+        'opportunities-boxplot'
+    ].join('/'));
+
 
     if(week>0) {
       var df = $.grep(_this.sragData, function(n,i){
@@ -217,6 +229,7 @@ class Dashboard {
     _this.sragAgeChart.plot(dataset, scale, year, week, territoryName);
     _this.sragTable.makeTable(dataset, scale, year, week, territoryName);
     $('#etiological-chart').load(etiological_url);
+    $('#opportunities-chart').load(opportunities_url);
   }
 
   /**
@@ -239,8 +252,9 @@ class Dashboard {
         _this.sragIncidenceChart.plot(dataset, scale, year, week, territoryName);
         _this.sragAgeChart.plot(dataset, scale, year, week, territoryName);
         _this.sragTable.makeTable(dataset, scale, year, week, territoryName);
+
         // etiological chart
-        var etiological_url = [
+        var etiological_url = encodeURI([
             '.', 'data',
             dataset,
             scale,
@@ -248,8 +262,21 @@ class Dashboard {
             week,
             territoryName,
             'etiological-agents'
-        ].join('/');
+        ].join('/'));
         $('#etiological-chart').load(etiological_url);
+
+        // opportunities chart
+        var opportunities_url = encodeURI([
+            '.', 'data',
+            dataset,
+            scale,
+            year,
+            week,
+            territoryName,
+            'opportunities-boxplot'
+        ].join('/'));
+        $('#opportunities-chart').load(opportunities_url);
+
       }
     );
 

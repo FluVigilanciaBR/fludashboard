@@ -52,6 +52,27 @@ class FluDB:
 
             return result[0]
 
+    def get_territory_from_name(self, state_name: str) -> int:
+        """
+
+        :param state_name:
+        :return:
+        """
+
+        state_name = state_name.upper()
+        with self.conn.connect() as conn:
+            sql = '''
+            SELECT * FROM territory 
+            WHERE UPPER(name)='%s'
+            ''' % state_name
+
+            result = conn.execute(sql).fetchone()
+
+            if not result:
+                raise Exception('Territory not found.')
+
+            return result
+
     def get_season_situation(self, df):
         """
 
@@ -572,9 +593,10 @@ class FluDB:
     def get_etiological_data(
         self, dataset_id: int, scale_id: int, year: int,
         week: int=None, territory_id: int=None
-    ):
+    ) -> pd.DataFrame:
         """
-        Generate timeseries for each ethiological agent and other relevant lab data
+        Generate timeseries for each ethiological agent and other relevant lab
+        data
 
         :param dataset_id: SRAG (1) or SRAGFLU (2) or OBITOFLU (3)
         :param scale_id: Incidence (1) or cases (2)
@@ -650,3 +672,84 @@ class FluDB:
 
         with self.conn.connect() as conn:
             return pd.read_sql(sql, conn)
+
+    def get_opportunities(
+        self, dataset_id: int, scale_id: int, year: int,
+        territory_type_id: int, week: int=None,
+        territory_id: int=None
+    ) -> pd.DataFrame:
+        """
+        Grab data for opportunity boxplots
+
+        :param dataset_id:
+        :param scale_id:
+        :param year: selected year
+        :param week: selected week. 0 or Nonoe for all
+        :param territory_id: territory. 0 or None for whole country
+        :param territory_type_id: territory type. None or 4 for whole country
+        :return pd.DataFrame:
+
+        """
+        sql_param = {
+            'dataset_id': dataset_id,
+            'scale_id': scale_id,
+            'epiweek': week,
+            'epiyear': year,
+            'territory_id': territory_id,
+            'territory_select': '',
+            'territory_name': '',
+            'territory_join': ''
+        }
+
+        territory_type2column = {
+            1: 'territory_id',
+            2: 'regional',
+            3: 'region'
+        }
+
+        if territory_id not in [0, None]:
+            sql_param['territory_name'] = ', territory.name AS territory_name'
+            sql_param['territory_column'] = territory_type2column[
+                territory_type_id
+            ]
+            sql_param[
+                'territory_select'
+            ] = '''AND %(territory_column)s = %(territory_id)s''' % sql_param
+            sql_param['territory_join'] = '''LEFT JOIN territory
+                ON (delay.%(territory_column)s=territory.id)
+            WHERE 1=1
+            ''' % sql_param
+
+        if week is None or week == 0:
+            sql_param['epiweek'] = 53
+
+        sql = '''
+        SELECT
+        delay.symptoms2notification as "Primeiros sintomas à notificação",
+        delay.symptoms2digitalization AS "Primeiros sintomas à digitalização",
+        delay.notification2digitalization AS "Notificação à digitalização",
+        delay.symptoms2antiviral AS "Primeiros sintomas ao tratamento",
+        delay.symptoms2sample AS "Primeiros sintomas à coleta",
+        delay.sample2ifi AS "Coleta a resultado de IFI",
+        delay.sample2PCR AS "Coleta a resultado de PCR",
+        delay.notification2closure AS "Notificação ao encerramento"        
+        %(territory_name)s
+        FROM
+            (SELECT * 
+            FROM
+                delay_table
+            WHERE
+                epiyear=%(epiyear)s
+                AND dataset_id=%(dataset_id)s
+                AND epiweek <= %(epiweek)s
+                %(territory_select)s
+            ) as delay
+            %(territory_join)s
+        ''' % sql_param
+
+        with self.conn.connect() as conn:
+            df = pd.read_sql(sql, conn)
+
+        if territory_id in [0, None]:
+            df['territory_name'] = 'Brasil'
+        return df

@@ -16,7 +16,6 @@ seaborn
 ggplot
 matplotlib
 plotly
-cufflinks
 
 # test
 flake8

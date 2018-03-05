@@ -5,7 +5,7 @@ from .calc_flu_alert import (
     apply_filter_alert_by_epiweek,
     calc_alert_rank_whole_year
 )
-from .charts import ethio_ts
+from .charts import ethio_ts, opportunities_boxplot
 from .flu_data import FluDB
 from .utils import cross_domain, calc_last_epiweek
 
@@ -461,3 +461,23 @@ def etiological_agents(
     )
 
     return Response(ethio_ts(df, scale_id=scale_id, year=year))
+
+
+@app.route(compose_data_url('year/opportunities-boxplot'))
+@app.route(compose_data_url('year/epiweek/opportunities-boxplot'))
+@app.route(compose_data_url('year/epiweek/territory_name/opportunities-boxplot'))
+def opportunities_boxplot_view(
+    dataset_id: str, scale_id: str, year: int,
+    epiweek: int=None, territory_name: str=None
+):
+    territory = fluDB.get_territory_from_name(territory_name)
+    territory_id = int(territory['id'])
+    territory_type_id = int(territory['territory_type_id'])
+
+    df = FluDB().get_opportunities(
+        dataset_id=dataset_id, scale_id=scale_id, year=year,
+        week=epiweek, territory_id=territory_id,
+        territory_type_id=territory_type_id
+    )
+
+    return Response(opportunities_boxplot(df, week=epiweek))

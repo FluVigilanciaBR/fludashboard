@@ -5,3 +5,4 @@ unidecode
 sqlalchemy
 psycopg2
 pyyaml
+cufflinks
