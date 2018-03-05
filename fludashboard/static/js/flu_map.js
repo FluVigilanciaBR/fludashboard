@@ -260,6 +260,10 @@ class SRAGMap {
             }
           }
 
+          if (territoryName == '') {
+            territoryName = 'Brasil'
+          }
+
           $('#selected-territory').val(territoryName);
 
           clickExternalTrigger(dataset, scale, year, territoryName, week);

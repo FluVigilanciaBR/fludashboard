@@ -104,10 +104,10 @@ class SRAGIncidenceChart{
   plot(dataset, scale, year, week, territoryName) {
     var _this = this;
     var y_label = '';
-    var url = [
+    var url = encodeURI([
         '.', 'data', dataset, scale, year, week,
         territoryName, 'weekly-incidence-curve'
-    ].join('/');
+    ].join('/'));
     var title = '';
 
     $(this.bindTo).empty();
@@ -260,10 +260,10 @@ class SRAGAgeChart{
   plot(dataset, scale, year, week, territoryName) {
     var _this = this;
     var y_label;
-    var url = [
+    var url = encodeURI([
         '.', 'data', dataset, scale, year, week,
         territoryName, 'age-distribution'
-    ].join('/');
+    ].join('/'));
 
     $(this.bindTo).empty();
 
