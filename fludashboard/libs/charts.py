@@ -5,6 +5,7 @@ import cufflinks as cf
 import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
+import colorlover as cl
 
 # local
 from .episem import episem, lastepiday
@@ -16,7 +17,6 @@ cf.set_config_file(theme='white')
 def ethio_ts(df=pd.DataFrame, scale_id=int, year=int):
     cols = [
         'Testes positivos',
-        'Testes negativos',
         'Influenza A',
         'Influenza B',
         'VSR',
@@ -24,18 +24,31 @@ def ethio_ts(df=pd.DataFrame, scale_id=int, year=int):
         'Parainfluenza 1',
         'Parainfluenza 2',
         'Parainfluenza 3',
-        'Casos sem teste laboratorial',
-        'Casos aguardando resultado',
-        'Casos sem informação laboratorial'
     ]
     trace = []
-    for i, col in enumerate(cols):
+
+    if scale_id == 2:
+        ytitle = 'Casos'
+    else:
+        ytitle = 'Incidência'
+
+    trace.append(
+        go.Scatter(
+            x=df['epiweek'],
+            y=df[cols[0]],
+            name=cols[0],
+            mode='lines',
+        )
+    )
+
+    for i, col in enumerate(cols[1:]):
         trace.append(
             go.Scatter(
                 x=df['epiweek'],
                 y=df[col],
-                name='',
-                mode='lines'
+                name=ytitle,
+                mode='lines',
+                showlegend=False
             )
         )
 
@@ -44,48 +57,57 @@ def ethio_ts(df=pd.DataFrame, scale_id=int, year=int):
         rows=nrows,
         cols=1,
         print_grid=False,
-        subplot_titles=('Testes positivos',
-                        'Testes negativos',
+        subplot_titles=('Situação dos exames',
                         'Influenza A',
                         'Influenza B',
                         'VSR',
                         'Adenovirus',
                         'Parainfluenza 1',
                         'Parainfluenza 2',
-                        'Parainfluenza 3',
-                        'Casos sem teste laboratorial',
-                        'Casos aguardando resultado',
-                        'Casos sem informação laboratorial'))
+                        'Parainfluenza 3'))
 
     for i in range(1, (nrows + 1)):
         fig.append_trace(trace[i - 1], i, 1)
 
+    # Add extra lines to first subplot:
+    extra_cols = ['Testes negativos',
+                  'Casos sem teste laboratorial',
+                  'Casos aguardando resultado',
+                  'Casos sem informação laboratorial']
+    for i, col in enumerate(extra_cols):
+        fig.append_trace(
+            go.Scatter(
+                x=df['epiweek'],
+                y=df[col],
+                name=col,
+                mode='lines',
+                line=dict(color=cl.scales['12']['qual']['Paired'][-i])
+            ), 1, 1)
+
     # X-axis title and range:
     lastepiweek = int(episem(lastepiday(year), out='W'))
+    extra_cols.extend(['Testes positivos'])
+    ymax = [
+        max(5*np.ceil(df[extra_cols].max().max()/5), 5),
+        max(5*np.ceil(df[cols[1:]].max().max()/5), 5)
+    ]
     for i in range(1, (nrows + 1)):
         xaxis = 'xaxis%s' % i
         yaxis = 'yaxis%s' % i
         fig['layout'][xaxis].update(range=[1, lastepiweek])
-        ymax = max(5 * np.ceil(df[cols[i - 1]].max() / 5), 5)
-        fig['layout'][yaxis].update(range=[0, ymax], rangemode='nonnegative')
+        fig['layout'][yaxis].update(range=[0, ymax[min(1, i-1)]], rangemode='nonnegative')
 
     fig['layout']['xaxis%s' % nrows].update(title='Semana epidemiológica',
                                             zeroline=True, showline=True)
 
-    if scale_id == 1:
-        ytitle = 'Casos'
-    else:
-        ytitle = 'Incidência (por 100mil hab.)'
-    i = int(nrows / 2)
+    i = int(nrows/2)
     fig['layout']['yaxis%s' % i].update(title=ytitle)
 
     territory_lbl = df['territory_name'].unique()[0]
     fig['layout'].update(
         height=1600,
         width=800,
-        title='Exames laboratoriais - %s' % territory_lbl,
-        showlegend=False,
-        # yaxis='Teste'
+        title='Exames laboratoriais - %s' % territory_lbl
     )
 
     return _plot_html(
