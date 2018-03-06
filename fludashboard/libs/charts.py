@@ -104,10 +104,13 @@ def ethio_ts(df=pd.DataFrame, scale_id=int, year=int):
     fig['layout']['yaxis%s' % i].update(title=ytitle)
 
     territory_lbl = df['territory_name'].unique()[0]
+    # title = 'Exames laboratoriais - %s' % territory_lbl
+    title = None
+
     fig['layout'].update(
         height=1600,
         width=800,
-        title='Exames laboratoriais - %s' % territory_lbl
+        title=title
     )
 
     return _plot_html(
@@ -132,7 +135,8 @@ def opportunities_boxplot(df: pd.DataFrame, week: int=None):
     if week not in [0, None]:
         title_param['week'] = 'até a semana epidemiológica %s ' % week
 
-    title = 'Distribuição de oportunidades %(week)s- %(name)s' % title_param
+    # title = 'Distribuição de oportunidades %(week)s- %(name)s' % title_param
+    title = None
 
     df_plot = df.iloc[:, :-1].dropna(how='all', axis=1)
 
