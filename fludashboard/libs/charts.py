@@ -103,19 +103,11 @@ def ethio_ts(df=pd.DataFrame, scale_id=int, year=int):
     i = int(nrows/2)
     fig['layout']['yaxis%s' % i].update(title=ytitle)
 
-    territory_lbl = df['territory_name'].unique()[0]
-    # title = 'Exames laboratoriais - %s' % territory_lbl
-    title = None
-
-    fig['layout'].update(
-        height=1600,
-        width=800,
-        title=title
-    )
+    fig['layout'].update(margin={'t': 50, 'l': 50})
 
     return _plot_html(
         figure_or_data=fig, config={}, validate=True,
-        default_width='100%', default_height=200, global_requirejs=''
+        default_width='100%', default_height=1600, global_requirejs=''
     )[0]
 
 
@@ -135,9 +127,6 @@ def opportunities_boxplot(df: pd.DataFrame, week: int=None):
     if week not in [0, None]:
         title_param['week'] = 'até a semana epidemiológica %s ' % week
 
-    # title = 'Distribuição de oportunidades %(week)s- %(name)s' % title_param
-    title = None
-
     df_plot = df.iloc[:, :-1].dropna(how='all', axis=1)
 
     # Set ymax to higher upper fence:
@@ -149,14 +138,18 @@ def opportunities_boxplot(df: pd.DataFrame, week: int=None):
     figure = df_plot.iplot(
         kind='box',
         boxpoints=False,
-        margin={'b': 130, 'r': 120},
+        margin={'b': 130,
+                't': 50,
+                'r': 120,
+                'l': 50
+        },
         showlegend=False,
-        title=title,
         yTitle='Dias',
         asFigure=True
     )
 
     figure['layout']['yaxis1'].update(range=[0, ymax])
+    figure['layout']['xaxis1'].update(tickangle=30)
 
     return _plot_html(
         figure_or_data=figure, config={}, validate=True,
