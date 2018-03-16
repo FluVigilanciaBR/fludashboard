@@ -48,13 +48,17 @@
                 <input
                     id="btn-detailed"
                     type="button" value="Detalhado (semana)"
-                    class="tab">
+                    class="view_name tab">
                 <input
                     id="btn-resumed"
                     type="button" value="Resumido (ano)"
-                    class="tab selected">
+                    class="view_name tab">
+                <input
+                    id="btn-contingency"
+                    type="button" value="Plano de Contingência atual"
+                    class="view_name tab selected">
               </div>
-              <div class="criteria-box">
+              <div class="criteria-box" id="div-dataset">
                 <label>Conjunto de dados:</label> <br/>
                 <select name="dataset" id="dataset">
                   <option value="1" selected="selected">SRAG</option>
@@ -62,7 +66,7 @@
                   <option value="3">OBITOFLU</option>
                 </select>
               </div>
-              <div class="criteria-box">
+              <div class="criteria-box" id="div-scale">
                 <label>Escala:</label> <br/>
                 <select name="scale" id="scale">
                   <option value="1" selected="selected">INCIDÊNCIA</option>
@@ -88,7 +92,7 @@
                        value="2"
                 > Por padrão de circulação
               </div>
-              <div class="criteria-box">
+              <div class="criteria-box" id="div-year">
                 <strong>Ano:</strong>
                 <br/>
                 <select id='year'>

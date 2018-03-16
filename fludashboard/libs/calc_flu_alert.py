@@ -2,6 +2,10 @@
 
 
 """
+# local
+from .migration import dataset_id as dataset_id_list
+from .flu_data import FluDB
+
 import numpy as np
 import pandas as pd
 
@@ -63,3 +67,95 @@ def apply_filter_alert_by_epiweek(
     df_alert = df_alert.assign(alert=alert_col)
 
     return df_alert
+
+
+def contingency_alert(dataset_id: int, year: int, territory_id: int):
+    """
+
+    :param dataset_id:
+    :param year:
+    :param territory_id:
+    :return:
+    """
+    df = FluDB().get_data(
+        dataset_id=dataset_id, scale_id=1, year=year,
+        territory_id=territory_id
+    )
+
+    # If not obitoflu dataset (3), uses last 4 weeks, o.w. use 3:
+    if dataset_id < 3:
+        wdw = 4
+    else:
+        wdw = 3
+
+    alert_zone = any(df.estimated_cases[-wdw:] > df.typical_high[-wdw:])
+    data_increase = all(
+        df.estimated_cases[-wdw:].values -
+        df.estimated_cases[-(wdw + 1):-1].values > 0
+    )
+
+    dataset_from_id = dict(
+        zip(dataset_id_list.values(), dataset_id_list.keys())
+    )
+
+    print('''
+    Data: %s
+    Entered alert zone? %s
+    Steady increase in the window of interest? %s
+    Trigger alert? %s
+    ''' % (dataset_from_id[dataset_id], alert_zone, data_increase,
+           alert_zone & data_increase)
+          )
+
+    return alert_zone & data_increase
+
+
+contingency_name_from_id = {
+    0: 'Nível basal',
+    1: 'Nível 0',
+    2: 'Nível 1',
+    3: 'Nível 2',
+}
+
+
+def alert_trigger(dataset_id: int, year: int, territory_id: int):
+    """
+
+    :param dataset_id:
+    :param year:
+    :param territory_id:
+    :return:
+    """
+    df = FluDB().get_data(
+        dataset_id=dataset_id, scale_id=1, year=year,
+        territory_id=territory_id
+    )
+
+    # If not obitoflu dataset (3), uses last 4 weeks, o.w. use 3:
+    if dataset_id < 3:
+        wdw = 4
+    else:
+        wdw = 3
+
+    alert_zone = any(df.estimated_cases[-wdw:] > df.typical_high[-wdw:])
+    data_increase = all(
+        df.estimated_cases[-wdw:].values -
+        df.estimated_cases[-(wdw + 1):-1].values > 0
+    )
+    return alert_zone & data_increase
+
+
+def contingency_level(year: int, territory_id: int):
+    """
+
+    :param year:
+    :param territory_id:
+    :return:
+    """
+    if alert_trigger(dataset_id=3, year=year, territory_id=territory_id):
+        return 3
+    elif alert_trigger(dataset_id=2, year=year, territory_id=territory_id):
+        return 2
+    elif alert_trigger(dataset_id=1, year=year, territory_id=territory_id):
+        return 1
+    return 0
