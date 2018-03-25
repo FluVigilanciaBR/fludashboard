@@ -177,7 +177,10 @@ class SRAGMap {
     if (dataset == 1) {
       title = title + DATASET_TITLE[dataset];
     } else {
-      title = title + DATASET_TITLE[dataset] + " (diagnóstico laboratorial ou clínico-epidemiológico)";
+      title = (
+        title + DATASET_TITLE[dataset] +
+        " (diagnóstico laboratorial ou clínico-epidemiológico)"
+      );
     }
     $('#map-incidence-case-title').text(title);
 
@@ -496,7 +499,9 @@ class SRAGMap {
         });
 
         layer.setStyle({
-          fillColor: _this.fluColors[view_name][_this.getAlertLevelForWholeYear(alerts)]
+          fillColor: (
+            _this.fluColors[view_name][_this.getAlertLevelForWholeYear(alerts)]
+          )
         });
       });
     }

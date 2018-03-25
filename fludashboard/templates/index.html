@@ -2,9 +2,11 @@
 <html>
 <head>
   <title>Situação da Gripe</title>
-  <link rel="stylesheet" href="./static/libs/bootstrap/bootstrap.min.css">
-  <link rel="stylesheet" href="./static/libs/dc/dc.min.css">
-  <link rel="stylesheet" href="./static/css/custom.css">
+  <link rel="stylesheet" href="./static/libs/bootstrap/bootstrap.min.css" />
+  <link rel="stylesheet" href="./static/libs/dc/dc.min.css" />
+  <link rel="stylesheet" href="./static/css/custom.css" />
+  <link rel="stylesheet" href="./static/css/charts.css" />
+  <link rel="stylesheet" href="./static/css/tables.css" />
   <link rel="stylesheet" href="./static/libs/leaflet/leaflet.css"/>
   <link rel="stylesheet" href="./static/libs/c3/c3.min.css"/>
   <link rel="stylesheet" href="./static/libs/datatables/datatables.min.css"/>
@@ -20,7 +22,7 @@
 
   </style>
 </head>
-<body>
+<body class="contingency-view">
 
 <div class="navbar navbar-dark bg-primary" role="navigation">
   <iframe src="./super-header" class="super-header" scrolling="no"></iframe>
@@ -136,7 +138,7 @@
         <strong>N&iacute;vel de atividade</strong><br/>
         <svg width="120" height="90">
           <rect x="10" y="15" height="10" width="10"
-                class="legend-square alert-green"/>
+                class="legend-square alert-low"/>
           <text x="20" y="20" transform="translate(8,4)">Baixa</text>
 
           <rect x="10" y="35" height="10" width="10"

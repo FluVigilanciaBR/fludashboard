@@ -38,30 +38,8 @@ iframe.super-header {
     display: none!important;
 }
 
-.chart {
-    margin-left:90px;
-}
-.table-hover tbody tr:hover td, .table-hover tbody tr:hover th {
-    background-color: #f5f5f5;
-}
-.table th, .table td {
-    text-align: left;
-    vertical-align: top;
-    border-top: 1px solid #ddd;
-}
-.table td {
-    padding: 2px 2px 2px 20px!important;
-    line-height: 12px!important;
-    font-size: 12px!important;
-}
-
 input[type=search] {
     border: 1px solid #dfdfdf!important;
-}
-
-user agent stylesheettd, th {
-    display: table-cell;
-    vertical-align: inherit;
 }
 
 input.tab{
@@ -76,39 +54,6 @@ input.tab{
 input.tab.selected {
     font-weight: bold;
     color: #333333;
-}
-
-.alert-red {
-  background: red;
-  fill: red;
-}
-
-.alert-orange {
-  background: #ff7700;
-  fill: #ff7700;
-}
-
-.alert-yellow {
-  background: yellow;
-  fill: yellow;
-}
-
-.alert-green {
-  background: green;
-  fill: green;
-}
-
-.chart-extra-text{
-  font-size: 10px;
-  background-color:rgba(255, 255, 255, 0.5);
-  padding: 5px;
-}
-
-#chart-incidence-activity-level-panel {
-  position: absolute;
-  z-index: 100;
-  padding: 10px;
-  margin-left: 80px;
 }
 
 .criteria-box {
@@ -132,92 +77,4 @@ input.tab.selected {
 .message-box-error {
     vertical-align: middle!important;
     text-align: center!important;
-}
-
-
-/* DC / C3 */
-
-.dc-chart g.row text {
-    fill: black;
-    font-size: 12px;
-}
-
-.c3-region.alert-red {
-  fill: red;
-}
-
-.c3-line-value {
-  stroke-width: 2px!important;
-}
-
-.c3-line-very-high-threshold,
-.c3-line-high-threshold,
-.c3-line-pre-epidemic-threshold {
-  stroke-width: 2px!important;
-  stroke-dasharray: 10,10;
-}
-.c3-line-estimated-cases {
-  stroke-width: 2px!important;
-  //stroke-dasharray: 4,4;
-}
-
-.c3-line-ci-lower, .c3-line-ci-upper  {
-  stroke-width: 2px!important;
-  stroke-dasharray: 4,4;
-}
-
-.c3-shapes.c3-shapes-typical-very-high.c3-lines.c3-lines-typical-very-high > path {
-  stroke: rgba(255, 0, 0, 255) !important;
-  opacity: 0 !important;
-}
-
-.c3-lines-typical-high {
-  opacity: 0 !important;
-}
-.c3-lines-typical-median {
-  opacity: 0 !important;
-}
-.c3-lines-typical-low {
-  opacity: 0 !important;
-}
-
-.c3-area {
-  opacity: 0.5 !important;
-}
-
-.c3-bar {
-  opacity: 0.8 !important;
-}
-
-.c3-legend-item-value line{
-    stroke-width: 2px!important;
-}
-
-.c3-legend-item-estimated-cases line {
-    stroke-width: 2px!important;
-}
-
-.c3-legend-item-pre-epidemic-threshold line {
-    stroke-width: 2px!important;
-    stroke-dasharray: 2;
-}
-
-.c3-legend-item-high-threshold line {
-    stroke-width: 2px!important;
-    stroke-dasharray: 2;
-}
-
-.c3-legend-item-very-high-threshold line {
-    stroke-width: 2px!important;
-    stroke-dasharray: 2;
-}
-
-.c3-legend-item-ci-lower line {
-    stroke-width: 2px!important;
-    stroke-dasharray: 2;
-}
-
-.c3-legend-item-ci-upper line {
-    stroke-width: 2px!important;
-    stroke-dasharray: 2;
 }

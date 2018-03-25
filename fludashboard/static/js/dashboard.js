@@ -63,6 +63,11 @@ class Dashboard {
       _this.changeWeek();
     });
 
+    $('#btn-contingency').click(function(){
+      _this.prepare_contingency_dashboard();
+      _this.changeWeek();
+    });
+
     // week
     d3.select('#week').on('change', function(){_this.changeWeek();});
     $('#week').on('input', function(){
@@ -123,6 +128,10 @@ class Dashboard {
 
 
   prepare_detailed_dashboard() {
+      $('body').addClass('detailed-view');
+      $('body').removeClass('resumed-view');
+      $('body').removeClass('contingency-view');
+
       $('#week').attr('min', 1);
       $('#week').val(this.lastWeek);
       $('#div-week').removeClass('hidden');
@@ -138,6 +147,10 @@ class Dashboard {
   }
 
   prepare_resumed_dashboard() {
+      $('body').removeClass('detailed-view');
+      $('body').addClass('resumed-view');
+      $('body').removeClass('contingency-view');
+
       $('#div-week').addClass('hidden');
       $('#div-year').removeClass('hidden');
       $('#div-dataset').removeClass('hidden');
@@ -160,6 +173,10 @@ class Dashboard {
   }
 
   prepare_contingency_dashboard() {
+      $('body').removeClass('detailed-view');
+      $('body').removeClass('resumed-view');
+      $('body').addClass('contingency-view');
+
       $('#div-week').addClass('hidden');
       $('#div-year').addClass('hidden');
       $('#div-dataset').addClass('hidden');

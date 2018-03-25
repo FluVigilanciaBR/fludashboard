@@ -98,7 +98,7 @@ class FluDB:
         elif se.epidemic_level >= 1:
             return 2  # 'yellow'
         # else
-        return 1  # 'green'
+        return 1  # 'green' or 'white'
 
     def group_data_by_season(self, df, df_age_dist=None, season=None):
         """
@@ -135,10 +135,12 @@ class FluDB:
             df_tmp.loc[df_tmp.epiyear == season, 'situation_id'] = 3
 
         if df_age_dist is not None:
-            tgt_cols = ['territory_id', 'territory_name', 'epiyear', 'gender',
-                        'value', 'years_lt_2', 'years_2_4', 'years_0_4', 'years_5_9', 'years_10_19',
-                        'years_20_29', 'years_30_39', 'years_40_49', 'years_50_59',
-                        'years_60_or_more']
+            tgt_cols = [
+                'territory_id', 'territory_name', 'epiyear', 'gender',
+                'value', 'years_lt_2', 'years_2_4', 'years_0_4', 'years_5_9',
+                'years_10_19', 'years_20_29', 'years_30_39', 'years_40_49',
+                'years_50_59', 'years_60_or_more'
+            ]
 
             df_by_season = df_age_dist[tgt_cols].groupby([
                 'territory_id', 'territory_name', 'epiyear', 'gender'
@@ -620,53 +622,53 @@ class FluDB:
 
         sql = '''
         SELECT
-            notification.epiweek AS epiweek,
-            notification.positive_cases AS "Testes positivos",
-            notification.flu_a AS "Influenza A",
-            notification.flu_b AS "Influenza B",
-            notification.vsr AS "VSR",
-            notification."ADNO" AS "Adenovirus",
-            notification."PARA1" AS "Parainfluenza 1",
-            notification."PARA2" AS "Parainfluenza 2",
-            notification."PARA3" AS "Parainfluenza 3",
-            notification.negative AS "Testes negativos",
-            notification.not_tested AS "Casos sem teste laboratorial",
-            notification.delayed AS "Casos aguardando resultado",
-            notification.testing_ignored AS "Casos sem informação laboratorial",
-            territory.name AS territory_name
+          notification.epiweek AS epiweek,
+          notification.positive_cases AS "Testes positivos",
+          notification.flu_a AS "Influenza A",
+          notification.flu_b AS "Influenza B",
+          notification.vsr AS "VSR",
+          notification."ADNO" AS "Adenovirus",
+          notification."PARA1" AS "Parainfluenza 1",
+          notification."PARA2" AS "Parainfluenza 2",
+          notification."PARA3" AS "Parainfluenza 3",
+          notification.negative AS "Testes negativos",
+          notification.not_tested AS "Casos sem teste laboratorial",
+          notification.delayed AS "Casos aguardando resultado",
+          notification.testing_ignored AS "Casos sem informação laboratorial",
+          territory.name AS territory_name
         FROM
-            (SELECT 
-                epiweek,
-                epiyear,
-                dataset_id,
-                scale_id,
-                gender,
-                positive_cases,
-                flu_a,
-                flu_b,
-                vsr,
-                "ADNO",
-                "PARA1",
-                "PARA2",
-                "PARA3",
-                negative,
-                not_tested,
-                delayed,
-                testing_ignored,
-                territory_id
-            FROM
-                clean_data_epiweek_weekly_incidence_w_situation
-            WHERE
-                epiyear=%(epiyear)s
-                AND dataset_id=%(dataset_id)s
-                AND territory_id=%(territory_id)s
-                AND scale_id=%(scale_id)s
-                AND gender='Total'
-                AND epiweek <= %(epiweek)s
-            ) as notification
-            LEFT JOIN territory
-                ON (notification.territory_id=territory.id)
-            WHERE 1=1
+          (SELECT 
+            epiweek,
+            epiyear,
+            dataset_id,
+            scale_id,
+            gender,
+            positive_cases,
+            flu_a,
+            flu_b,
+            vsr,
+            "ADNO",
+            "PARA1",
+            "PARA2",
+            "PARA3",
+            negative,
+            not_tested,
+            delayed,
+            testing_ignored,
+            territory_id
+          FROM
+            clean_data_epiweek_weekly_incidence_w_situation
+          WHERE
+            epiyear=%(epiyear)s
+            AND dataset_id=%(dataset_id)s
+            AND territory_id=%(territory_id)s
+            AND scale_id=%(scale_id)s
+            AND gender='Total'
+            AND epiweek <= %(epiweek)s
+          ) as notification
+        LEFT JOIN territory
+            ON (notification.territory_id=territory.id)
+        WHERE 1=1
         ORDER BY epiweek
         ''' % sql_param
 
