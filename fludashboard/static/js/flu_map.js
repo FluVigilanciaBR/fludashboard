@@ -170,10 +170,12 @@ class SRAGMap {
   ) {
     var _this = this;
     var title = '';
+    var level_col = (view_name == 'contingency') ? 'contingency' : 'alert';
 
     title = (scale == 1) ?
         'Mapa de incidência de ':
         'Mapa de situação de ';
+
     if (dataset == 1) {
       title = title + DATASET_TITLE[dataset];
     } else {
@@ -313,7 +315,7 @@ class SRAGMap {
 
           if (weekState != undefined) {
             styleProperties['fillColor'] = (
-                _this.fluColors[view_name][weekState['alert']]
+                _this.fluColors[view_name][weekState[level_col]]
             );
           }
 
@@ -346,7 +348,7 @@ class SRAGMap {
             })[0];
 
             if (weekState != undefined) {
-              styleProperties['fillColor'] = _this.fluColors[weekState['alert']];
+              styleProperties['fillColor'] = _this.fluColors[weekState[level_col]];
             }*/
 
             if (selectedTerritory==_rid) {
@@ -378,7 +380,7 @@ class SRAGMap {
             })[0];
 
             if (weekState != undefined) {
-              styleProperties['fillColor'] = _this.fluColors[weekState['alert']];
+              styleProperties['fillColor'] = _this.fluColors[weekState[level_col]];
             }*/
 
             if (selectedTerritory==_rid) {
@@ -420,6 +422,7 @@ class SRAGMap {
     var state = $('#selected-territory').val();
     var week = parseInt($('#week').val() || 0);
     var view_name = $('input.view_name.selected').attr('id').substring(4,);
+    var level_col = (view_name == 'contingency') ? 'contingency' : 'alert';
     var styleProperties= {
       fillColor: '#ffffff',
       color: '#333333',
@@ -459,7 +462,7 @@ class SRAGMap {
         if (df_alert_state != undefined) {
           layer.setStyle({
             fillColor: (
-                _this.fluColors[view_name][df_alert_state['alert']]
+                _this.fluColors[view_name][df_alert_state[level_col]]
             )
           });
         }
@@ -495,7 +498,7 @@ class SRAGMap {
         });
 
         $(df_alert_state).each(function(i){
-          ++alerts[df_alert_state[i]['alert']];
+          ++alerts[df_alert_state[i][level_col]];
         });
 
         layer.setStyle({

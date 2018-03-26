@@ -144,6 +144,7 @@ class Dashboard {
       $('#btn-detailed').addClass('selected');
 
       $('.period-display').text('na semana epidemiológica');
+      $('#map-incidence-case-title').text('Mapa de incidência de SRAG');
   }
 
   prepare_resumed_dashboard() {
@@ -170,6 +171,7 @@ class Dashboard {
       $('#btn-resumed').addClass('selected');
 
       $('.period-display').text('no ano epidemiológico');
+      $('#map-incidence-case-title').text('Mapa de incidência de SRAG');
   }
 
   prepare_contingency_dashboard() {
@@ -191,11 +193,14 @@ class Dashboard {
       $('#week').attr('min', 0);
       $('#week').val(0);
 
+      $('#year').val($('#year option:first').val());
+
       $('#btn-detailed').removeClass('selected');
       $('#btn-resumed').removeClass('selected');
       $('#btn-contingency').addClass('selected');
 
       $('.period-display').text('no ano epidemiológico');
+      $('#map-incidence-case-title').text('Mapa de Plano de Contingência');
   }
 
   /**

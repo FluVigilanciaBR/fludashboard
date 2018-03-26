@@ -9,6 +9,15 @@ from .flu_data import FluDB
 import numpy as np
 import pandas as pd
 
+contingency_name_from_id = {
+    0: 'Nível basal',
+    1: 'Nível 0',
+    2: 'Nível 1',
+    3: 'Nível 2',
+}
+
+db = FluDB()
+
 
 def get_season_level(se):
     """
@@ -47,11 +56,12 @@ def calc_alert_rank_whole_year(se):
 
 
 def apply_filter_alert_by_epiweek(
-    df: pd.DataFrame, epiweek: int=None
+    df: pd.DataFrame, view_name: str, epiweek: int=None
 ):
     """
 
     :param df:
+    :param view_name:
     :param epiweek:
     :return:
     """
@@ -62,14 +72,38 @@ def apply_filter_alert_by_epiweek(
 
     df_alert = df[mask].copy().reset_index()
 
-    # alert
+    # contingency alert
+    contingency_alert = prepare_contingency_level(df_alert)
+    contingency_col = df_alert.T.apply(
+        lambda se: contingency_alert[se.territory_id]
+    )
+    # alert level
     alert_col = df_alert.T.apply(get_season_level)
-    df_alert = df_alert.assign(alert=alert_col)
 
-    return df_alert
+    return df_alert.assign(alert=alert_col, contingency=contingency_col)
 
 
-def contingency_alert(dataset_id: int, year: int, territory_id: int):
+def prepare_contingency_level(df: pd.DataFrame):
+    epiyear = df.epiyear.max()
+    territories_id = df.territory_id.unique()
+    alerts = {}
+
+    for territory_id in territories_id:
+        alerts[territory_id] = contingency_level(epiyear, territory_id)
+
+    return alerts
+
+
+def get_contingency_level(se):
+    """
+
+    :param se: pd.Series
+    :return: int
+    """
+    return contingency_level(se.epiyear, se.territory_id)
+
+
+def show_contingency_alert(dataset_id: int, year: int, territory_id: int):
     """
 
     :param dataset_id:
@@ -77,7 +111,7 @@ def contingency_alert(dataset_id: int, year: int, territory_id: int):
     :param territory_id:
     :return:
     """
-    df = FluDB().get_data(
+    df = db.get_data(
         dataset_id=dataset_id, scale_id=1, year=year,
         territory_id=territory_id
     )
@@ -104,18 +138,10 @@ def contingency_alert(dataset_id: int, year: int, territory_id: int):
     Steady increase in the window of interest? %s
     Trigger alert? %s
     ''' % (dataset_from_id[dataset_id], alert_zone, data_increase,
-           alert_zone & data_increase)
-          )
+       alert_zone & data_increase)
+    )
 
     return alert_zone & data_increase
-
-
-contingency_name_from_id = {
-    0: 'Nível basal',
-    1: 'Nível 0',
-    2: 'Nível 1',
-    3: 'Nível 2',
-}
 
 
 def alert_trigger(dataset_id: int, year: int, territory_id: int):
@@ -126,7 +152,7 @@ def alert_trigger(dataset_id: int, year: int, territory_id: int):
     :param territory_id:
     :return:
     """
-    df = FluDB().get_data(
+    df = db.get_data(
         dataset_id=dataset_id, scale_id=1, year=year,
         territory_id=territory_id
     )

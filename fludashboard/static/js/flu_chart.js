@@ -24,7 +24,7 @@ FLU_COLORS = {
         'typical_high': '#ff9900',
         'typical_very_high': '#ff0000'
     }, 'contingency':{
-        'typical_low': '#ffffff',
+        'typical_low': '#00ff00',
         'typical_medium': '#ffff00',
         'typical_high': '#ff9900',
         'typical_very_high': '#ff0000'

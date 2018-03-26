@@ -111,7 +111,8 @@ def app_help():
 
 @app.route(compose_data_url('year/territory_type_id'))
 def get_data(
-    view_name: str, dataset_id: int, scale_id: str, year: int, territory_type_id: int
+    view_name: str, dataset_id: int, scale_id: str, year: int,
+    territory_type_id: int
 ):
     """
     :param view_name:
@@ -125,7 +126,9 @@ def get_data(
         dataset_id=dataset_id, scale_id=scale_id, year=year,
         territory_type_id=territory_type_id, show_historical_weeks=False
     )
-    return apply_filter_alert_by_epiweek(df).to_json(orient='records')
+    return apply_filter_alert_by_epiweek(
+        df, view_name
+    ).to_json(orient='records')
 
 
 @app.route(compose_data_url('year/epiweek/weekly-incidence-curve'))
@@ -246,7 +249,7 @@ def data__incidence_levels(
     ]
 
     # prepare data for the whole year
-    df = apply_filter_alert_by_epiweek(df=df)
+    df = apply_filter_alert_by_epiweek(df=df, view_name=view_name)
 
     low_level = df[df.alert == 1].count().low_level
     epidemic_level = df[df.alert == 2].count().epidemic_level
