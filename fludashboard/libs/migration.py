@@ -136,16 +136,17 @@ contingency_name_from_id = {
 }
 
 
-def update_data_files(update_data: bool):
+def update_data_files(force: bool):
     path_data = os.path.join(PATH, 'data')
 
-    update_params = '-nc' if not update_data else '-N'
+    update_params = '-nc' if not force else '-N'
     wget_prefix = (
         ('wget %s ' % update_params) +
         'https://raw.githubusercontent.com/FluVigilanciaBR/data/master/data'
     )
 
-    command = '''cd %(path_data)s && \
+    command = '''cd %(path_data)s; \
+    %(wget_prefix)s/br-states.json; \
     %(wget_prefix)s/clean_data_epiweek-weekly-incidence_w_situation.csv && \
     %(wget_prefix)s/current_estimated_values.csv && \
     %(wget_prefix)s/historical_estimated_values.csv && \
@@ -551,5 +552,5 @@ def migrate_from_csv_to_psql():
 
 
 if __name__ == '__main__':
-    update_data_files(True)
+    update_data_files(force=True)
     migrate_from_csv_to_psql()
