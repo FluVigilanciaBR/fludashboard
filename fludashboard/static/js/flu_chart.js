@@ -12,6 +12,25 @@ DATASET_TITLE = {
     3: 'Óbitos por Influenza'
 };
 
+FLU_COLORS = {
+    'resumed': {
+        'typical_low': '#00ff00',
+        'typical_medium': '#ffff00',
+        'typical_high': '#ff9900',
+        'typical_very_high': '#ff0000'
+    }, 'detailed': {
+        'typical_low': '#00ff00',
+        'typical_medium': '#ffff00',
+        'typical_high': '#ff9900',
+        'typical_very_high': '#ff0000'
+    }, 'contingency':{
+        'typical_low': '#00ff00',
+        'typical_medium': '#ffff00',
+        'typical_high': '#ff9900',
+        'typical_very_high': '#ff0000'
+    }
+};
+
 /**
  * SRAGIncidenceChart is used to show Incidence Flu Chart.
   */
@@ -34,9 +53,10 @@ class SRAGIncidenceChart{
    * @param {number} week - SRAG incidence week (e.g. 2).
    * @param {string} territoryName - Federal state name (e.g. "Acre").
    */
-  displayInfo(dataset, scale, year, week, territoryName) {
+  displayInfo(view_name, dataset, scale, year, week, territoryName) {
     var url = [
-        '.', 'data', dataset, scale, year, week, territoryName, 'levels'
+        '.', 'data', view_name, dataset, scale,
+        year, week, territoryName, 'levels'
     ].join('/');
 
     $.getJSON({
@@ -101,11 +121,11 @@ class SRAGIncidenceChart{
    * @param {string} territoryName- Federal state name (e.g. "Acre").
    * @return {object} - Chart object.
    */
-  plot(dataset, scale, year, week, territoryName) {
+  plot(view_name, dataset, scale, year, week, territoryName) {
     var _this = this;
     var y_label = '';
     var url = encodeURI([
-        '.', 'data', dataset, scale, year, week,
+        '.', 'data', view_name, dataset, scale, year, week,
         territoryName, 'weekly-incidence-curve'
     ].join('/'));
     var title = '';
@@ -162,10 +182,10 @@ class SRAGIncidenceChart{
           very_high_threshold: 'line'
         },
         colors: {
-          typical_low: '#00ff00',
-          typical_median: '#ffff00',
-          typical_high: '#ff9900',
-          typical_very_high: '#ff0000',
+          typical_low: FLU_COLORS[view_name]['typical_low'],
+          typical_median: FLU_COLORS[view_name]['typical_medium'],
+          typical_high: FLU_COLORS[view_name]['typical_high'],
+          typical_very_high: FLU_COLORS[view_name]['typical_very_high'],
           value: '#000000',
           pre_epidemic_threshold: '#00ff00',
           high_threshold: '#0000ff',
@@ -231,7 +251,7 @@ class SRAGIncidenceChart{
       }
     });
 
-    this.displayInfo(dataset, scale, year, week, territoryName);
+    this.displayInfo(view_name, dataset, scale, year, week, territoryName);
 
     return chart;
   }
@@ -257,11 +277,11 @@ class SRAGAgeChart{
    * @param {number} week - SRAG incidence week.
    * @param {string} territoryName- Federal state name (e.g. "Acre").
    */
-  plot(dataset, scale, year, week, territoryName) {
+  plot(view_name, dataset, scale, year, week, territoryName) {
     var _this = this;
     var y_label;
     var url = encodeURI([
-        '.', 'data', dataset, scale, year, week,
+        '.', 'data', view_name, dataset, scale, year, week,
         territoryName, 'age-distribution'
     ].join('/'));
 

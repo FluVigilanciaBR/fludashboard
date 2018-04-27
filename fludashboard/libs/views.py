@@ -29,12 +29,12 @@ def compose_data_url(variables: str):
     :return:
     """
     url_var = {
-        'data': '/data/<int:dataset_id>/<int:scale_id>',
+        'data': '/data/<string:view_name>/<int:dataset_id>/<int:scale_id>',
         'year': '<int:year>',
         'epiweek': '<int:epiweek>',
         'territory_type_id': '<int:territory_type_id>',
         'territory_id': '<int:territory_id>',
-        'territory_name': '<string:territory_name>'
+        'territory_name': '<string:territory_name>',
     }
 
     url = [
@@ -111,10 +111,11 @@ def app_help():
 
 @app.route(compose_data_url('year/territory_type_id'))
 def get_data(
-    dataset_id: int, scale_id: str, year: int, territory_type_id: int
+    view_name: str, dataset_id: int, scale_id: str, year: int,
+    territory_type_id: int
 ):
     """
-
+    :param view_name:
     :param dataset_id:
     :param scale_id:
     :param year:
@@ -125,7 +126,9 @@ def get_data(
         dataset_id=dataset_id, scale_id=scale_id, year=year,
         territory_type_id=territory_type_id, show_historical_weeks=False
     )
-    return apply_filter_alert_by_epiweek(df).to_json(orient='records')
+    return apply_filter_alert_by_epiweek(
+        df, view_name
+    ).to_json(orient='records')
 
 
 @app.route(compose_data_url('year/epiweek/weekly-incidence-curve'))
@@ -133,11 +136,11 @@ def get_data(
     'year/epiweek/territory_name/weekly-incidence-curve')
 )
 def data__weekly_incidence_curve(
-    dataset_id: int, scale_id: int, year: int, epiweek: int,
+    view_name: str, dataset_id: int, scale_id: int, year: int, epiweek: int,
     territory_name: str='Brasil'
 ):
     """
-
+    :param view_name:
     :param dataset_id:
     :param scale_id:
     :param year:
@@ -202,13 +205,14 @@ def data__weekly_incidence_curve(
 @app.route(compose_data_url('year/epiweek/levels'))
 @app.route(compose_data_url('year/epiweek/territory_name/levels'))
 def data__incidence_levels(
-    dataset_id: int, scale_id: int, year: int,
+    view_name: str, dataset_id: int, scale_id: int, year: int,
     epiweek: int=None, territory_name: str='Brasil'
 ):
     """
     When epiweek==None, the system will assume the whole year view.
     When state_name==None, the system will assume state_name=='Brasil'
 
+    :param view_name:
     :param dataset_id:
     :param scale_id:
     :param year:
@@ -245,7 +249,7 @@ def data__incidence_levels(
     ]
 
     # prepare data for the whole year
-    df = apply_filter_alert_by_epiweek(df=df)
+    df = apply_filter_alert_by_epiweek(df=df, view_name=view_name)
 
     low_level = df[df.alert == 1].count().low_level
     epidemic_level = df[df.alert == 2].count().epidemic_level
@@ -294,7 +298,7 @@ def data__incidence_levels(
     )
 )
 def data__data_table(
-    dataset_id: str, scale_id: str, year: int, epiweek: int=None,
+    view_name: str, dataset_id: str, scale_id: str, year: int, epiweek: int=None,
     territory_type_id: str=None, territory_name: str=None
 ):
     """
@@ -305,6 +309,7 @@ def data__data_table(
     3. Total number of cases in the selected year for selected State
     4. Number of cases in the selected week for selected State.
 
+    :param view_name:
     :param dataset_id:
     :param scale_id:
     :param year:
@@ -400,11 +405,12 @@ def data__data_table(
 @app.route(compose_data_url('year/epiweek/territory_name/age-distribution'))
 @cross_domain(origin='*')
 def data__age_distribution(
-    dataset_id: str, scale_id: str, year: int,
+    view_name: str, dataset_id: str, scale_id: str, year: int,
     epiweek: int=None, territory_name: str=None
 ):
     """
 
+    :param view_name:
     :param dataset_id:
     :param scale_id:
     :param year:
@@ -450,9 +456,19 @@ def data__age_distribution(
 @app.route(compose_data_url('year/epiweek/etiological-agents'))
 @app.route(compose_data_url('year/epiweek/territory_name/etiological-agents'))
 def etiological_agents(
-    dataset_id: str, scale_id: str, year: int,
+    view_name: str, dataset_id: str, scale_id: str, year: int,
     epiweek: int=None, territory_name: str=None
 ):
+    """
+
+    :param view_name:
+    :param dataset_id:
+    :param scale_id:
+    :param year:
+    :param epiweek:
+    :param territory_name:
+    :return:
+    """
     territory_id = fluDB.get_territory_id_from_name(territory_name)
 
     df = FluDB().get_etiological_data(
@@ -467,9 +483,19 @@ def etiological_agents(
 @app.route(compose_data_url('year/epiweek/opportunities-boxplot'))
 @app.route(compose_data_url('year/epiweek/territory_name/opportunities-boxplot'))
 def opportunities_boxplot_view(
-    dataset_id: str, scale_id: str, year: int,
+    view_name: str, dataset_id: str, scale_id: str, year: int,
     epiweek: int=None, territory_name: str=None
 ):
+    """
+
+    :param view_name:
+    :param dataset_id:
+    :param scale_id:
+    :param year:
+    :param epiweek:
+    :param territory_name:
+    :return:
+    """
     territory = fluDB.get_territory_from_name(territory_name)
     territory_id = int(territory['id'])
     territory_type_id = int(territory['territory_type_id'])

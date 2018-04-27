@@ -2,9 +2,11 @@
 <html>
 <head>
   <title>Situação da Gripe</title>
-  <link rel="stylesheet" href="./static/libs/bootstrap/bootstrap.min.css">
-  <link rel="stylesheet" href="./static/libs/dc/dc.min.css">
-  <link rel="stylesheet" href="./static/css/custom.css">
+  <link rel="stylesheet" href="./static/libs/bootstrap/bootstrap.min.css" />
+  <link rel="stylesheet" href="./static/libs/dc/dc.min.css" />
+  <link rel="stylesheet" href="./static/css/custom.css" />
+  <link rel="stylesheet" href="./static/css/charts.css" />
+  <link rel="stylesheet" href="./static/css/tables.css" />
   <link rel="stylesheet" href="./static/libs/leaflet/leaflet.css"/>
   <link rel="stylesheet" href="./static/libs/c3/c3.min.css"/>
   <link rel="stylesheet" href="./static/libs/datatables/datatables.min.css"/>
@@ -20,7 +22,7 @@
 
   </style>
 </head>
-<body>
+<body class="contingency-view">
 
 <div class="navbar navbar-dark bg-primary" role="navigation">
   <iframe src="./super-header" class="super-header" scrolling="no"></iframe>
@@ -48,13 +50,17 @@
                 <input
                     id="btn-detailed"
                     type="button" value="Detalhado (semana)"
-                    class="tab">
+                    class="view_name tab">
                 <input
                     id="btn-resumed"
                     type="button" value="Resumido (ano)"
-                    class="tab selected">
+                    class="view_name tab">
+                <input
+                    id="btn-contingency"
+                    type="button" value="Plano de Contingência atual"
+                    class="view_name tab selected">
               </div>
-              <div class="criteria-box">
+              <div class="criteria-box" id="div-dataset">
                 <label>Conjunto de dados:</label> <br/>
                 <select name="dataset" id="dataset">
                   <option value="1" selected="selected">SRAG</option>
@@ -62,7 +68,7 @@
                   <option value="3">OBITOFLU</option>
                 </select>
               </div>
-              <div class="criteria-box">
+              <div class="criteria-box" id="div-scale">
                 <label>Escala:</label> <br/>
                 <select name="scale" id="scale">
                   <option value="1" selected="selected">INCIDÊNCIA</option>
@@ -88,7 +94,7 @@
                        value="2"
                 > Por padrão de circulação
               </div>
-              <div class="criteria-box">
+              <div class="criteria-box" id="div-year">
                 <strong>Ano:</strong>
                 <br/>
                 <select id='year'>
@@ -122,7 +128,7 @@
     <div class="col-md-5">
       <div class="card">
         <h5 class="card-header" id="map-incidence-case-title">
-            Mapa de incidência de SRAG
+            Mapa de Plano de Contingência
         </h5>
         <div class="card-block">
           <div id="map" class="content-height"></div>
@@ -132,7 +138,7 @@
         <strong>N&iacute;vel de atividade</strong><br/>
         <svg width="120" height="90">
           <rect x="10" y="15" height="10" width="10"
-                class="legend-square alert-green"/>
+                class="legend-square alert-low"/>
           <text x="20" y="20" transform="translate(8,4)">Baixa</text>
 
           <rect x="10" y="35" height="10" width="10"

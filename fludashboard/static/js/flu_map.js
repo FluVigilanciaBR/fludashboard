@@ -29,10 +29,22 @@ class SRAGMap {
    */
   constructor() {
     this.fluColors = {
-      1: 'green',
-      2: 'yellow',
-      3: '#ff7700',
-      4: 'red',
+        'resumed': {
+            1: 'green',
+            2: 'yellow',
+            3: '#ff7700',
+            4: 'red'
+        }, 'detailed': {
+            1: 'green',
+            2: 'yellow',
+            3: '#ff7700',
+            4: 'red'
+        }, 'contingency':{
+            1: 'white',
+            2: 'yellow',
+            3: '#ff7700',
+            4: 'red'
+        }
     };
     // create the tile layer with correct attribution
     this.map = L.map('map');
@@ -153,18 +165,24 @@ class SRAGMap {
    * @param {string} scale - data scale
    */
   makeMap(
-    geoJsonBr, sragData, dataset, scale, year, week, clickExternalTrigger
+    geoJsonBr, sragData, view_name, dataset, scale,
+    year, week, clickExternalTrigger
   ) {
     var _this = this;
     var title = '';
+    var level_col = (view_name == 'contingency') ? 'contingency' : 'alert';
 
     title = (scale == 1) ?
         'Mapa de incidência de ':
         'Mapa de situação de ';
+
     if (dataset == 1) {
       title = title + DATASET_TITLE[dataset];
     } else {
-      title = title + DATASET_TITLE[dataset] + " (diagnóstico laboratorial ou clínico-epidemiológico)";
+      title = (
+        title + DATASET_TITLE[dataset] +
+        " (diagnóstico laboratorial ou clínico-epidemiológico)"
+      );
     }
     $('#map-incidence-case-title').text(title);
 
@@ -266,7 +284,7 @@ class SRAGMap {
 
           $('#selected-territory').val(territoryName);
 
-          clickExternalTrigger(dataset, scale, year, territoryName, week);
+          clickExternalTrigger(view_name, dataset, scale, year, territoryName, week);
         }
       });
     };
@@ -296,7 +314,9 @@ class SRAGMap {
           })[0];
 
           if (weekState != undefined) {
-            styleProperties['fillColor'] = _this.fluColors[weekState['alert']];
+            styleProperties['fillColor'] = (
+                _this.fluColors[view_name][weekState[level_col]]
+            );
           }
 
           if (selectedTerritory==layerName) {
@@ -328,7 +348,7 @@ class SRAGMap {
             })[0];
 
             if (weekState != undefined) {
-              styleProperties['fillColor'] = _this.fluColors[weekState['alert']];
+              styleProperties['fillColor'] = _this.fluColors[weekState[level_col]];
             }*/
 
             if (selectedTerritory==_rid) {
@@ -360,7 +380,7 @@ class SRAGMap {
             })[0];
 
             if (weekState != undefined) {
-              styleProperties['fillColor'] = _this.fluColors[weekState['alert']];
+              styleProperties['fillColor'] = _this.fluColors[weekState[level_col]];
             }*/
 
             if (selectedTerritory==_rid) {
@@ -401,6 +421,8 @@ class SRAGMap {
     var _this = this;
     var state = $('#selected-territory').val();
     var week = parseInt($('#week').val() || 0);
+    var view_name = $('input.view_name.selected').attr('id').substring(4,);
+    var level_col = (view_name == 'contingency') ? 'contingency' : 'alert';
     var styleProperties= {
       fillColor: '#ffffff',
       color: '#333333',
@@ -439,7 +461,9 @@ class SRAGMap {
 
         if (df_alert_state != undefined) {
           layer.setStyle({
-            fillColor: _this.fluColors[df_alert_state['alert']]
+            fillColor: (
+                _this.fluColors[view_name][df_alert_state[level_col]]
+            )
           });
         }
       });
@@ -474,11 +498,13 @@ class SRAGMap {
         });
 
         $(df_alert_state).each(function(i){
-          ++alerts[df_alert_state[i]['alert']];
+          ++alerts[df_alert_state[i][level_col]];
         });
 
         layer.setStyle({
-          fillColor: _this.fluColors[_this.getAlertLevelForWholeYear(alerts)]
+          fillColor: (
+            _this.fluColors[view_name][_this.getAlertLevelForWholeYear(alerts)]
+          )
         });
       });
     }
