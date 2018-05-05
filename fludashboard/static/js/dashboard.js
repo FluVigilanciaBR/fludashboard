@@ -286,8 +286,6 @@ class Dashboard {
       var df = _this.sragData;
     }
 
-    var territoryName = $('#selected-territory').val() || 'Brasil';
-
     _this.sragMap.changeColorMap(_this.sragData);
     _this.sragIncidenceChart.plot(
         view_name, dataset, scale, year, week, territoryName

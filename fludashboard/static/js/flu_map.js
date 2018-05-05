@@ -171,6 +171,8 @@ class SRAGMap {
     var _this = this;
     var title = '';
     var level_col = (view_name == 'contingency') ? 'contingency' : 'alert';
+    var selectedTerritory = $('#selected-territory').val() || 'Brasil';
+    var territoryTypeId = getTerritoryTypeId();
 
     title = (scale == 1) ?
         'Mapa de incidência de ':
@@ -193,7 +195,7 @@ class SRAGMap {
       }
     });
 
-    $('.territory-display').text(' - Brasil');
+    $('.territory-display').text(' - ' + selectedTerritory);
 
     // apply onclick event on each region/state on the map
     function onEachFeature(feature, layer) {
@@ -288,9 +290,6 @@ class SRAGMap {
         }
       });
     };
-
-    var selectedTerritory = $('#selected-territory').val();
-    var territoryTypeId = getTerritoryTypeId();
 
     if (territoryTypeId==1) {
       // show geojson on the map
