@@ -477,6 +477,7 @@ class FluDB:
                     AND scale_id = %(scale_id)s
                     AND base_epiweek <= %(epiweek)s
                     %(territory_id_condition)s )
+            AND epiyear =%(epiyear)s
             ''' % sql_param
 
         # force week filter (week 0 == all weeks)

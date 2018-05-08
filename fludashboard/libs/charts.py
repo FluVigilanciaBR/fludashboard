@@ -87,10 +87,17 @@ def ethio_ts(df=pd.DataFrame, scale_id=int, year=int):
     # X-axis title and range:
     lastepiweek = int(episem(lastepiday(year), out='W'))
     extra_cols.extend(['Testes positivos'])
-    ymax = [
-        max(5*np.ceil(df[extra_cols].max().max()/5), 5),
-        max(5*np.ceil(df[cols[1:]].max().max()/5), 5)
-    ]
+    if scale_id == 2:
+        ymax = [
+            max(5*np.ceil(df[extra_cols].max().max()/5), 5),
+            max(5*np.ceil(df[cols[1:]].max().max()/5), 5)
+        ]
+    else:
+        ymax = [
+            df[extra_cols].max().max(),
+            df[cols[1:]].max().max()
+        ]
+
     for i in range(1, (nrows + 1)):
         xaxis = 'xaxis%s' % i
         yaxis = 'yaxis%s' % i

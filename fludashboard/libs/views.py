@@ -471,6 +471,9 @@ def etiological_agents(
     """
     territory_id = fluDB.get_territory_id_from_name(territory_name)
 
+    # Etiological panel fixed to cases scale, not incidence.
+    scale_id = 2
+
     df = FluDB().get_etiological_data(
         dataset_id=dataset_id, scale_id=scale_id, year=year,
         week=epiweek, territory_id=territory_id

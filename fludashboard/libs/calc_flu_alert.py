@@ -10,10 +10,10 @@ import numpy as np
 import pandas as pd
 
 contingency_name_from_id = {
-    0: 'Nível basal',
-    1: 'Nível 0',
-    2: 'Nível 1',
-    3: 'Nível 2',
+    1: 'Nível basal',
+    2: 'Nível 0',
+    3: 'Nível 1',
+    4: 'Nível 2',
 }
 
 db = FluDB()
@@ -122,11 +122,19 @@ def show_contingency_alert(dataset_id: int, year: int, territory_id: int):
     else:
         wdw = 3
 
-    alert_zone = any(df.estimated_cases[-wdw:] > df.typical_high[-wdw:])
-    data_increase = all(
-        df.estimated_cases[-wdw:].values -
-        df.estimated_cases[-(wdw + 1):-1].values > 0
-    )
+    weeks = len(df)
+    if weeks < wdw+1:
+        alert_zone = False
+        data_increase = False
+    else:
+        for i in range(wdw+1, weeks+1):
+            alert_zone = any(df.estimated_cases[(i-wdw):i] > df.typical_high[(i-wdw):i])
+            data_increase = all(
+                df.estimated_cases[(i-wdw):i].values -
+                df.estimated_cases[(i-wdw - 1):(i-1)].values > 0
+            )
+            if (alert_zone & data_increase):
+                break
 
     dataset_from_id = dict(
         zip(dataset_id_list.values(), dataset_id_list.keys())
@@ -163,11 +171,20 @@ def alert_trigger(dataset_id: int, year: int, territory_id: int):
     else:
         wdw = 3
 
-    alert_zone = any(df.estimated_cases[-wdw:] > df.typical_high[-wdw:])
-    data_increase = all(
-        df.estimated_cases[-wdw:].values -
-        df.estimated_cases[-(wdw + 1):-1].values > 0
-    )
+    weeks = df.shape[0]
+    if weeks < wdw+1:
+        alert_zone = False
+        data_increase = False
+    else:
+        for i in range(wdw+1, weeks+1):
+            alert_zone = any(df.estimated_cases[(i-wdw):i] > df.typical_high[(i-wdw):i])
+            data_increase = all(
+                df.estimated_cases[(i-wdw):i].values -
+                df.estimated_cases[(i-wdw - 1):(i-1)].values > 0
+            )
+            if (alert_zone & data_increase):
+                return alert_zone & data_increase
+
     return alert_zone & data_increase
 
 
@@ -179,9 +196,12 @@ def contingency_level(year: int, territory_id: int):
     :return:
     """
     if alert_trigger(dataset_id=3, year=year, territory_id=territory_id):
-        return 3
+        print(territory_id, 4)
+        return 4
     elif alert_trigger(dataset_id=2, year=year, territory_id=territory_id):
-        return 2
+        print(territory_id, 3)
+        return 3
     elif alert_trigger(dataset_id=1, year=year, territory_id=territory_id):
-        return 1
-    return 0
+        print(territory_id, 2)
+        return 2
+    return 1
