@@ -30,20 +30,20 @@ class SRAGMap {
   constructor() {
     this.fluColors = {
         'resumed': {
-            1: 'green',
-            2: 'yellow',
-            3: '#ff7700',
-            4: 'red'
+            1: '#ffffcc',
+            2: '#c2e699',
+            3: '#78c679',
+            4: '#238443'
         }, 'detailed': {
-            1: 'green',
-            2: 'yellow',
-            3: '#ff7700',
-            4: 'red'
+            1: '#ffffcc',
+            2: '#a1dab4',
+            3: '#41b6c4',
+            4: '#225ea8'
         }, 'contingency':{
-            1: 'white',
-            2: 'yellow',
-            3: '#ff7700',
-            4: 'red'
+            1: '#edf8fb',
+            2: '#b3cde3',
+            3: '#8c96c6',
+            4: '#88419d'
         }
     };
     // create the tile layer with correct attribution
@@ -174,17 +174,25 @@ class SRAGMap {
     var selectedTerritory = $('#selected-territory').val() || 'Brasil';
     var territoryTypeId = getTerritoryTypeId();
 
-    title = (scale == 1) ?
+    if (view_name == 'contingency'){
+      title = 'Mapa do Plano de Contingência';
+    } else if (view_name == 'resumed'){
+      title = 'Mapa da Temporada para ';
+    } else {
+      title = (scale == 1) ?
         'Mapa de incidência de ':
         'Mapa de situação de ';
+    }
 
-    if (dataset == 1) {
-      title = title + DATASET_TITLE[dataset];
-    } else {
-      title = (
-        title + DATASET_TITLE[dataset] +
-        " (diagnóstico laboratorial ou clínico-epidemiológico)"
-      );
+    if (view_name != 'contingency'){
+      if (dataset == 1) {
+        title = title + DATASET_TITLE[dataset];
+      } else {
+        title = (
+          title + DATASET_TITLE[dataset] +
+          " (diagnóstico laboratorial ou clínico-epidemiológico)"
+        );
+      }
     }
     $('#map-incidence-case-title').text(title);
 
@@ -313,6 +321,7 @@ class SRAGMap {
           })[0];
 
           if (weekState != undefined) {
+            styleProperties['fillOpacity'] = 1
             styleProperties['fillColor'] = (
                 _this.fluColors[view_name][weekState[level_col]]
             );
@@ -501,6 +510,7 @@ class SRAGMap {
         });
 
         layer.setStyle({
+          fillOpacity: 1.0,
           fillColor: (
             _this.fluColors[view_name][_this.getAlertLevelForWholeYear(alerts)]
           )
