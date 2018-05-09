@@ -128,32 +128,35 @@
     <div class="col-md-5">
       <div class="card">
         <h5 class="card-header" id="map-incidence-case-title">
-            Mapa de Plano de Contingência
+            Mapa do Plano de Contingência
         </h5>
         <div class="card-block">
           <div id="map" class="content-height"></div>
         </div>
+        <p class="card-text"><small class="text-muted">*Com base nos dados disponíveis no sistema de informação
+        </small></p>
       </div>
       <div id="legend">
-        <strong>N&iacute;vel de atividade</strong><br/>
+        <strong id="map-legend-title">N&iacute;vel de ação</strong><br/>
         <svg width="120" height="90">
           <rect x="10" y="15" height="10" width="10"
                 class="legend-square alert-low"/>
-          <text x="20" y="20" transform="translate(8,4)">Baixa</text>
+          <text id="map-leg-low" x="20" y="20" transform="translate(8,4)">Nível Basal</text>
 
           <rect x="10" y="35" height="10" width="10"
-                class="legend-square alert-yellow"/>
-          <text x="20" y="40" transform="translate(8,4)">Epid&ecirc;mica</text>
+                class="legend-square alert-medium"/>
+          <text id="map-leg-medium" x="20" y="40" transform="translate(8,4)">Nível 0</text>
 
           <rect x="10" y="55" height="10" width="10"
-                class="legend-square alert-orange"/>
-          <text x="20" y="60" transform="translate(8,4)">Alta</text>
+                class="legend-square alert-high"/>
+          <text id="map-leg-high" x="20" y="60" transform="translate(8,4)">Nível 1</text>
 
           <rect x="10" y="75" height="10" width="10"
-                class="legend-square alert-red"/>
-          <text x="20" y="80" transform="translate(8,4)">Muito Alta</text>
+                class="legend-square alert-very-high"/>
+          <text id="map-leg-very-high" x="20" y="80" transform="translate(8,4)">Nível 2</text>
         </svg>
       </div>
+
     </div>
     <!-- Map -->
 
@@ -172,7 +175,6 @@
                     regulares:</strong>
                   <span class="chart-extra-text"></span> <br/>
                 </p>
-
                 <p class="prob hidden">
                   <strong class="chart-extra-text">
                     Probabilidade do n&iacute;vel de atividade:
@@ -196,6 +198,7 @@
                     atividade:</strong><br/>
                   <span class="chart-extra-text classification"></span> <br/>
                 </p>
+
               </div>
               <!-- info panel:end -->
 
@@ -204,9 +207,13 @@
                    class="content-height"></div>
               <!-- chart:end -->
             </div>
+            <p class="card-text"><small class="text-muted">*Com base nos dados disponíveis no sistema de informação
+            </small></p>
+
           </div>
-        </div>
-        <!-- Resources Pie -->
+
+    </div>
+    <!-- Resources Pie -->
 
   </div>
   <div class="row my-3">
@@ -223,6 +230,9 @@
              style="overflow-y:auto;">
 
         </div>
+        <p class="card-text"><small class="text-muted">*Com base nos dados disponíveis no sistema de informação
+        </small></p>
+
       </div>
     </div>
 
@@ -238,7 +248,10 @@
         <div class="card-block content-height">
           <div id="age-chart" class="content-height"></div>
         </div>
+        <p class="card-text"><small class="text-muted">*Com base nos dados disponíveis no sistema de informação
+        </small></p>
       </div>
+
     </div>
   </div>
 
@@ -252,7 +265,10 @@
             <span class="territory-display"></span>
           </h5>
           <div class="card-body p-0" id="opportunities-chart"></div>
+          <p class="card-text"><small class="text-muted">*Com base nos dados disponíveis no sistema de informação
+          </small></p>
         </div>
+
     </div>
     <div class="col-md-6">
         <div class="card">
@@ -262,7 +278,10 @@
             <span class="week-display"></span>
             <span class="territory-display"></span>
           </h5>
+
           <div class="card-body" id="etiological-chart"></div>
+          <p class="card-text"><small class="text-muted">*Com base nos dados disponíveis no sistema de informação
+          </small></p>
         </div>
 
       </div>
