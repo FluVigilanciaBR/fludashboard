@@ -210,7 +210,7 @@ class Dashboard {
       $('#btn-contingency').addClass('selected');
 
       $('.period-display').text('no ano epidemiológico');
-      $('#map-incidence-case-title').text('Mapa de Plano de Contingência');
+      $('#map-incidence-case-title').text('Mapa do Plano de Contingência');
       $('#map-legend-title').text('Nível de ação');
       $('#map-leg-low').text('Nível Basal');
       $('#map-leg-medium').text('Nível 0');

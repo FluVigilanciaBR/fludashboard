@@ -213,7 +213,8 @@ class SRAGMap {
           // reset line weight
           _this.geojsonLayer.eachLayer(function (_layer) {
             _layer.setStyle({
-              weight: 1
+              weight: 1,
+              fillOpacity: 0.7
             });
           });
 
@@ -227,10 +228,17 @@ class SRAGMap {
             if ($('#selected-territory').val() == territoryName) {
               territoryName = '';
               $('.territory-display').text(' - Brasil');
+              _this.geojsonLayer.eachLayer(function (_layer) {
+                _layer.setStyle({
+                  weight: 1,
+                  fillOpacity: 1
+                });
+              });
             } else {
               // bold the selected state
               layer.setStyle({
-                weight: 2
+                weight: 3,
+                fillOpacity: 1
               });
               $('.territory-display').text(' - ' + territoryName);
             }
@@ -392,7 +400,7 @@ class SRAGMap {
             }*/
 
             if (selectedTerritory==_rid) {
-              styleProperties['weight'] = 2;
+              styleProperties['weight'] = 4;
             }
             return styleProperties;
           }
@@ -469,6 +477,7 @@ class SRAGMap {
 
         if (df_alert_state != undefined) {
           layer.setStyle({
+            fillOpacity: 1,
             fillColor: (
                 _this.fluColors[view_name][df_alert_state[level_col]]
             )
