@@ -2,31 +2,58 @@
     margin-left:90px;
 }
 
-.alert-red {
-  background: red;
-  fill: red;
+body.resumed-view .alert-low {
+  stroke: #aaaaaa;
+  background: #ffffff;
+  fill: #ffffcc;
 }
-
-.alert-orange {
-  background: #ff7700;
-  fill: #ff7700;
+body.resumed-view .alert-medium {
+  background: #ffffff;
+  fill: #c2e699;
 }
-
-.alert-yellow {
-  background: yellow;
-  fill: yellow;
+body.resumed-view .alert-high {
+  background: #ffffff;
+  fill: #78c679;
+}
+body.resumed-view .alert-very-high {
+  background: #ffffff;
+  fill: #238443;
 }
 
 body.contingency-view .alert-low {
   stroke: #aaaaaa;
-  background: white;
-  fill: white;
+  background: #ffffff;
+  fill: #edf8fb;
+}
+body.contingency-view .alert-medium {
+  background: #ffffff;
+  fill: #b3cde3;
+}
+body.contingency-view .alert-high {
+  background: #ffffff;
+  fill: #8c96c6;
+}
+body.contingency-view .alert-very-high {
+  background: #ffffff;
+  fill: #88419d;
 }
 
-body.resumed-view .alert-low,
 body.detailed-view .alert-low {
-  background: green;
-  fill: green;
+  stroke: #aaaaaa;
+  background: #ffffff;
+  fill: #ffffcc;
+}
+body.detailed-view .alert-medium {
+  background: #ffffff;
+  fill: #a1dab4;
+}
+body.detailed-view .alert-high {
+  background: #ffffff;
+  fill: #41b6c4;
+}
+body.detailed-view .alert-very-high {
+  background: #ffffff;
+  fill: #225ea8;
 }
 
 .chart-extra-text{

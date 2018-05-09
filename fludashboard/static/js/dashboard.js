@@ -145,6 +145,11 @@ class Dashboard {
 
       $('.period-display').text('na semana epidemiológica');
       $('#map-incidence-case-title').text('Mapa de incidência de SRAG');
+      $('#map-legend-title').text('Situação da atividade semanal');
+      $('#map-leg-low').text('Baixa');
+      $('#map-leg-medium').text('Epidêmica');
+      $('#map-leg-high').text('Alta');
+      $('#map-leg-very-high').text('Muito alta');
   }
 
   prepare_resumed_dashboard() {
@@ -171,8 +176,13 @@ class Dashboard {
       $('#btn-resumed').addClass('selected');
 
       $('.period-display').text('no ano epidemiológico');
-      $('#map-incidence-case-title').text('Mapa de incidência de SRAG');
-  }
+      $('#map-incidence-case-title').text('Mapa da Temporada para SRAG');
+      $('#map-legend-title').text('Classificação da Temporada');
+      $('#map-leg-low').text('Baixa');
+      $('#map-leg-medium').text('Epidêmica');
+      $('#map-leg-high').text('Elevada');
+      $('#map-leg-very-high').text('Muito elevada');
+ }
 
   prepare_contingency_dashboard() {
       $('body').removeClass('detailed-view');
@@ -181,8 +191,8 @@ class Dashboard {
 
       $('#div-week').addClass('hidden');
       $('#div-year').addClass('hidden');
-      $('#div-dataset').addClass('hidden');
-      $('#div-scale').addClass('hidden');
+      $('#div-dataset').removeClass('hidden');
+      $('#div-scale').removeClass('hidden');
 
       var _week = parseInt($('#week').val() || 0);
 
@@ -200,7 +210,12 @@ class Dashboard {
       $('#btn-contingency').addClass('selected');
 
       $('.period-display').text('no ano epidemiológico');
-      $('#map-incidence-case-title').text('Mapa de Plano de Contingência');
+      $('#map-incidence-case-title').text('Mapa do Plano de Contingência');
+      $('#map-legend-title').text('Nível de ação');
+      $('#map-leg-low').text('Nível Basal');
+      $('#map-leg-medium').text('Nível 0');
+      $('#map-leg-high').text('Nível 1');
+      $('#map-leg-very-high').text('Nível 2');
   }
 
   /**
