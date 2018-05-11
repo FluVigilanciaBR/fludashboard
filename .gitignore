@@ -90,5 +90,6 @@ ENV/
 .idea
 
 fludashboard/data/*.csv
+fludashboard/data/*.json
 
 .flu.yaml
