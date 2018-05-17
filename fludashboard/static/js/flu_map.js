@@ -503,27 +503,45 @@ class SRAGMap {
           layer.setStyle({'weight': 2});
         }
 
-        var alerts = {
-          1: 0,
-          2: 0,
-          3: 0,
-          4: 0
-        };
-
         var df_alert_state = $.grep(df, function(n,i){
           return n.territory_name===territoryName;
         });
 
-        $(df_alert_state).each(function(i){
-          ++alerts[df_alert_state[i][level_col]];
-        });
+        if (view_name != 'contingency'){
+          var alerts = {
+            1: 0,
+            2: 0,
+            3: 0,
+            4: 0
+          };
 
-        layer.setStyle({
-          fillOpacity: 1.0,
-          fillColor: (
-            _this.fluColors[view_name][_this.getAlertLevelForWholeYear(alerts)]
-          )
-        });
+          $(df_alert_state).each(function(i){
+            ++alerts[df_alert_state[i][level_col]];
+          });
+
+          layer.setStyle({
+            fillOpacity: 1.0,
+            fillColor: (
+              _this.fluColors[view_name][_this.getAlertLevelForWholeYear(alerts)]
+            )
+          });
+
+        } else {
+          function getMax(arr, prop){
+            var max;
+            for (var i=0; i<arr.length; i++){
+              if (!max || parseInt(arr[i][prop]) > parseInt(max[prop])) max = arr[i];
+            }
+            return max[level_col];
+          }
+          var alert_level = getMax(df_alert_state, 'epiweek');
+          layer.setStyle({
+            fillOpacity: 1.0,
+            fillColor: (
+              _this.fluColors[view_name][alert_level]
+            )
+          });
+        }
       });
     }
   }
