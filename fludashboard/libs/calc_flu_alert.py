@@ -196,12 +196,9 @@ def contingency_level(year: int, territory_id: int):
     :return:
     """
     if alert_trigger(dataset_id=3, year=year, territory_id=territory_id):
-        print(territory_id, 4)
         return 4
     elif alert_trigger(dataset_id=2, year=year, territory_id=territory_id):
-        print(territory_id, 3)
         return 3
     elif alert_trigger(dataset_id=1, year=year, territory_id=territory_id):
-        print(territory_id, 2)
         return 2
     return 1

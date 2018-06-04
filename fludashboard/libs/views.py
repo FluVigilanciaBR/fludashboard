@@ -10,6 +10,7 @@ from .flu_data import FluDB
 from .utils import cross_domain, calc_last_epiweek
 
 import numpy as np
+import os
 import pandas as pd
 
 
@@ -510,3 +511,19 @@ def opportunities_boxplot_view(
     )
 
     return Response(opportunities_boxplot(df, week=epiweek))
+
+
+@app.route('/static/data/br-states.json')
+def static_data_br_states_view():
+    """
+
+    :return:
+    """
+    path_states_json = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        'data', 'br-states.json'
+    )
+    with open(path_states_json) as f:
+        resp = Response(f.read())
+        resp.default_mimetype = 'plain/json'
+        return resp
