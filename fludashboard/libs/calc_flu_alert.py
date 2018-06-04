@@ -49,7 +49,7 @@ def calc_alert_rank_whole_year(se):
 
     return (
         4 if high_threshold >= 5 else
-        3 if high_threshold > 1 else
+        3 if high_threshold >= 1 else
         2 if se.epidemic_level >= 1 else
         1
     )

@@ -424,7 +424,7 @@ class SRAGMap {
     var high_threshold = d[4] + d[3];
 
     if (high_threshold >= 5) return 4;
-    if (high_threshold > 1) return 3;
+    if (high_threshold >= 1) return 3;
     if (d[2] >= 1) return 2;
     return 1;
   }
