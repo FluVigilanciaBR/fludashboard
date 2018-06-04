@@ -438,7 +438,7 @@ class SRAGMap {
     var state = $('#selected-territory').val();
     var week = parseInt($('#week').val() || 0);
     var view_name = $('input.view_name.selected').attr('id').substring(4,);
-    var level_col = (view_name == 'contingency') ? 'contingency' : 'alert';
+    var level_col = 'alert';
     var styleProperties= {
       fillColor: '#ffffff',
       color: '#333333',
@@ -505,43 +505,17 @@ class SRAGMap {
 
         var df_alert_state = $.grep(df, function(n,i){
           return n.territory_name===territoryName;
+        })[0];
+
+        level_col = (view_name == 'contingency') ? 'contingency' : 'season_level';
+
+        layer.setStyle({
+          fillOpacity: 1.0,
+          fillColor: (
+            _this.fluColors[view_name][df_alert_state[level_col]]
+          )
         });
 
-        if (view_name != 'contingency'){
-          var alerts = {
-            1: 0,
-            2: 0,
-            3: 0,
-            4: 0
-          };
-
-          $(df_alert_state).each(function(i){
-            ++alerts[df_alert_state[i][level_col]];
-          });
-
-          layer.setStyle({
-            fillOpacity: 1.0,
-            fillColor: (
-              _this.fluColors[view_name][_this.getAlertLevelForWholeYear(alerts)]
-            )
-          });
-
-        } else {
-          function getMax(arr, prop){
-            var max;
-            for (var i=0; i<arr.length; i++){
-              if (!max || parseInt(arr[i][prop]) > parseInt(max[prop])) max = arr[i];
-            }
-            return max[level_col];
-          }
-          var alert_level = getMax(df_alert_state, 'epiweek');
-          layer.setStyle({
-            fillOpacity: 1.0,
-            fillColor: (
-              _this.fluColors[view_name][alert_level]
-            )
-          });
-        }
       });
     }
   }

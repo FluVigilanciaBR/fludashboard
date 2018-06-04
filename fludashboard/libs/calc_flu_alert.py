@@ -72,15 +72,7 @@ def apply_filter_alert_by_epiweek(
 
     df_alert = df[mask].copy().reset_index()
 
-    # contingency alert
-    contingency_alert = prepare_contingency_level(df_alert)
-    contingency_col = df_alert.T.apply(
-        lambda se: contingency_alert[se.territory_id]
-    )
-    # alert level
-    alert_col = df_alert.T.apply(get_season_level)
-
-    return df_alert.assign(alert=alert_col, contingency=contingency_col)
+    return df_alert
 
 
 def prepare_contingency_level(df: pd.DataFrame):
