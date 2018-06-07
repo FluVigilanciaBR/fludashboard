@@ -23,37 +23,37 @@ body.resumed-view .alert-very-high {
 body.contingency-view .alert-low {
   stroke: #aaaaaa;
   background: #ffffff;
-  fill: #edf8fb;
+  fill: #ffffcc;
 }
 body.contingency-view .alert-medium {
   background: #ffffff;
-  fill: #b3cde3;
+  fill: #a1dab4;
 }
 body.contingency-view .alert-high {
   background: #ffffff;
-  fill: #8c96c6;
+  fill: #41b6c4;
 }
 body.contingency-view .alert-very-high {
   background: #ffffff;
-  fill: #88419d;
+  fill: #225ea8;
 }
 
 body.detailed-view .alert-low {
   stroke: #aaaaaa;
   background: #ffffff;
-  fill: #ffffcc;
+  fill: #edf8fb;
 }
 body.detailed-view .alert-medium {
   background: #ffffff;
-  fill: #a1dab4;
+  fill: #b3cde3;
 }
 body.detailed-view .alert-high {
   background: #ffffff;
-  fill: #41b6c4;
+  fill: #9f8cc6;
 }
 body.detailed-view .alert-very-high {
   background: #ffffff;
-  fill: #225ea8;
+  fill: #88419d;
 }
 
 .chart-extra-text{

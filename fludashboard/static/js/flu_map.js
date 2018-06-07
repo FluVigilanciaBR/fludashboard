@@ -35,15 +35,15 @@ class SRAGMap {
             3: '#78c679',
             4: '#238443'
         }, 'detailed': {
+            1: '#edf8fb',
+            2: '#b3cde3',
+            3: '#9f8cc6',
+            4: '#88419d'
+        }, 'contingency':{
             1: '#ffffcc',
             2: '#a1dab4',
             3: '#41b6c4',
             4: '#225ea8'
-        }, 'contingency':{
-            1: '#edf8fb',
-            2: '#b3cde3',
-            3: '#8c96c6',
-            4: '#88419d'
         }
     };
     // create the tile layer with correct attribution
@@ -250,19 +250,25 @@ class SRAGMap {
             _this.geojsonLayer.eachLayer(function (_layer) {
               var _rid = _this.regionalIds[_layer.feature.properties.nome];
 
-              _layer.setStyle({color: '#333333'});
+              _layer.setStyle({color: '#333333', fillOpacity: 0.7});
 
               if (_rid == rid && $('#selected-territory').val() != ridName) {
-                _layer.setStyle({weight: 2});
+                _layer.setStyle({weight: 3, fillOpacity: 1});
                 _layer.bringToFront();
               } else {
-                _layer.setStyle({weight: 1});
+                _layer.setStyle({weight: 1, fillOpacity: 0.7});
               }
             });
 
             // state
             if ($('#selected-territory').val() == ridName) {
               territoryName = '';
+              _this.geojsonLayer.eachLayer(function (_layer) {
+                _layer.setStyle({
+                   weight: 1,
+                   fillOpacity: 1
+                });
+              });
               $('.territory-display').text(' - Brasil');
             } else {
               $('.territory-display').text(' - ' + ridName);
@@ -276,19 +282,25 @@ class SRAGMap {
             _this.geojsonLayer.eachLayer(function (_layer) {
               var _rid = _this.regionIds[_layer.feature.properties.nome];
 
-              _layer.setStyle({color: '#333333'});
+              _layer.setStyle({color: '#333333', fillOpacity: 1});
 
               if (_rid == rid && $('#selected-territory').val() != ridName) {
-                _layer.setStyle({weight: 2});
+                _layer.setStyle({weight: 3, fillOpacity: 1});
                 _layer.bringToFront();
               } else {
-                _layer.setStyle({weight: 1});
+                _layer.setStyle({weight: 1, fillOpacity: 0.7});
               }
             });
 
             // state
             if ($('#selected-territory').val() == ridName) {
               territoryName = '';
+              _this.geojsonLayer.eachLayer(function (_layer) {
+                _layer.setStyle({
+                  weight: 1,
+                  fillOpacity: 1
+                });
+              });
               $('.territory-display').text(' - Brasil');
             } else {
               $('.territory-display').text(' - ' + ridName);
@@ -317,8 +329,8 @@ class SRAGMap {
           var styleProperties= {
             fillColor: '#ffffff',
             color: '#333333',
-            fillOpacity: 0.5,
-            weight: 1,
+            fillOpacity: 1,
+            weight: 1
           };
 
           var weekState = $.grep(sragData, function(n,i){
@@ -329,14 +341,15 @@ class SRAGMap {
           })[0];
 
           if (weekState != undefined) {
-            styleProperties['fillOpacity'] = 1
+            styleProperties['fillOpacity'] = 1;
             styleProperties['fillColor'] = (
                 _this.fluColors[view_name][weekState[level_col]]
             );
           }
 
           if (selectedTerritory==layerName) {
-            styleProperties['weight'] = 2;
+            styleProperties['weight'] = 3;
+            styleProperties['fillOpacity'] = 1;
           }
           return styleProperties;
         }
@@ -352,8 +365,8 @@ class SRAGMap {
             var styleProperties= {
                 fillColor: '#fffff',
                 color: '#333333',
-                fillOpacity: 0.5,
-                weight: 1,
+                fillOpacity: 1,
+                weight: 1
             };
 
             /*var weekState = $.grep(sragData, function(n,i){
@@ -368,7 +381,8 @@ class SRAGMap {
             }*/
 
             if (selectedTerritory==_rid) {
-              styleProperties['weight'] = 2;
+              styleProperties['weight'] = 3;
+              styleProperties['fillOpacity'] = 1;
             }
             return styleProperties;
           }
@@ -384,8 +398,8 @@ class SRAGMap {
             var styleProperties= {
                 fillColor: '#fffff',
                 color: '#333333',
-                fillOpacity: 0.5,
-                weight: 1,
+                fillOpacity: 1,
+                weight: 1
             };
 
             /*var weekState = $.grep(sragData, function(n,i){
@@ -400,7 +414,8 @@ class SRAGMap {
             }*/
 
             if (selectedTerritory==_rid) {
-              styleProperties['weight'] = 4;
+              styleProperties['weight'] = 3;
+              styleProperties['fillOpacity'] = 1;
             }
             return styleProperties;
           }
@@ -442,7 +457,7 @@ class SRAGMap {
     var styleProperties= {
       fillColor: '#ffffff',
       color: '#333333',
-      fillOpacity: 0.5,
+      fillOpacity: 1,
       weight: 1,
     };
 
@@ -468,7 +483,7 @@ class SRAGMap {
 
         layer.setStyle(styleProperties);
         if (territoryName==state) {
-          layer.setStyle({'weight': 2});
+          layer.setStyle({weight: 3});
         }
 
         var df_alert_state = $.grep(df_alert, function(n,i){
@@ -500,7 +515,7 @@ class SRAGMap {
 
         layer.setStyle(styleProperties);
         if (territoryName==state) {
-          layer.setStyle({'weight': 2});
+          layer.setStyle({weight: 3});
         }
 
         var df_alert_state = $.grep(df, function(n,i){
@@ -510,7 +525,7 @@ class SRAGMap {
         level_col = (view_name == 'contingency') ? 'contingency' : 'season_level';
 
         layer.setStyle({
-          fillOpacity: 1.0,
+          fillOpacity: 1,
           fillColor: (
             _this.fluColors[view_name][df_alert_state[level_col]]
           )
