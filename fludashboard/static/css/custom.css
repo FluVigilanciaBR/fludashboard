@@ -78,3 +78,8 @@ input.tab.selected {
     vertical-align: middle!important;
     text-align: center!important;
 }
+
+.print-card {
+    height: 150mm;
+    width: 210mm;
+}

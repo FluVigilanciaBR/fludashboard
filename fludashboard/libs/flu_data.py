@@ -349,7 +349,11 @@ class FluDB:
           historical.base_epiweek,
           territory.name AS territory_name,
           territory_type.name AS territory_type_name,
-          situation.name AS situation_name
+          situation.name AS situation_name,
+          contingency_level.contingency AS contingency,
+          contingency_level.contingency_max AS contingency_max,
+          weekly_alert.alert AS alert,
+          season_level.season_level AS season_level
         FROM
           (
             SELECT
@@ -388,6 +392,17 @@ class FluDB:
               AND incidence.territory_id=mem_typical.territory_id
               AND incidence.epiweek=mem_typical.epiweek
             )
+          LEFT JOIN (
+            SELECT * FROM weekly_alert
+            WHERE dataset_id=%(dataset_id)s
+              AND epiyear=%(epiyear)s
+              %(territory_id_condition)s
+            ) AS weekly_alert
+            ON (
+              mem_typical.dataset_id=weekly_alert.dataset_id
+              AND mem_typical.territory_id=weekly_alert.territory_id
+              AND mem_typical.epiweek=weekly_alert.epiweek            
+            )
           INNER JOIN territory
             ON (mem_typical.territory_id=territory.id)
           INNER JOIN territory_type
@@ -404,6 +419,24 @@ class FluDB:
               AND mem_typical.scale_id=mem_report.scale_id
               AND mem_typical.territory_id=mem_report.territory_id
               AND mem_typical.year=mem_report.year
+            )
+          FULL OUTER JOIN (
+            SELECT * FROM contingency_level
+            WHERE epiyear=%(epiyear)s
+            %(territory_id_condition)s
+            ) AS contingency_level
+            ON (
+            mem_report.territory_id=contingency_level.territory_id
+            )
+          FULL OUTER JOIN (
+            SELECT * FROM season_level
+            WHERE epiyear=%(epiyear)s
+            %(territory_id_condition)s
+            ) AS season_level
+            ON (
+            mem_report.territory_id=season_level.territory_id
+            AND mem_typical.dataset_id=season_level.dataset_id
+
             )
          WHERE 1=1
            %(where_extras)s

@@ -196,7 +196,7 @@ class SRAGIncidenceChart{
           incomplete_data: '#ff0000',
         },
         groups: [['typical_very_high', 'typical_high', 'typical_median', 'typical_low']],
-        order: false,
+        order: true,
       },
       axis: {
         x: {

@@ -125,11 +125,15 @@
 
   <div class="row my-3">
     <!-- Map -->
-    <div class="col-md-5">
-      <div class="card">
+    <div class="col-md-5" id="map-card">
+      <div class="card bg-white">
         <h5 class="card-header" id="map-incidence-case-title">
             Mapa do Plano de Contingência
         </h5>
+            <div class="container">
+              <button type="button" class="btn btn-link btn-sm no-print" onclick="getscreenshot('#map-card');">
+                Imprimir imagem</button>
+            </div>
         <div class="card-block">
           <div id="map" class="content-height"></div>
         </div>
@@ -156,17 +160,20 @@
           <text id="map-leg-very-high" x="20" y="80" transform="translate(8,4)">Nível 2</text>
         </svg>
       </div>
-
     </div>
     <!-- Map -->
 
-    <div class="col-md-7">
-          <div class="card">
-            <h5 class="card-header">
+    <div class="col-md-7" id="incidence-card">
+          <div class="card bg-white">
+            <h5 class="card-header bg-light">
               <span
                   id="chart-incidence-case-title">Curva de Incidência</span>
                 <span class="territory-display"></span>
             </h5>
+            <div class="container">
+              <button type="button" class="btn btn-link btn-sm no-print" onclick="getscreenshot('#incidence-card');">
+                Imprimir imagem</button>
+            </div>
             <div class="card-block chart-incidence">
               <!-- info panel -->
               <div id="chart-incidence-activity-level-panel">
@@ -238,13 +245,17 @@
 
     <!-- Gender/Age Distribution -->
     <div class="col-md-7">
-      <div class="card">
+      <div class="card bg-white" id="age-card">
         <h5 class="card-header">
           Distribui&ccedil;&atilde;o por G&ecirc;nero/Idade
             <span class="period-display">na semana epidemiológica</span>
             <span class="week-display"></span>
             <span class="territory-display"></span>
         </h5>
+        <div class="container">
+          <button type="button" class="btn btn-link btn-sm no-print" onclick="getscreenshot('#age-card');">
+            Imprimir imagem</button>
+        </div>
         <div class="card-block content-height">
           <div id="age-chart" class="content-height"></div>
         </div>
@@ -290,6 +301,7 @@
 </div>
 
 <script src="./static/libs/jquery/jquery.js"></script>
+<script src="./static/libs/jquery/jQuery.print.js"></script>
 <script src="./static/libs/bootstrap/bootstrap.min.js"></script>
 <script src="./static/libs/popper/popper.min.js"></script>
 <script src="./static/libs/crossfilter/crossfilter.min.js"></script>
@@ -310,6 +322,38 @@
 <script src="./static/js/flu_map.js"></script>
 <script src="./static/js/flu_chart.js"></script>
 <script src="./static/js/dashboard.js"></script>
+<script language="JavaScript" type="text/javascript">
+  function getscreenshot(div) {
+    // Hide row pair:
+    // $('#map-card').addClass('hidden');
+
+    // Temporarily change class attr to spawn all row:
+    var divClass = $(div).attr('class');
+    $(div).attr('class', 'col');
+
+    // ****PROBLEM****
+    // Div size is not upated before calling print()
+    // causing the print to have the size as displayed on user screen
+    // How to refresh it without moving out of this function?
+    // ********
+
+    // jQuery.print solves it in a non-ideal way, since user has to set save as file and so on
+    $(div).print();
+
+
+    // This solution with jsPDF produces **ugly as hell** image:
+    // var pdf = new jsPDF('landscape');
+    // pdf.addHTML(document.getElementById(div), function() {
+    //     pdf.save(name + 'pdf');
+    // });
+
+    // Recover original size after print:
+    // Restore row pair and div original state:
+    // $('#map-card').removeClass('hidden');
+    $(div).attr('class', divClass);
+  }
+
+</script>
 <script language="JavaScript">
     $(document).ready(function(){
       dashboard = new Dashboard({{last_week_years}});
