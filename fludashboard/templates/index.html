@@ -131,8 +131,10 @@
             Mapa do Plano de Contingência
         </h5>
             <div class="container">
-              <button type="button" class="btn btn-link btn-sm no-print" onclick="getscreenshot('#map-card');">
-                Imprimir imagem</button>
+              <button type="button" class="btn btn-link btn-sm no-print" onclick="getscreenshot(0);">
+                Salvar mapa</button>
+              <button type="button" class="btn btn-link btn-sm no-print" onclick="getscreenshot(1);">
+                Salvar legenda do mapa</button>
             </div>
         <div class="card-block">
           <div id="map" class="content-height"></div>
@@ -142,7 +144,7 @@
       </div>
       <div id="legend">
         <strong id="map-legend-title">N&iacute;vel de ação</strong><br/>
-        <svg width="120" height="90">
+        <svg width="120" height="90" id="map-legend">
           <rect x="10" y="15" height="10" width="10"
                 class="legend-square alert-low"/>
           <text id="map-leg-low" x="20" y="20" transform="translate(8,4)">Nível Basal</text>
@@ -171,8 +173,8 @@
                 <span class="territory-display"></span>
             </h5>
             <div class="container">
-              <button type="button" class="btn btn-link btn-sm no-print" onclick="getscreenshot('#incidence-card');">
-                Imprimir imagem</button>
+              <button type="button" class="btn btn-link btn-sm no-print" onclick="getscreenshot(2);">
+                Salvar imagem</button>
             </div>
             <div class="card-block chart-incidence">
               <!-- info panel -->
@@ -253,8 +255,8 @@
             <span class="territory-display"></span>
         </h5>
         <div class="container">
-          <button type="button" class="btn btn-link btn-sm no-print" onclick="getscreenshot('#age-card');">
-            Imprimir imagem</button>
+          <button type="button" class="btn btn-link btn-sm no-print" onclick="getscreenshot(3);">
+            Salvar imagem</button>
         </div>
         <div class="card-block content-height">
           <div id="age-chart" class="content-height"></div>
@@ -301,7 +303,6 @@
 </div>
 
 <script src="./static/libs/jquery/jquery.js"></script>
-<script src="./static/libs/jquery/jQuery.print.js"></script>
 <script src="./static/libs/bootstrap/bootstrap.min.js"></script>
 <script src="./static/libs/popper/popper.min.js"></script>
 <script src="./static/libs/crossfilter/crossfilter.min.js"></script>
@@ -318,39 +319,17 @@
 <script src="./static/libs/datatables/ext/vfs_fonts.js"></script>
 <script src="./static/libs/datatables/ext/buttons.html5.min.js"></script>
 <script src="./static/libs/plotlyjs/plotly-latest.min.js"></script>
+<script src="./static/libs/svg-crowbar-2/singledownload-svg-crowbar-2.js"></script>
 <script src="./static/js/flu_table.js"></script>
 <script src="./static/js/flu_map.js"></script>
 <script src="./static/js/flu_chart.js"></script>
 <script src="./static/js/dashboard.js"></script>
 <script language="JavaScript" type="text/javascript">
-  function getscreenshot(div) {
-    // Hide row pair:
-    // $('#map-card').addClass('hidden');
+  function getscreenshot(myplot) {
+    var plotName = ['mapa', 'mapa-legenda', 'serie-temporal', 'distribuicao-etaria'];
+    var myplotObj = {SVGid: myplot, SVGname: plotName[myplot]};
 
-    // Temporarily change class attr to spawn all row:
-    var divClass = $(div).attr('class');
-    $(div).attr('class', 'col');
-
-    // ****PROBLEM****
-    // Div size is not upated before calling print()
-    // causing the print to have the size as displayed on user screen
-    // How to refresh it without moving out of this function?
-    // ********
-
-    // jQuery.print solves it in a non-ideal way, since user has to set save as file and so on
-    $(div).print();
-
-
-    // This solution with jsPDF produces **ugly as hell** image:
-    // var pdf = new jsPDF('landscape');
-    // pdf.addHTML(document.getElementById(div), function() {
-    //     pdf.save(name + 'pdf');
-    // });
-
-    // Recover original size after print:
-    // Restore row pair and div original state:
-    // $('#map-card').removeClass('hidden');
-    $(div).attr('class', divClass);
+    singleSVGcrowbar(myplotObj);
   }
 
 </script>
