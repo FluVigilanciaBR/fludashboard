@@ -1,4 +1,26 @@
+/* This code is almost entirely based on svg-crowbar-2.js from https://github.com/NYTimes/svg-crowbar
+ A few modifications where added in order to:
+ - Use it as a function, not booklet;
+ - Cycle only up to 4th SVG source, since the remaining ones are not needed;
+ - Receive SVG sequential number for single plot download;
+ - Reload page after download.
+
+ This is a result of discutions on StackOverflow:
+ https://stackoverflow.com/questions/50750430/how-to-properly-generate-canvas-from-complex-svg/
+ 
+ As the original svg-crowbar-2.js, this code is under MIT License as stated on svg-crowbar project repository:
+ Copyright (c) 2013 The New York Times
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
 function singleSVGcrowbar(myplot) {
+    // Input:
+    // var myplot = {SVGid: int, [SVGname: str]} : SVGid is the desired SVG sequential number on webpage.
+    //                                                  SVGName is the desired output file name without extension. Optional.
     var doctype = '<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">';
 
     window.URL = (window.URL || window.webkitURL);
@@ -54,7 +76,9 @@ function singleSVGcrowbar(myplot) {
         });
 
         // Define name attribute for SVG, to be used as filename on download function:
-        SVGSources[myplot.SVGid].name = myplot.SVGname;
+        if (myplot.SVGname) {
+            SVGSources[myplot.SVGid].name = myplot.SVGname;
+        }
         download(SVGSources[myplot.SVGid]);
     }
 
