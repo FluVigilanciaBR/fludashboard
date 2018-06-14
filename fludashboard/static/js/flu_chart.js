@@ -152,7 +152,7 @@ class SRAGIncidenceChart{
     }
     $('#chart-incidence-case-title').text(title);
 
-    var chart = c3.generate({
+    var data2c3 = {
       bindto: _this.bindTo,
       data: {
         url: url,
@@ -227,11 +227,7 @@ class SRAGIncidenceChart{
         {start: 1, end: _this.lastWeekYears[year], class: 'alert-red'}
       ],*/
       grid: {
-        x: {
-         lines: [
-          {value: week, text: 'Semana Selecionada', position: 'middle'}
-        ], show: false
-        },
+        x: {show: false},
         y: {show: true}
       },
       zoom: {
@@ -249,7 +245,13 @@ class SRAGIncidenceChart{
       legend: {
         position: 'right'
       }
-    });
+    };
+    if (week !== 0) {
+      data2c3.grid.x['lines'] = [
+          {value: week, text: 'Semana Selecionada', position: 'middle'}
+        ];
+    }
+    var chart = c3.generate(data2c3);
 
     this.displayInfo(view_name, dataset, scale, year, week, territoryName);
 
