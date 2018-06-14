@@ -46,12 +46,11 @@ class TestFluDB(unittest.TestCase):
     def test_get_data(self):
         df = self.fludb.get_data(
             dataset_id=1, scale_id=1, year=2017,
-            territory_id=33, week=25, historical_week=23
+            territory_id=33, week=25, show_historical_weeks=True
         )
 
         # pandas configuration
         pd.set_option('display.max_columns', 99)
-        print(df)
         assert not df.empty
 
 

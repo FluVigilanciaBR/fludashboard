@@ -5,6 +5,32 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// CONSTANTS
+DATASET_TITLE = {
+    1: 'SRAG',
+    2: 'SRAG por Influenza',
+    3: 'Óbitos por Influenza'
+};
+
+FLU_COLORS = {
+    'resumed': {
+        'typical_low': '#00ff00',
+        'typical_medium': '#ffff00',
+        'typical_high': '#ff9900',
+        'typical_very_high': '#ff0000'
+    }, 'detailed': {
+        'typical_low': '#00ff00',
+        'typical_medium': '#ffff00',
+        'typical_high': '#ff9900',
+        'typical_very_high': '#ff0000'
+    }, 'contingency':{
+        'typical_low': '#00ff00',
+        'typical_medium': '#ffff00',
+        'typical_high': '#ff9900',
+        'typical_very_high': '#ff0000'
+    }
+};
+
 /**
  * SRAGIncidenceChart is used to show Incidence Flu Chart.
   */
@@ -27,9 +53,10 @@ class SRAGIncidenceChart{
    * @param {number} week - SRAG incidence week (e.g. 2).
    * @param {string} territoryName - Federal state name (e.g. "Acre").
    */
-  displayInfo(dataset, scale, year, week, territoryName) {
+  displayInfo(view_name, dataset, scale, year, week, territoryName) {
     var url = [
-        '.', 'data', dataset, scale, year, week, territoryName, 'levels'
+        '.', 'data', view_name, dataset, scale,
+        year, week, territoryName, 'levels'
     ].join('/');
 
     $.getJSON({
@@ -38,6 +65,7 @@ class SRAGIncidenceChart{
         // hidden  all
         var _prob = $('#chart-incidence-activity-level-panel .prob');
         var _level = $('#chart-incidence-activity-level-panel .level');
+        var _seasons = $('#chart-incidence-activity-level-panel .seasons');
 
         if (!_prob.hasClass('hidden')) {
           _prob.addClass('hidden');
@@ -47,6 +75,10 @@ class SRAGIncidenceChart{
           _level.addClass('hidden');
         }
 
+        if (!_seasons.hasClass('hidden')) {
+          _seasons.addClass('hidden');
+        }
+
         // if no data returned
         if (d.length <1) {
           return;
@@ -54,22 +86,28 @@ class SRAGIncidenceChart{
 
         var data = d[0];
 
-        if (data['situation'] == 'stable') {
+        if (data['situation_id'] == 3) {
           $('.classification', _level).text(
-            data['l0'] == 100 ?
-              'Baixa' : data['l1'] == 100 ?
-              'Epidêmica' : data['l2'] == 100 ?
-              'Alta' : data['l3'] == 100 ?
+            data['low_level'] == 100 ?
+              'Baixa' : data['epidemic_level'] == 100 ?
+              'Epidêmica' : data['high_level'] == 100 ?
+              'Alta' : data['very_high_level'] == 100 ?
               'Muito Alta' : '(Não encontrada.)'
           );
           _level.removeClass('hidden');
         } else {
-          $('.low', _prob).text(data['l0']);
-          $('.epidemic', _prob).text(data['l1']);
-          $('.high', _prob).text(data['l2']);
-          $('.very-high', _prob).text(data['l3']);
-          _prob.removeClass('hidden');
+          $('.low', _prob).text(data['low_level']);
+          $('.epidemic', _prob).text(data['epidemic_level']);
+          $('.high', _prob).text(data['high_level']);
+          $('.very-high', _prob).text(data['very_high_level']);
+
+          if (week > 0) {
+            _prob.removeClass('hidden');
+          }
         }
+
+        $('span', _seasons).text(data['regular_seasons']);
+        _seasons.removeClass('hidden');
       }
     });
   }
@@ -83,25 +121,38 @@ class SRAGIncidenceChart{
    * @param {string} territoryName- Federal state name (e.g. "Acre").
    * @return {object} - Chart object.
    */
-  plot(dataset, scale, year, week, territoryName) {
+  plot(view_name, dataset, scale, year, week, territoryName) {
     var _this = this;
     var y_label = '';
-    var url = [
-        '.', 'data', dataset, scale, year, week,
+    var url = encodeURI([
+        '.', 'data', view_name, dataset, scale, year, week,
         territoryName, 'weekly-incidence-curve'
-    ].join('/');
+    ].join('/'));
+    var title = '';
 
     $(this.bindTo).empty();
 
-    if (scale == 'incidence') {
-        $('#chart-incidence-case-title').text('Curva de Incidência');
-        y_label = 'Incidência (por 100 mil habitantes)';
+    if (scale == 1) {
+        title = 'Curva de incidência de ';
+        y_label = 'Incidência de ' + DATASET_TITLE[dataset] + ' (por 100 mil habitantes)';
     } else {
-        $('#chart-incidence-case-title').text('Série temporal');
-        y_label = 'Número de casos';
+        title = 'Série temporal de ';
+        if (dataset == 3) {
+          y_label = 'Número de ';
+        } else {
+          y_label = 'Número de casos de '
+        }
+         y_label = y_label + DATASET_TITLE[dataset];
     }
 
-    var chart = c3.generate({
+    if (dataset == 1) {
+      title = title + DATASET_TITLE[dataset];
+    } else {
+      title = title + DATASET_TITLE[dataset] + " (diagnóstico laboratorial ou clínico-epidemiológico)";
+    }
+    $('#chart-incidence-case-title').text(title);
+
+    var data2c3 = {
       bindto: _this.bindTo,
       data: {
         url: url,
@@ -110,7 +161,7 @@ class SRAGIncidenceChart{
           typical_low: 'Zona de Êxito',
           typical_median: 'Zona de Segurança',
           typical_high: 'Zona de Alerta',
-          typical_very_high: 'Zona de Surto',
+          typical_very_high: 'Zona de Surto/Epidemia',
           value: 'Casos notificados',
           pre_epidemic_threshold: 'Limiar Pré epidêmico',
           high_threshold: 'Intensidade Alta',
@@ -131,10 +182,10 @@ class SRAGIncidenceChart{
           very_high_threshold: 'line'
         },
         colors: {
-          typical_low: '#00ff00',
-          typical_median: '#ffff00',
-          typical_high: '#ff9900',
-          typical_very_high: '#ff0000',
+          typical_low: FLU_COLORS[view_name]['typical_low'],
+          typical_median: FLU_COLORS[view_name]['typical_medium'],
+          typical_high: FLU_COLORS[view_name]['typical_high'],
+          typical_very_high: FLU_COLORS[view_name]['typical_very_high'],
           value: '#000000',
           pre_epidemic_threshold: '#00ff00',
           high_threshold: '#0000ff',
@@ -143,7 +194,9 @@ class SRAGIncidenceChart{
           ci_lower: '#000000',
           ci_upper: '#000000',
           incomplete_data: '#ff0000',
-        }
+        },
+        groups: [['typical_very_high', 'typical_high', 'typical_median', 'typical_low']],
+        order: true,
       },
       axis: {
         x: {
@@ -165,18 +218,16 @@ class SRAGIncidenceChart{
           label: {
             text: y_label,
             position: 'outer-middle'
-          }
+          },
+          min: 0,
+          padding: {top:0, bottom:0}
         },
       },
       /*regions: [
         {start: 1, end: _this.lastWeekYears[year], class: 'alert-red'}
       ],*/
       grid: {
-        x: {
-         lines: [
-          {value: week, text: 'Semana Selecionada', position: 'middle'}
-        ], show: false
-        },
+        x: {show: false},
         y: {show: true}
       },
       zoom: {
@@ -194,9 +245,15 @@ class SRAGIncidenceChart{
       legend: {
         position: 'right'
       }
-    });
+    };
+    if (week !== 0) {
+      data2c3.grid.x['lines'] = [
+          {value: week, text: 'Semana Selecionada', position: 'middle'}
+        ];
+    }
+    var chart = c3.generate(data2c3);
 
-    this.displayInfo(dataset, scale, year, week, territoryName);
+    this.displayInfo(view_name, dataset, scale, year, week, territoryName);
 
     return chart;
   }
@@ -222,20 +279,25 @@ class SRAGAgeChart{
    * @param {number} week - SRAG incidence week.
    * @param {string} territoryName- Federal state name (e.g. "Acre").
    */
-  plot(dataset, scale, year, week, territoryName) {
+  plot(view_name, dataset, scale, year, week, territoryName) {
     var _this = this;
     var y_label;
-    var url = [
-        '.', 'data', dataset, scale, year, week,
+    var url = encodeURI([
+        '.', 'data', view_name, dataset, scale, year, week,
         territoryName, 'age-distribution'
-    ].join('/');
+    ].join('/'));
 
     $(this.bindTo).empty();
 
-    if (scale == 'incidence') {
-        y_label = 'Incidência (por 100 mil habitantes)';
+    if (scale == 1) {
+        y_label = 'Incidência de ' + DATASET_TITLE[dataset] + ' (por 100 mil habitantes)';
     } else {
-        y_label = 'Número de casos';
+        if (dataset == 3) {
+          y_label = 'Número de ';
+        } else {
+          y_label = 'Número de casos de '
+        }
+         y_label = y_label + DATASET_TITLE[dataset];
     }
 
     return c3.generate({
@@ -243,7 +305,14 @@ class SRAGAgeChart{
       data: {
         url: url,
         x: 'index',
-        type: 'bar'
+        type: 'bar',
+        colors: {
+          Mulheres: '#ff0000',
+          Homens: '#0000ff',
+          "Sexo ignorado": '#00ff00',
+          Total: '#ff9900'
+        },
+        fillOpacity: 0.8
       },
       axis: {
         x: {

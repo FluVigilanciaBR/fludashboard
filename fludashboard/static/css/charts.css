@@ -1,0 +1,157 @@
+.chart {
+    margin-left:90px;
+}
+
+body.resumed-view .alert-low {
+  stroke: #aaaaaa;
+  background: #ffffff;
+  fill: #ffffcc;
+}
+body.resumed-view .alert-medium {
+  background: #ffffff;
+  fill: #c2e699;
+}
+body.resumed-view .alert-high {
+  background: #ffffff;
+  fill: #78c679;
+}
+body.resumed-view .alert-very-high {
+  background: #ffffff;
+  fill: #238443;
+}
+
+body.contingency-view .alert-low {
+  stroke: #aaaaaa;
+  background: #ffffff;
+  fill: #ffffcc;
+}
+body.contingency-view .alert-medium {
+  background: #ffffff;
+  fill: #a1dab4;
+}
+body.contingency-view .alert-high {
+  background: #ffffff;
+  fill: #41b6c4;
+}
+body.contingency-view .alert-very-high {
+  background: #ffffff;
+  fill: #225ea8;
+}
+
+body.detailed-view .alert-low {
+  stroke: #aaaaaa;
+  background: #ffffff;
+  fill: #edf8fb;
+}
+body.detailed-view .alert-medium {
+  background: #ffffff;
+  fill: #b3cde3;
+}
+body.detailed-view .alert-high {
+  background: #ffffff;
+  fill: #9f8cc6;
+}
+body.detailed-view .alert-very-high {
+  background: #ffffff;
+  fill: #88419d;
+}
+
+.chart-extra-text{
+  font-size: 10px;
+  background-color:rgba(255, 255, 255, 0.5);
+  padding: 5px;
+}
+
+#chart-incidence-activity-level-panel {
+  position: absolute;
+  z-index: 100;
+  padding: 10px;
+  margin-left: 80px;
+}
+
+/* DC / C3 */
+
+.dc-chart g.row text {
+    fill: black;
+    font-size: 12px;
+}
+
+.c3-region.alert-red {
+  fill: red;
+}
+
+.c3-line-value {
+  stroke-width: 2px!important;
+}
+
+.c3-line-very-high-threshold,
+.c3-line-high-threshold,
+.c3-line-pre-epidemic-threshold {
+  stroke-width: 2px!important;
+  stroke-dasharray: 10,10;
+}
+.c3-line-estimated-cases {
+  stroke-width: 2px!important;
+  //stroke-dasharray: 4,4;
+}
+
+.c3-line-ci-lower, .c3-line-ci-upper  {
+  stroke-width: 2px!important;
+  stroke-dasharray: 4,4;
+}
+
+.c3-shapes.c3-shapes-typical-very-high.c3-lines.c3-lines-typical-very-high > path {
+  stroke: rgba(255, 0, 0, 255) !important;
+  opacity: 0 !important;
+}
+
+.c3-lines-typical-high {
+  opacity: 0 !important;
+}
+.c3-lines-typical-median {
+  opacity: 0 !important;
+}
+.c3-lines-typical-low {
+  opacity: 0 !important;
+}
+
+.c3-area {
+  opacity: 0.5 !important;
+}
+
+.c3-bar {
+  opacity: 0.8 !important;
+}
+
+.c3-legend-item-value line{
+    stroke-width: 2px!important;
+}
+
+.c3-legend-item-estimated-cases line {
+    stroke-width: 2px!important;
+}
+
+.c3-legend-item-pre-epidemic-threshold line {
+    stroke-width: 2px!important;
+    stroke-dasharray: 2;
+}
+
+.c3-legend-item-high-threshold line {
+    stroke-width: 2px!important;
+    stroke-dasharray: 2;
+}
+
+.c3-legend-item-very-high-threshold line {
+    stroke-width: 2px!important;
+    stroke-dasharray: 2;
+}
+
+.c3-legend-item-ci-lower line {
+    stroke-width: 2px!important;
+    stroke-dasharray: 2;
+}
+
+.c3-legend-item-ci-upper line {
+    stroke-width: 2px!important;
+    stroke-dasharray: 2;
+}

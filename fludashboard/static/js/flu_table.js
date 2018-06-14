@@ -24,7 +24,7 @@ class SRAGTable {
    */
   getDataTableContent(scale) {
     var label = (
-        scale == 'incidence' ?
+        scale == 1 ?
         'Incidência (por 100 mil habitantes)' :
         'Número de casos'
     );
@@ -45,19 +45,18 @@ class SRAGTable {
 
   /**
    * Builds the SRAG incidence table.
+   * @param {string} view_name- view name
    * @param {string} dataset - dataset
    * @param {string} scale - data scale
    * @param {number} year - SRAG incidence year (e.g. 2013).
    * @param {number} week - SRAG incidence week (e.g. 2).
    * @param {string} territoryName - Federal state name (e.g. "Acre").
    */
-  makeTable(dataset, scale, year, week, territoryName) {
+  makeTable(view_name, dataset, scale, year, week, territoryName) {
     var columns = [];
     var _tmp = '';
-    var territoryType = (
-      $('input[name="radType[]"]:checked').attr('id') == 'radTypeState' ?
-      'state' : 'region'
-    );
+    var territoryTypeId = getTerritoryTypeId();
+
     var tableSettings = {
       "dom": 'Bfrt',
       "language": {
@@ -75,14 +74,14 @@ class SRAGTable {
 
     tableSettings['columnDefs'] = [{width: '50%', targets: 1}];
 
-    var _tmp = territoryType;
+    var _tmp = territoryTypeId;
 
-    if (territoryName) {
+    if (territoryName != undefined) {
       _tmp = _tmp + '/' + territoryName;
     }
 
     var url = [
-        '.', 'data', dataset, scale, year, week, _tmp, 'data-table'
+        '.', 'data', view_name, dataset, scale, year, week, _tmp, 'data-table'
     ].join('/');
 
     tableSettings['ajax'] = url;
@@ -94,11 +93,23 @@ class SRAGTable {
     tableSettings["autoWidth"] = false;
 
     // title
-    if (scale == 'incidence') {
-        $('#table-incidence-case-title').text('Incidência');
+    var title = '';
+    if (scale == 1) {
+        title = 'Incidência de ';
     } else {
-        $('#table-incidence-case-title').text('Número de casos');
+        if (dataset == 3) {
+          title = 'Número de ';
+        } else {
+          title = 'Número de casos de '
+        }
     }
+
+    if (dataset == 1) {
+      title = title + DATASET_TITLE[dataset];
+    } else {
+      title = title + DATASET_TITLE[dataset] + " (diagnóstico laboratorial ou clínico-epidemiológico)";
+    }
+    $('#table-incidence-case-title').text(title);
 
     // create new table
     $('#divTable').html(this.getDataTableContent(scale));

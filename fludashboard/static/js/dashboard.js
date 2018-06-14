@@ -8,7 +8,7 @@
 /**
  * Allows control over all dashboard functionalities.
  * @property {string} group_by - Data aggregation criterion (year|week).
- * @property {string} delimitation - Data aggregation criterion (state|region).
+ * @property {string} territoryTypeId - Data aggregation criterion (state|region).
  * @property {number} lastWeek - The last week defined (e.g. 2).
  * @property {object} sragData - SRAG data object.
  * @property {SRAGTable} sragTable - SRAGTable object.
@@ -16,6 +16,17 @@
  * @property {SRAGIncidenceChart} sragIncidenceChart - SRAGIncidenceChart
  *   object.
  * @property {SRAGAgeChart} sragAgeChart - SRAGAgeChart object.
+ */
+
+
+function getTerritoryTypeId() {
+    return parseInt(
+        $('input[name="radTerritoryType[]"]:checked').val()
+    );
+}
+
+/*
+# TODO: properly incorporate regiongeo as in flu_table.js, views.py, index.html
  */
 class Dashboard {
   /**
@@ -26,10 +37,7 @@ class Dashboard {
     var _this = this;
     this.group_by = 'week'; // year or week
     // state or region
-    this.delimitation = (
-      $('input[name="radType[]"]:checked').attr('id') == 'radTypeState' ?
-      'state' : 'region'
-    );
+    this.territoryTypeId = getTerritoryTypeId();
     this.lastWeek = $('#week').val() || 0;
     this.lastWeekYears = lastWeekYears;
     this.sragData = {};
@@ -46,30 +54,17 @@ class Dashboard {
     $('#year').change(function () {_this.load_graphs();});
 
     $('#btn-detailed').click(function(){
-      $('#week').attr('min', 1);
-      $('#week').val(_this.lastWeek);
-      $('#div-week').removeClass('hidden');
-      $('#btn-resumed').removeClass('selected');
-      $('#btn-detailed').addClass('selected');
-      $('.period-display').text('na semana epidemiológica');
-
+      _this.prepare_detailed_dashboard();
       _this.changeWeek();
     });
 
     $('#btn-resumed').click(function(){
-      $('#div-week').addClass('hidden');
-      var _week = parseInt($('#week').val() || 0);
+      _this.prepare_resumed_dashboard();
+      _this.changeWeek();
+    });
 
-      if (_week > 0) {
-        _this.lastWeek = _week;
-      }
-
-      $('#week').attr('min', 0);
-      $('#week').val(0);
-      $('#btn-detailed').removeClass('selected');
-      $('#btn-resumed').addClass('selected');
-      $('.period-display').text('no ano epidemiológico');
-
+    $('#btn-contingency').click(function(){
+      _this.prepare_contingency_dashboard();
       _this.changeWeek();
     });
 
@@ -91,11 +86,15 @@ class Dashboard {
     });
 
     // selection type
-    $('#radTypeState').change(function(){
+    $('#radTerritoryTypeState').change(function(){
       $('#selected-territory').val('');
       _this.load_graphs();
     });
-    $('#radTypeRegion').change(function(){
+    $('#radTerritoryTypeRegion').change(function(){
+      $('#selected-territory').val('');
+      _this.load_graphs();
+    });
+    $('#radTerritoryTypeRegional').change(function(){
       $('#selected-territory').val('');
       _this.load_graphs();
     });
@@ -115,8 +114,108 @@ class Dashboard {
    * starts up the charts
    */
   init() {
+    if ($('#btn-detailed').hasClass('selected')) {
+      this.prepare_detailed_dashboard();
+    } else if ($('#btn-resumed').hasClass('selected')) {
+      this.prepare_resumed_dashboard();
+    } else {
+      this.prepare_contingency_dashboard();
+    }
+
     this.load_graphs();
     $('.week-display').text($('#week').val() || 0);
+  }
+
+
+  prepare_detailed_dashboard() {
+      $('body').addClass('detailed-view');
+      $('body').removeClass('resumed-view');
+      $('body').removeClass('contingency-view');
+
+      $('#week').attr('min', 1);
+      $('#week').val(this.lastWeek);
+      $('#div-week').removeClass('hidden');
+      $('#div-year').removeClass('hidden');
+      $('#div-dataset').removeClass('hidden');
+      $('#div-scale').removeClass('hidden');
+
+      $('#btn-resumed').removeClass('selected');
+      $('#btn-contingency').removeClass('selected');
+      $('#btn-detailed').addClass('selected');
+
+      $('.period-display').text('na semana epidemiológica');
+      $('#map-incidence-case-title').text('Mapa de incidência de SRAG');
+      $('#map-legend-title').text('Situação da atividade semanal');
+      $('#map-leg-low').text('Baixa');
+      $('#map-leg-medium').text('Epidêmica');
+      $('#map-leg-high').text('Alta');
+      $('#map-leg-very-high').text('Muito alta');
+  }
+
+  prepare_resumed_dashboard() {
+      $('body').removeClass('detailed-view');
+      $('body').addClass('resumed-view');
+      $('body').removeClass('contingency-view');
+
+      $('#div-week').addClass('hidden');
+      $('#div-year').removeClass('hidden');
+      $('#div-dataset').removeClass('hidden');
+      $('#div-scale').removeClass('hidden');
+
+      var _week = parseInt($('#week').val() || 0);
+
+      if (_week > 0) {
+        this.lastWeek = _week;
+      }
+
+      $('#week').attr('min', 0);
+      $('#week').val(0);
+
+      $('#btn-detailed').removeClass('selected');
+      $('#btn-contingency').removeClass('selected');
+      $('#btn-resumed').addClass('selected');
+
+      $('.period-display').text('no ano epidemiológico');
+      $('#map-incidence-case-title').text('Mapa da Temporada para SRAG');
+      $('#map-legend-title').text('Classificação da Temporada');
+      $('#map-leg-low').text('Baixa');
+      $('#map-leg-medium').text('Epidêmica');
+      $('#map-leg-high').text('Elevada');
+      $('#map-leg-very-high').text('Muito elevada');
+ }
+
+  prepare_contingency_dashboard() {
+      $('body').removeClass('detailed-view');
+      $('body').removeClass('resumed-view');
+      $('body').addClass('contingency-view');
+
+      $('#div-week').addClass('hidden');
+      $('#div-year').addClass('hidden');
+      $('#div-dataset').removeClass('hidden');
+      $('#div-scale').removeClass('hidden');
+
+      var _week = parseInt($('#week').val() || 0);
+
+      if (_week > 0) {
+        this.lastWeek = _week;
+      }
+
+      $('#week').attr('min', 0);
+      $('#week').val(0);
+
+      $('#year').val($('#year option:first').val());
+
+      $('#btn-detailed').removeClass('selected');
+      $('#btn-resumed').removeClass('selected');
+      $('#btn-contingency').addClass('selected');
+
+      $('.period-display').text('no ano epidemiológico');
+      $('#map-incidence-case-title').text('Mapa do Plano de Contingência');
+      $('#map-legend-title').text('Nível de ação');
+      $('#map-leg-low').text('Nível Basal');
+      $('#map-leg-medium').text('Nível 0');
+      $('#map-leg-high').text('Nível 1');
+      $('#map-leg-very-high').text('Nível 2');
   }
 
   /**
@@ -131,17 +230,15 @@ class Dashboard {
       _this.makeGraphs(error);
     };
 
-    var delimitation = (
-      $('input[name="radType[]"]:checked').attr('id') == 'radTypeState' ?
-      'state' : 'region'
-    );
+    var territoryTypeId = getTerritoryTypeId();
 
     var url = [
         '.', 'data',
+        $('input.view_name.selected').attr('id').substring(4,),
         $('#dataset option:selected').val(),
         $('#scale option:selected').val(),
         $('#year').val() || 0,
-        delimitation
+        territoryTypeId
     ].join('/');
 
     queue()
@@ -161,6 +258,8 @@ class Dashboard {
     var scale = $('#scale option:selected').val();
     var week = parseInt($('#week').val() || 0);
     var year = parseInt($('#year').val() || 0);
+    var territoryName = $('#selected-territory').val() || 'Brasil';
+    var view_name = $('input.view_name.selected').attr('id').substring(4,);
 
     $('.week-display').text(week);
 
@@ -168,6 +267,30 @@ class Dashboard {
       fillColor: 'white',
       weight: 1
     };
+
+    var etiological_url = encodeURI([
+        '.', 'data',
+        view_name,
+        dataset,
+        scale,
+        year,
+        week,
+        territoryName,
+        'etiological-agents'
+    ].join('/'));
+
+    // opportunities chart
+    var opportunities_url = encodeURI([
+        '.', 'data',
+        view_name,
+        dataset,
+        scale,
+        year,
+        week,
+        territoryName,
+        'opportunities-boxplot'
+    ].join('/'));
+
 
     if(week>0) {
       var df = $.grep(_this.sragData, function(n,i){
@@ -178,12 +301,19 @@ class Dashboard {
       var df = _this.sragData;
     }
 
-    var territoryName = $('#selected-territory').val() || 'Brasil';
-
     _this.sragMap.changeColorMap(_this.sragData);
-    _this.sragIncidenceChart.plot(dataset, scale, year, week, territoryName);
-    _this.sragAgeChart.plot(dataset, scale, year, week, territoryName);
-    _this.sragTable.makeTable(dataset, scale, year, week, territoryName);
+    _this.sragIncidenceChart.plot(
+        view_name, dataset, scale, year, week, territoryName
+    );
+    _this.sragAgeChart.plot(
+        view_name, dataset, scale, year, week, territoryName
+    );
+    _this.sragTable.makeTable(
+        view_name, dataset, scale, year, week, territoryName
+    );
+
+    $('#etiological-chart').load(etiological_url);
+    $('#opportunities-chart').load(opportunities_url);
   }
 
   /**
@@ -196,23 +326,53 @@ class Dashboard {
     var scale = $('#scale option:selected').val();
     var week = parseInt($('#week').val() || 0);
     var year = parseInt($('#year').val() || 0);
+    var view_name = $('input.view_name.selected').attr('id').substring(4,);
     var _this = this;
 
     this.sragMap.makeMap(
-      this.statesBR, this.sragData, dataset, scale, year, week,
+      this.statesBR, this.sragData, view_name, dataset, scale, year, week,
       function(
-        dataset, scale, year, territoryName, week
+        view_name, dataset, scale, year, territoryName, week
       ) {
-        _this.sragIncidenceChart.plot(dataset, scale, year, week, territoryName);
-        _this.sragAgeChart.plot(dataset, scale, year, week, territoryName);
-        _this.sragTable.makeTable(dataset, scale, year, week, territoryName);
+        _this.sragIncidenceChart.plot(
+            view_name, dataset, scale, year, week, territoryName
+        );
+        _this.sragAgeChart.plot(
+            view_name, dataset, scale, year, week, territoryName
+        );
+        _this.sragTable.makeTable(
+            view_name, dataset, scale, year, week, territoryName
+        );
+
+        // etiological chart
+        var etiological_url = encodeURI([
+            '.', 'data',
+            view_name,
+            dataset,
+            scale,
+            year,
+            week,
+            territoryName,
+            'etiological-agents'
+        ].join('/'));
+        $('#etiological-chart').load(etiological_url);
+
+        // opportunities chart
+        var opportunities_url = encodeURI([
+            '.', 'data',
+            view_name,
+            dataset,
+            scale,
+            year,
+            week,
+            territoryName,
+            'opportunities-boxplot'
+        ].join('/'));
+        $('#opportunities-chart').load(opportunities_url);
+
       }
     );
 
     this.changeWeek();
-
-    this.sragIncidenceChart.plot(dataset, scale, year, week, territoryName);
-    this.sragAgeChart.plot(dataset, scale, year, week, territoryName);
-    this.sragTable.makeTable(dataset, scale, year, week, territoryName);
   }
 }

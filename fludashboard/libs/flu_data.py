@@ -52,6 +52,27 @@ class FluDB:
 
             return result[0]
 
+    def get_territory_from_name(self, state_name: str) -> int:
+        """
+
+        :param state_name:
+        :return:
+        """
+
+        state_name = state_name.upper()
+        with self.conn.connect() as conn:
+            sql = '''
+            SELECT * FROM territory 
+            WHERE UPPER(name)='%s'
+            ''' % state_name
+
+            result = conn.execute(sql).fetchone()
+
+            if not result:
+                raise Exception('Territory not found.')
+
+            return result
+
     def get_season_situation(self, df):
         """
 
@@ -77,7 +98,7 @@ class FluDB:
         elif se.epidemic_level >= 1:
             return 2  # 'yellow'
         # else
-        return 1  # 'green'
+        return 1  # 'green' or 'white'
 
     def group_data_by_season(self, df, df_age_dist=None, season=None):
         """
@@ -114,12 +135,14 @@ class FluDB:
             df_tmp.loc[df_tmp.epiyear == season, 'situation_id'] = 3
 
         if df_age_dist is not None:
-            df_by_season = df_age_dist[[
+            tgt_cols = [
                 'territory_id', 'territory_name', 'epiyear', 'gender',
-                'value', 'years_0_4', 'years_5_9', 'years_10_19',
-                'years_20_29', 'years_30_39', 'years_40_49', 'years_50_59',
-                'years_60_or_more'
-            ]].groupby([
+                'value', 'years_lt_2', 'years_2_4', 'years_0_4', 'years_5_9',
+                'years_10_19', 'years_20_29', 'years_30_39', 'years_40_49',
+                'years_50_59', 'years_60_or_more'
+            ]
+
+            df_by_season = df_age_dist[tgt_cols].groupby([
                 'territory_id', 'territory_name', 'epiyear', 'gender'
             ], as_index=False).sum()
         else:
@@ -188,7 +211,8 @@ class FluDB:
         territory_id: int=None, year: int=None, week: int=None,
         base_year: int=None, base_week: int=None,
         historical_week: int=None, return_sql=False,
-        extra_fields: list=None, selected_fields: list=None, **kwargs
+        extra_fields: list=None, selected_fields: list=None,
+        excluded_fields: list=[], **kwargs
     ):
         """
 
@@ -204,6 +228,7 @@ class FluDB:
         :param return_sql:
         :param extra_fields:
         :param selected_fields:
+        :param excluded_fields:
         :param kwargs:
         :return:
 
@@ -222,7 +247,7 @@ class FluDB:
 
             selected_fields = [
                 f[0] for f in selected_fields
-                if f[0] not in ['dataset_id', 'scale_id']
+                if f[0] not in ['dataset_id', 'scale_id'] + excluded_fields
             ]
 
         if extra_fields is not None:
@@ -294,46 +319,25 @@ class FluDB:
           mem_typical.dataset_id AS dataset_id,
           mem_typical.scale_id AS scale_id,
           mem_typical.territory_id AS territory_id,
-          mem_typical.year AS epiyear,
+          incidence.epiyear AS epiyear,
           mem_typical.epiweek AS epiweek,
           incidence.value, 
-          (CASE WHEN historical.situation_id IS NULL 
-                THEN incidence.situation_id 
-                ELSE historical.situation_id END) AS situation_id,
-          (CASE WHEN historical.mean IS NULL 
-                THEN incidence.mean 
-                ELSE historical.mean END) AS mean,
-          (CASE WHEN historical.median IS NULL 
-                THEN incidence.median 
-                ELSE historical.median END) AS estimated_cases, 
-          (CASE WHEN historical.ci_lower IS NULL 
-                THEN incidence.ci_lower 
-                ELSE historical.ci_lower END) AS ci_lower, 
-          (CASE WHEN historical.ci_upper IS NULL
-                THEN incidence.ci_upper 
-                ELSE historical.ci_upper END) AS ci_upper, 
-          (CASE WHEN historical.low_level IS NULL 
-                THEN incidence.low_level
-                ELSE historical.low_level END) AS low_level, 
-          (CASE WHEN historical.epidemic_level IS NULL 
-                THEN incidence.epidemic_level 
-                ELSE historical.epidemic_level END) AS epidemic_level, 
-          (CASE WHEN historical.high_level IS NULL 
-                THEN incidence.high_level 
-                ELSE historical.high_level END) AS high_level, 
-          (CASE WHEN historical.very_high_level IS NULL 
-                THEN incidence.very_high_level 
-                ELSE historical.very_high_level END) AS very_high_level, 
+          incidence.low_level as low_level,
+          incidence.epidemic_level as epidemic_level,
+          incidence.high_level as high_level,
+          incidence.very_high_level as very_high_level,
+          incidence.situation_id AS situation_id,
           incidence.run_date,
+          %(estimates_columns_selection)s
           mem_typical.population, 
           mem_typical.low AS typical_low, 
-          mem_typical.median AS typical_median, 
-          mem_typical.high AS typical_high,
+          mem_typical.median-mem_typical.low AS typical_median, 
+          mem_typical.high-mem_typical.median AS typical_high,
           mem_report.geom_average_peak, 
           mem_report.low_activity_region, 
-          mem_report.pre_epidemic_threshold, 
-          mem_report.high_threshold, 
-          mem_report.very_high_threshold, 
+          mem_report.pre_epidemic_threshold as pre_epidemic_threshold, 
+          mem_report.high_threshold as high_threshold, 
+          mem_report.very_high_threshold as very_high_threshold, 
           mem_report.epi_start, 
           mem_report.epi_start_ci_lower,
           mem_report.epi_start_ci_upper, 
@@ -343,18 +347,36 @@ class FluDB:
           mem_report.regular_seasons,
           historical.base_epiyear, 
           historical.base_epiweek,
-          historical.base_epiyearweek,
           territory.name AS territory_name,
           territory_type.name AS territory_type_name,
-          situation.name AS situation_name
+          situation.name AS situation_name,
+          contingency_level.contingency AS contingency,
+          contingency_level.contingency_max AS contingency_max,
+          weekly_alert.alert AS alert,
+          season_level.season_level AS season_level
         FROM
           (
-            SELECT * FROM current_estimated_values
+            SELECT
+            epiyear,
+            epiweek,
+            dataset_id,
+            scale_id,
+            territory_id,
+            situation_id,
+            "value",
+            low_level,
+            epidemic_level,
+            high_level,
+            very_high_level,
+            run_date 
+            %(incidence_table_select)s
+            FROM current_estimated_values
             WHERE dataset_id=%(dataset_id)s 
               AND scale_id=%(scale_id)s 
               AND epiyear=%(epiyear)s 
               AND epiweek %(incidence_week_operator)s %(epiweek)s
               %(territory_id_condition)s
+              %(situation_id_condition)s
           ) AS incidence 
           INNER JOIN situation
             ON (incidence.situation_id=situation.id)
@@ -362,25 +384,34 @@ class FluDB:
             SELECT * FROM mem_typical
             WHERE dataset_id=%(dataset_id)s 
               AND scale_id=%(scale_id)s
-              AND year=%(epiyear)s 
               %(territory_id_condition)s 
             ) AS mem_typical
             ON (
               incidence.dataset_id=mem_typical.dataset_id
               AND incidence.scale_id=mem_typical.scale_id
               AND incidence.territory_id=mem_typical.territory_id
-              AND incidence.epiyear=mem_typical.year
               AND incidence.epiweek=mem_typical.epiweek
+            )
+          LEFT JOIN (
+            SELECT * FROM weekly_alert
+            WHERE dataset_id=%(dataset_id)s
+              AND epiyear=%(epiyear)s
+              %(territory_id_condition)s
+            ) AS weekly_alert
+            ON (
+              mem_typical.dataset_id=weekly_alert.dataset_id
+              AND mem_typical.territory_id=weekly_alert.territory_id
+              AND mem_typical.epiweek=weekly_alert.epiweek            
             )
           INNER JOIN territory
             ON (mem_typical.territory_id=territory.id)
           INNER JOIN territory_type
             ON (territory.territory_type_id=territory_type.id)
+          %(historical_table)s
           FULL OUTER JOIN (
             SELECT * FROM mem_report
             WHERE dataset_id=%(dataset_id)s 
               AND scale_id=%(scale_id)s
-              AND year=%(epiyear)s 
               %(territory_id_condition)s
             ) AS mem_report
             ON (
@@ -389,7 +420,24 @@ class FluDB:
               AND mem_typical.territory_id=mem_report.territory_id
               AND mem_typical.year=mem_report.year
             )
-          %(historical_table)s
+          FULL OUTER JOIN (
+            SELECT * FROM contingency_level
+            WHERE epiyear=%(epiyear)s
+            %(territory_id_condition)s
+            ) AS contingency_level
+            ON (
+            mem_report.territory_id=contingency_level.territory_id
+            )
+          FULL OUTER JOIN (
+            SELECT * FROM season_level
+            WHERE epiyear=%(epiyear)s
+            %(territory_id_condition)s
+            ) AS season_level
+            ON (
+            mem_report.territory_id=season_level.territory_id
+            AND mem_typical.dataset_id=season_level.dataset_id
+
+            )
          WHERE 1=1
            %(where_extras)s
         ORDER BY epiyear, epiweek
@@ -401,6 +449,14 @@ class FluDB:
             'territory_id': territory_id,
             'epiweek': week,
             'epiyear': year,
+            'epiweekstop': 54,
+            'base_epiweek_condition': '',
+            'estimates_columns_selection': '''
+            incidence.mean  AS "mean",
+            incidence.median AS estimated_cases, 
+            incidence.ci_lower AS ci_lower, 
+            incidence.ci_upper AS ci_upper, 
+            ''',
             'where_extras': '',
             'historical_table': '''
             FULL OUTER JOIN (
@@ -409,31 +465,94 @@ class FluDB:
             ) AS historical ON (1=1)
             ''',
             'incidence_week_operator': '=',
-            'territory_id_condition': ''
+            'territory_id_condition': '',
+            'situation_id_condition': '',
+            'incidence_table_select': ''' 
+            ,mean,
+            median,
+            ci_lower,
+            ci_upper
+            '''
+
         }
+
+        if territory_id is not None:
+            sql_param['territory_id_condition'] += (
+                ' AND territory_id=%s ' % territory_id
+            )
 
         if week is None or week == 0:
             sql_param['epiweek'] = 54
             sql_param['incidence_week_operator'] = '<='
+            sql_param['base_epiweek_condition'] = '''
+            AND base_epiweek = (
+                SELECT MAX(base_epiweek)
+                FROM historical_estimated_values
+                WHERE base_epiyear = %(epiyear)s\
+                AND dataset_id = %(dataset_id)s
+                AND scale_id = %(scale_id)s
+                %(territory_id_condition)s )
+            ''' % sql_param
+            with self.conn.connect() as conn:
+                sql_param['epiweekstop'] = conn.execute('''
+                SELECT MAX(epiweek) FROM current_estimated_values
+                WHERE epiyear = %(epiyear)s
+                  AND "value" IS NOT NULL
+                ''' % sql_param).fetchone()[0] - 4
+        else:
+            sql_param['epiweekstop'] = week - 4
+            sql_param['base_epiweek_condition'] = '''
+            AND base_epiweek = (
+                SELECT MAX(LEAST(base_epiweek, %(epiweek)s))
+                FROM historical_estimated_values
+                WHERE base_epiyear=%(epiyear)s
+                    AND dataset_id = %(dataset_id)s
+                    AND scale_id = %(scale_id)s
+                    AND base_epiweek <= %(epiweek)s
+                    %(territory_id_condition)s )
+            AND epiyear =%(epiyear)s
+            ''' % sql_param
 
         # force week filter (week 0 == all weeks)
         if show_historical_weeks:
+            with self.conn.connect() as conn:
+                epiyearmax = conn.execute('SELECT MAX(epiyear) FROM current_estimated_values').fetchone()[0]
+            if year < epiyearmax:
+                sql_param['situation_id_condition'] = ' AND situation_id = 3'
+            else:
+                sql_param['situation_id_condition'] = ' AND epiweek <= %(epiweekstop)s' % sql_param
+            sql_param['estimates_columns_selection'] = '''
+            historical.mean  AS mean,
+            historical.median AS estimated_cases, 
+            historical.ci_lower AS ci_lower, 
+            historical.ci_upper AS ci_upper, 
+            '''
+            sql_param['incidence_table_select'] = ''
             sql_param['historical_table'] = '''
-          FULL OUTER JOIN (
-            SELECT * 
+          LEFT JOIN (
+            SELECT territory_id,
+                epiweek,
+                mean,
+                median,
+                ci_lower,
+                ci_upper,
+                low_level,
+                epidemic_level,
+                high_level,
+                very_high_level,
+                base_epiyear,
+                base_epiweek,
+                base_epiyearweek
             FROM historical_estimated_values
             WHERE dataset_id=%(dataset_id)s 
              AND scale_id=%(scale_id)s 
              AND territory_id=%(territory_id)s 
-             AND epiyear=%(epiyear)s 
-             AND base_epiweek=%(epiweek)s 
+             AND base_epiyear=%(epiyear)s
+             AND situation_id = 2
+             %(base_epiweek_condition)s
           ) AS historical
             ON (
-              incidence.dataset_id=historical.dataset_id
-              AND incidence.scale_id=historical.scale_id
-              AND incidence.territory_id=historical.territory_id
-              AND incidence.epiyear=historical.epiyear
-              AND incidence.epiweek=historical.epiweek
+              mem_typical.epiweek=historical.epiweek
             )
             ''' % sql_param
             sql_param['incidence_week_operator'] = '<='
@@ -445,11 +564,6 @@ class FluDB:
         if territory_type_id is not None and territory_type_id > 0:
             sql_param['where_extras'] += (
                 ' AND territory.territory_type_id=%s' % territory_type_id
-            )
-
-        if territory_id is not None:
-            sql_param['territory_id_condition'] += (
-                ' AND territory_id=%s ' % territory_id
             )
 
         sql = sql % sql_param
@@ -473,17 +587,23 @@ class FluDB:
         """
         season = year  # alias
 
-        age_cols = [
-            'years_0_4', 'years_5_9', 'years_10_19', 'years_20_29',
+        if scale_id == 1:
+            age_cols = ['years_0_4']
+        else:
+            age_cols = ['years_lt_2', 'years_2_4']
+
+        age_cols.extend([
+            'years_5_9', 'years_10_19', 'years_20_29',
             'years_30_39', 'years_40_49', 'years_50_59', 'years_60_or_more'
-        ]
+        ])
 
         # data
         df_age_dist = self.read_data(
             'clean_data_epiweek_weekly_incidence_w_situation',
             dataset_id=dataset_id, scale_id=scale_id, year=season,
-            territory_id=territory_id,
-            low_memory=False
+            territory_id=territory_id, low_memory=False, excluded_fields=[
+                'ADNO', 'PARA1', 'PARA2', 'PARA3'
+            ]
         )
 
         if week is not None and week > 0:
@@ -500,5 +620,172 @@ class FluDB:
 
         df = df[age_cols + ['gender']].set_index('gender').transpose()
         df.rename(columns={'F': 'Mulheres', 'M': 'Homens'}, inplace=True)
+        if 'I' in df.columns:
+            df.rename(columns={'I': 'Sexo ignorado'}, inplace=True)
+            df = df[['Mulheres', 'Homens', 'Sexo ignorado', 'Total']]
 
+        return df
+
+    def get_etiological_data(
+        self, dataset_id: int, scale_id: int, year: int,
+        week: int=None, territory_id: int=None
+    ) -> pd.DataFrame:
+        """
+        Generate timeseries for each ethiological agent and other relevant lab
+        data
+
+        :param dataset_id: SRAG (1) or SRAGFLU (2) or OBITOFLU (3)
+        :param scale_id: Incidence (1) or cases (2)
+        :param year: epidemiological year
+        :param week: epidemiological week or all (None or 0)
+        :param territory_id:
+        """
+
+        sql_param = {
+            'epiweek': week,
+            'epiyear': year,
+            'territory_id': territory_id,
+            'dataset_id': dataset_id,
+            'scale_id': scale_id
+        }
+
+        if week == None or week == 0:
+            sql_param['epiweek'] = 53
+        if territory_id == None:
+            sql_param['territory_id'] = 0
+
+        sql = '''
+        SELECT
+          notification.epiweek AS epiweek,
+          notification.positive_cases AS "Testes positivos",
+          notification.flu_a AS "Influenza A",
+          notification.flu_b AS "Influenza B",
+          notification.vsr AS "VSR",
+          notification."ADNO" AS "Adenovirus",
+          notification."PARA1" AS "Parainfluenza 1",
+          notification."PARA2" AS "Parainfluenza 2",
+          notification."PARA3" AS "Parainfluenza 3",
+          notification.negative AS "Testes negativos",
+          notification.not_tested AS "Casos sem teste laboratorial",
+          notification.delayed AS "Casos aguardando resultado",
+          notification.testing_ignored AS "Casos sem informação laboratorial",
+          territory.name AS territory_name
+        FROM
+          (SELECT 
+            epiweek,
+            epiyear,
+            dataset_id,
+            scale_id,
+            gender,
+            positive_cases,
+            flu_a,
+            flu_b,
+            vsr,
+            "ADNO",
+            "PARA1",
+            "PARA2",
+            "PARA3",
+            negative,
+            not_tested,
+            delayed,
+            testing_ignored,
+            territory_id
+          FROM
+            clean_data_epiweek_weekly_incidence_w_situation
+          WHERE
+            epiyear=%(epiyear)s
+            AND dataset_id=%(dataset_id)s
+            AND territory_id=%(territory_id)s
+            AND scale_id=%(scale_id)s
+            AND gender='Total'
+            AND epiweek <= %(epiweek)s
+          ) as notification
+        LEFT JOIN territory
+            ON (notification.territory_id=territory.id)
+        WHERE 1=1
+        ORDER BY epiweek
+        ''' % sql_param
+
+        with self.conn.connect() as conn:
+            return pd.read_sql(sql, conn)
+
+    def get_opportunities(
+        self, dataset_id: int, scale_id: int, year: int,
+        territory_type_id: int, week: int=None,
+        territory_id: int=None
+    ) -> pd.DataFrame:
+        """
+        Grab data for opportunity boxplots
+
+        :param dataset_id:
+        :param scale_id:
+        :param year: selected year
+        :param week: selected week. 0 or Nonoe for all
+        :param territory_id: territory. 0 or None for whole country
+        :param territory_type_id: territory type. None or 4 for whole country
+        :return pd.DataFrame:
+
+        """
+        sql_param = {
+            'dataset_id': dataset_id,
+            'scale_id': scale_id,
+            'epiweek': week,
+            'epiyear': year,
+            'territory_id': territory_id,
+            'territory_select': '',
+            'territory_name': '',
+            'territory_join': ''
+        }
+
+        territory_type2column = {
+            1: 'territory_id',
+            2: 'regional',
+            3: 'region'
+        }
+
+        if territory_id not in [0, None]:
+            sql_param['territory_name'] = ', territory.name AS territory_name'
+            sql_param['territory_column'] = territory_type2column[
+                territory_type_id
+            ]
+            sql_param[
+                'territory_select'
+            ] = '''AND %(territory_column)s = %(territory_id)s''' % sql_param
+            sql_param['territory_join'] = '''LEFT JOIN territory
+                ON (delay.%(territory_column)s=territory.id)
+            WHERE 1=1
+            ''' % sql_param
+
+        if week is None or week == 0:
+            sql_param['epiweek'] = 53
+
+        sql = '''
+        SELECT
+        delay.symptoms2notification as "Primeiros sintomas à notificação",
+        delay.symptoms2digitalization AS "Primeiros sintomas à digitalização",
+        delay.notification2digitalization AS "Notificação à digitalização",
+        delay.symptoms2antiviral AS "Primeiros sintomas ao tratamento",
+        delay.symptoms2sample AS "Primeiros sintomas à coleta",
+        delay.sample2ifi AS "Coleta a resultado de IFI",
+        delay.sample2PCR AS "Coleta a resultado de PCR",
+        delay.notification2closure AS "Notificação ao encerramento"        
+        %(territory_name)s
+        FROM
+            (SELECT * 
+            FROM
+                delay_table
+            WHERE
+                epiyear=%(epiyear)s
+                AND dataset_id=%(dataset_id)s
+                AND epiweek <= %(epiweek)s
+                %(territory_select)s
+            ) as delay
+            %(territory_join)s
+        ''' % sql_param
+
+        with self.conn.connect() as conn:
+            df = pd.read_sql(sql, conn)
+
+        if territory_id in [0, None]:
+            df['territory_name'] = 'Brasil'
         return df

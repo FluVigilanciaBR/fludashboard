@@ -1,11 +1,16 @@
-from flask import render_template, Flask
+from flask import render_template, Flask, Response
 # local
-from .flu_data import FluDB
-from .utils import cross_domain, calc_last_epiweek
+from ..settings import APP_AVAILABLE
 from .calc_flu_alert import (
     apply_filter_alert_by_epiweek,
-    calc_alert_rank_whole_year)
+    calc_alert_rank_whole_year
+)
+from .charts import ethio_ts, opportunities_boxplot
+from .flu_data import FluDB
+from .utils import cross_domain, calc_last_epiweek
 
+import numpy as np
+import os
 import pandas as pd
 
 
@@ -25,12 +30,12 @@ def compose_data_url(variables: str):
     :return:
     """
     url_var = {
-        'data': '/data/<int:dataset_id>/<int:scale_id>',
+        'data': '/data/<string:view_name>/<int:dataset_id>/<int:scale_id>',
         'year': '<int:year>',
         'epiweek': '<int:epiweek>',
-        'territory_type': '<string:territory_type>',
+        'territory_type_id': '<int:territory_type_id>',
         'territory_id': '<int:territory_id>',
-        'territory_name': '<string:territory_name>'
+        'territory_name': '<string:territory_name>',
     }
 
     url = [
@@ -39,6 +44,21 @@ def compose_data_url(variables: str):
     ]
 
     return '/'.join(url)
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+
+@app.errorhandler(403)
+def page_forbidden(e):
+    return render_template('403.html'), 403
+
+
+@app.errorhandler(500)
+def page_error_server(e):
+    return render_template('500.html'), 500
 
 
 @app.route("/super-header")
@@ -52,9 +72,12 @@ def index():
 
     :return:
     """
+    if not APP_AVAILABLE:
+        return render_template("unavailable.html")
+
     # read data to get the list of available years
     df = fluDB.read_data(
-        table_name='historical_estimated_values',
+        table_name='current_estimated_values',
         dataset_id=1, scale_id=1, territory_id=0
     )
 
@@ -62,8 +85,8 @@ def index():
     # By default should be the current or latest available
     list_of_years = list(set(df.epiyear))
 
-    epiyear = df.base_epiyear.max()
-    epiweek = df.base_epiweek.max()
+    epiyear = df.epiyear.max()
+    epiweek = df.epiweek[df.epiyear == epiyear].max()
 
     last_week_years = {
         y: calc_last_epiweek(y) for y in list_of_years
@@ -87,25 +110,26 @@ def app_help():
     return render_template("help.html")
 
 
-@app.route(compose_data_url('year/territory_type'))
+@app.route(compose_data_url('year/territory_type_id'))
 def get_data(
-    dataset_id: int, scale_id: str, year: int, territory_type: str
+    view_name: str, dataset_id: int, scale_id: str, year: int,
+    territory_type_id: int
 ):
     """
-
+    :param view_name:
     :param dataset_id:
     :param scale_id:
     :param year:
-    :param territory_type:
+    :param territory_type_id:
     :return:
     """
-    territory_type_id = 1 if territory_type == 'state' else 2
-
     df = fluDB.get_data(
         dataset_id=dataset_id, scale_id=scale_id, year=year,
         territory_type_id=territory_type_id, show_historical_weeks=False
     )
-    return apply_filter_alert_by_epiweek(df).to_json(orient='records')
+    return apply_filter_alert_by_epiweek(
+        df, view_name
+    ).to_json(orient='records')
 
 
 @app.route(compose_data_url('year/epiweek/weekly-incidence-curve'))
@@ -113,11 +137,11 @@ def get_data(
     'year/epiweek/territory_name/weekly-incidence-curve')
 )
 def data__weekly_incidence_curve(
-    dataset_id: int, scale_id: int, year: int, epiweek: int,
+    view_name: str, dataset_id: int, scale_id: int, year: int, epiweek: int,
     territory_name: str='Brasil'
 ):
     """
-
+    :param view_name:
     :param dataset_id:
     :param scale_id:
     :param year:
@@ -150,7 +174,7 @@ def data__weekly_incidence_curve(
         pass
 
     try:
-        min_week = int(df.loc[df['situation_id'] == 0, 'epiweek'].min())
+        min_week = int(df.loc[df['situation_id'] == 4, 'epiweek'].min())
         mask = df['epiweek'] >= min_week
 
         df['incomplete_data'] = None
@@ -160,8 +184,18 @@ def data__weekly_incidence_curve(
     except:
         pass
 
+    if len(df[~pd.isna(df.estimated_cases)]) > 0:
+        est_min_week =  df.epiweek[~pd.isna(df.estimated_cases)].min()
+        if est_min_week > 1:
+            df.loc[(df.epiweek == est_min_week-1), 'estimated_cases'] = df.value[df.epiweek == est_min_week-1]
+
     # cheating: using a new field corredor_muito_alto just for plotting
-    df['typical_very_high'] = df.very_high_threshold.max() * 1.02
+    # cheating: using a new field corredor_muito_alto just for plotting
+    df['typical_very_high'] = df.typical_high + df.typical_median + df.typical_low
+    df['typical_very_high'] = df[[
+            'very_high_threshold', 'ci_upper', 'value', 'typical_very_high'
+        ]].max().max() * 1.1
+    df['typical_very_high'] = df.typical_very_high - (df.typical_high + df.typical_median + df.typical_low)
     # change keys' order
     ks.insert(ks.index('typical_high') + 1, 'typical_very_high')
 
@@ -172,13 +206,14 @@ def data__weekly_incidence_curve(
 @app.route(compose_data_url('year/epiweek/levels'))
 @app.route(compose_data_url('year/epiweek/territory_name/levels'))
 def data__incidence_levels(
-    dataset_id: int, scale_id: int, year: int,
+    view_name: str, dataset_id: int, scale_id: int, year: int,
     epiweek: int=None, territory_name: str='Brasil'
 ):
     """
     When epiweek==None, the system will assume the whole year view.
     When state_name==None, the system will assume state_name=='Brasil'
 
+    :param view_name:
     :param dataset_id:
     :param scale_id:
     :param year:
@@ -201,21 +236,43 @@ def data__incidence_levels(
             'low_level', 'epidemic_level',
             'high_level', 'very_high_level'
         ]
+
         df[ks] *= 100
         df[ks] = df[ks].round(2)
 
-        ks += ['situation_id']
+        ks += ['situation_id', 'regular_seasons']
+
         return df[ks].to_json(orient='records')
 
+    ks = [
+        'low_level', 'epidemic_level',
+        'high_level', 'very_high_level'
+    ]
+
     # prepare data for the whole year
-    df = apply_filter_alert_by_epiweek(df=df)
+    df = apply_filter_alert_by_epiweek(df=df, view_name=view_name)
+
+    low_level = df[df.alert == 1].count().low_level
+    epidemic_level = df[df.alert == 2].count().epidemic_level
+    high_level = df[df.alert == 3].count().high_level
+    very_high_level = df[df.alert == 4].count().very_high_level
+
+    if scale_id == 1:
+        total_level = low_level + epidemic_level + high_level + very_high_level
+
+        low_level = np.round((low_level/total_level)*100, 2)
+        epidemic_level = np.round((epidemic_level/total_level)*100, 2)
+        high_level = np.round((high_level/total_level)*100, 2)
+        very_high_level = np.round((very_high_level/total_level)*100, 2)
 
     se = pd.Series({
-        'low_level': df[df.alert == 1].count().low_level,
-        'epidemic_level': df[df.alert == 2].count().epidemic_level,
-        'high_level': df[df.alert == 3].count().high_level,
-        'very_high_level': df[df.alert == 4].count().very_high_level
+        'low_level': low_level,
+        'epidemic_level': epidemic_level,
+        'high_level': high_level,
+        'very_high_level': very_high_level
     })
+
+    regular_seasons = df.loc[0, 'regular_seasons']
 
     rank = calc_alert_rank_whole_year(se)
 
@@ -226,21 +283,24 @@ def data__incidence_levels(
     se['l%s' % (rank-1)] = 1
     se['situation'] = ''
 
-    return (pd.DataFrame(se).T*100).round(2).to_json(orient='records')
+    df = pd.DataFrame(se).T
+    df['regular_seasons'] = regular_seasons
+
+    return df.to_json(orient='records')
 
 
 @app.route(compose_data_url('year/data-table'))
 @app.route(compose_data_url('year/epiweek/data-table'))
-@app.route(compose_data_url('year/epiweek/territory_type/data-table'))
+@app.route(compose_data_url('year/epiweek/territory_type_id/data-table'))
 @app.route(
     compose_data_url(
-        'year/epiweek/territory_type' +
+        'year/epiweek/territory_type_id' +
         '/territory_name/data-table'
     )
 )
 def data__data_table(
-    dataset_id: str, scale_id: str, year: int, epiweek: int=None,
-    territory_type: str=None, territory_name: str=None
+    view_name: str, dataset_id: str, scale_id: str, year: int, epiweek: int=None,
+    territory_type_id: str=None, territory_name: str=None
 ):
     """
     1. Total number of cases in the selected year for eac
@@ -250,11 +310,12 @@ def data__data_table(
     3. Total number of cases in the selected year for selected State
     4. Number of cases in the selected week for selected State.
 
+    :param view_name:
     :param dataset_id:
     :param scale_id:
     :param year:
     :param epiweek:
-    :param territory_type:
+    :param territory_type_id:
     :param territory_name:
     :return:
 
@@ -279,10 +340,12 @@ def data__data_table(
         territory_id=territory_id
     )
 
-    if territory_type == 'state':
-        mask = ~(df.territory_type_name == 'Regional')
-    else:
-        mask = ~(df.territory_type_name == 'Estado')
+    if territory_type_id == 1:  # state
+        mask = ~(df.territory_type_name.isin(['Regional', 'Região']))
+    elif territory_type_id == 2:  # regional
+        mask = ~(df.territory_type_name.isin(['Estado', 'Região']))
+    else:  # region
+        mask = ~(df.territory_type_name.isin(['Estado', 'Regional']))
 
     df = df[mask]
 
@@ -343,11 +406,12 @@ def data__data_table(
 @app.route(compose_data_url('year/epiweek/territory_name/age-distribution'))
 @cross_domain(origin='*')
 def data__age_distribution(
-    dataset_id: str, scale_id: str, year: int,
+    view_name: str, dataset_id: str, scale_id: str, year: int,
     epiweek: int=None, territory_name: str=None
 ):
     """
 
+    :param view_name:
     :param dataset_id:
     :param scale_id:
     :param year:
@@ -372,7 +436,6 @@ def data__age_distribution(
 
     # TODO: rename the data on the front-end side
     df.rename(index={
-        'years_0_4': '0-4 anos',
         'years_5_9': '5-9 anos',
         'years_10_19': '10-19 anos',
         'years_20_29': '20-29 anos',
@@ -381,6 +444,86 @@ def data__age_distribution(
         'years_50_59': '50-59 anos',
         'years_60_or_more': '60+ anos'
     }, inplace=True)
+    if scale_id == 1:
+        df.rename(index={'years_0_4': '0-4 anos'}, inplace=True)
+    else:
+        df.rename(index={'years_lt_2': '< 2 anos', 'years_2_4': '2-4 anos'}, inplace=True)
 
     # the replace is used when there is no data in the df
     return ('index' + df.to_csv()).replace('""', '')
+
+
+@app.route(compose_data_url('year/etiological-agents'))
+@app.route(compose_data_url('year/epiweek/etiological-agents'))
+@app.route(compose_data_url('year/epiweek/territory_name/etiological-agents'))
+def etiological_agents(
+    view_name: str, dataset_id: str, scale_id: str, year: int,
+    epiweek: int=None, territory_name: str=None
+):
+    """
+
+    :param view_name:
+    :param dataset_id:
+    :param scale_id:
+    :param year:
+    :param epiweek:
+    :param territory_name:
+    :return:
+    """
+    territory_id = fluDB.get_territory_id_from_name(territory_name)
+
+    # Etiological panel fixed to cases scale, not incidence.
+    scale_id = 2
+
+    df = FluDB().get_etiological_data(
+        dataset_id=dataset_id, scale_id=scale_id, year=year,
+        week=epiweek, territory_id=territory_id
+    )
+
+    return Response(ethio_ts(df, scale_id=scale_id, year=year))
+
+
+@app.route(compose_data_url('year/opportunities-boxplot'))
+@app.route(compose_data_url('year/epiweek/opportunities-boxplot'))
+@app.route(compose_data_url('year/epiweek/territory_name/opportunities-boxplot'))
+def opportunities_boxplot_view(
+    view_name: str, dataset_id: str, scale_id: str, year: int,
+    epiweek: int=None, territory_name: str=None
+):
+    """
+
+    :param view_name:
+    :param dataset_id:
+    :param scale_id:
+    :param year:
+    :param epiweek:
+    :param territory_name:
+    :return:
+    """
+    territory = fluDB.get_territory_from_name(territory_name)
+    territory_id = int(territory['id'])
+    territory_type_id = int(territory['territory_type_id'])
+
+    df = FluDB().get_opportunities(
+        dataset_id=dataset_id, scale_id=scale_id, year=year,
+        week=epiweek, territory_id=territory_id,
+        territory_type_id=territory_type_id
+    )
+
+    return Response(opportunities_boxplot(df, week=epiweek))
+
+
+@app.route('/static/data/br-states.json')
+def static_data_br_states_view():
+    """
+
+    :return:
+    """
+    path_states_json = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        'data', 'br-states.json'
+    )
+    with open(path_states_json) as f:
+        resp = Response(f.read())
+        resp.default_mimetype = 'plain/json'
+        return resp

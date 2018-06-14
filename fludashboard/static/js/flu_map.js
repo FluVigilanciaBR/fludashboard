@@ -7,9 +7,9 @@
 
 // CONSTANTS
 DATASET_TITLE = {
-    'srag': 'SRAG',
-    'sragflu': 'SRAG por Influenza',
-    'obitoflu': 'Óbitos por Influenza'
+    1: 'SRAG',
+    2: 'SRAG por Influenza',
+    3: 'Óbitos por Influenza'
 };
 
 /**
@@ -29,10 +29,22 @@ class SRAGMap {
    */
   constructor() {
     this.fluColors = {
-      1: 'green',
-      2: 'yellow',
-      3: '#ff7700',
-      4: 'red',
+        'resumed': {
+            1: '#ffffcc',
+            2: '#c2e699',
+            3: '#78c679',
+            4: '#238443'
+        }, 'detailed': {
+            1: '#edf8fb',
+            2: '#b3cde3',
+            3: '#9f8cc6',
+            4: '#88419d'
+        }, 'contingency':{
+            1: '#ffffcc',
+            2: '#a1dab4',
+            3: '#41b6c4',
+            4: '#225ea8'
+        }
     };
     // create the tile layer with correct attribution
     this.map = L.map('map');
@@ -49,7 +61,7 @@ class SRAGMap {
     this.osm.addTo(this.map);
     this.geojsonLayer = {};
 
-    this.regionIds = {
+    this.regionalIds = {
       // 1
       'Acre': 'RegN',
       'Amapá': 'RegN',
@@ -83,11 +95,54 @@ class SRAGMap {
       'São Paulo': 'RegS',
     };
 
-    this.regionNames = {
+    this.regionalNames = {
       'RegC': 'Regional Centro',
       'RegN': 'Regional Norte',
       'RegS': 'Regional Sul',
       'RegL': 'Regional Leste',
+    };
+
+    this.regionIds = {
+      // 1
+      'Acre': 'N',
+      'Amapá': 'N',
+      'Amazonas': 'N',
+      'Pará': 'N',
+      'Rondônia': 'N',
+      'Roraima': 'N',
+      'Tocantins': 'N',
+      // 2
+      'Alagoas': 'NE',
+      'Bahia': 'NE',
+      'Ceará': 'NE',
+      'Maranhão': 'NE',
+      'Paraíba': 'NE',
+      'Pernambuco': 'NE',
+      'Piauí': 'NE',
+      'Rio Grande do Norte': 'NE',
+      'Sergipe': 'NE',
+      // 3
+      'Espírito Santo': 'SE',
+      'Rio de Janeiro': 'SE',
+      'São Paulo': 'SE',
+      'Minas Gerais': 'SE',
+      // 4
+      'Paraná': 'S',
+      'Rio Grande do Sul': 'S',
+      'Santa Catarina': 'S',
+      // 5
+      'Distrito Federal': 'CO',
+      'Goiás': 'CO',
+      'Mato Grosso': 'CO',
+      'Mato Grosso do Sul': 'CO',
+    };
+
+    this.regionNames = {
+      'N': 'Norte',
+      'NE': 'Nordeste',
+      'SE': 'Sudeste',
+      'CO': 'Centro-oeste',
+      'S': 'Sul',
     };
 
     this.legend = new L.Control.Legend({
@@ -110,15 +165,35 @@ class SRAGMap {
    * @param {string} scale - data scale
    */
   makeMap(
-    geoJsonBr, sragData, dataset, scale, year, week, clickExternalTrigger
+    geoJsonBr, sragData, view_name, dataset, scale,
+    year, week, clickExternalTrigger
   ) {
     var _this = this;
     var title = '';
+    var level_col = (view_name == 'contingency') ? 'contingency' : 'alert';
+    var selectedTerritory = $('#selected-territory').val() || 'Brasil';
+    var territoryTypeId = getTerritoryTypeId();
 
-    title = (scale == 'incidence') ?
+    if (view_name == 'contingency'){
+      title = 'Mapa do Plano de Contingência';
+    } else if (view_name == 'resumed'){
+      title = 'Mapa da Temporada para ';
+    } else {
+      title = (scale == 1) ?
         'Mapa de incidência de ':
         'Mapa de situação de ';
-    title = title + DATASET_TITLE[dataset];
+    }
+
+    if (view_name != 'contingency'){
+      if (dataset == 1) {
+        title = title + DATASET_TITLE[dataset];
+      } else {
+        title = (
+          title + DATASET_TITLE[dataset] +
+          " (diagnóstico laboratorial ou clínico-epidemiológico)"
+        );
+      }
+    }
     $('#map-incidence-case-title').text(title);
 
     // remove existent layer from the map
@@ -128,7 +203,7 @@ class SRAGMap {
       }
     });
 
-    $('.territory-display').text(' - Brasil');
+    $('.territory-display').text(' - ' + selectedTerritory);
 
     // apply onclick event on each region/state on the map
     function onEachFeature(feature, layer) {
@@ -138,51 +213,94 @@ class SRAGMap {
           // reset line weight
           _this.geojsonLayer.eachLayer(function (_layer) {
             _layer.setStyle({
-              weight: 1
+              weight: 1,
+              fillOpacity: 0.7
             });
           });
 
           var territoryName = feature.properties.nome;
           var week = parseInt($('#week').val() || 0);
           var year = parseInt($('#year').val() || 0);
-          var territoryType = (
-            $('input[name="radType[]"]:checked').attr('id') == 'radTypeState' ?
-            'state' : 'region'
-          );
+          var territoryTypeId = getTerritoryTypeId();
 
-          if (territoryType=='state') {
+          if (territoryTypeId==1) {
             // state
             if ($('#selected-territory').val() == territoryName) {
               territoryName = '';
               $('.territory-display').text(' - Brasil');
+              _this.geojsonLayer.eachLayer(function (_layer) {
+                _layer.setStyle({
+                  weight: 1,
+                  fillOpacity: 1
+                });
+              });
             } else {
               // bold the selected state
               layer.setStyle({
-                weight: 2
+                weight: 3,
+                fillOpacity: 1
               });
               $('.territory-display').text(' - ' + territoryName);
             }
-          } else {
+          } else if (territoryTypeId==2) {
             // regions
-            var rid = _this.regionIds[territoryName];
-            var ridName = _this.regionNames[rid];
+            var rid = _this.regionalIds[territoryName];
+            var ridName = _this.regionalNames[rid];
 
             _this.geojsonLayer.eachLayer(function (_layer) {
-              var _rid = _this.regionIds[_layer.feature.properties.nome];
+              var _rid = _this.regionalIds[_layer.feature.properties.nome];
 
-              _layer.setStyle({color: '#333333'});
+              _layer.setStyle({color: '#333333', fillOpacity: 0.7});
 
               if (_rid == rid && $('#selected-territory').val() != ridName) {
-                _layer.setStyle({weight: 2});
+                _layer.setStyle({weight: 3, fillOpacity: 1});
                 _layer.bringToFront();
               } else {
-                _layer.setStyle({weight: 1});
+                _layer.setStyle({weight: 1, fillOpacity: 0.7});
               }
             });
 
             // state
             if ($('#selected-territory').val() == ridName) {
               territoryName = '';
+              _this.geojsonLayer.eachLayer(function (_layer) {
+                _layer.setStyle({
+                   weight: 1,
+                   fillOpacity: 1
+                });
+              });
+              $('.territory-display').text(' - Brasil');
+            } else {
+              $('.territory-display').text(' - ' + ridName);
+              territoryName = ridName;
+            }
+          } else {
+            // geopolitical regions
+            var rid = _this.regionIds[territoryName];
+            var ridName = _this.regionNames[rid];
+
+            _this.geojsonLayer.eachLayer(function (_layer) {
+              var _rid = _this.regionIds[_layer.feature.properties.nome];
+
+              _layer.setStyle({color: '#333333', fillOpacity: 1});
+
+              if (_rid == rid && $('#selected-territory').val() != ridName) {
+                _layer.setStyle({weight: 3, fillOpacity: 1});
+                _layer.bringToFront();
+              } else {
+                _layer.setStyle({weight: 1, fillOpacity: 0.7});
+              }
+            });
+
+            // state
+            if ($('#selected-territory').val() == ridName) {
+              territoryName = '';
+              _this.geojsonLayer.eachLayer(function (_layer) {
+                _layer.setStyle({
+                  weight: 1,
+                  fillOpacity: 1
+                });
+              });
               $('.territory-display').text(' - Brasil');
             } else {
               $('.territory-display').text(' - ' + ridName);
@@ -190,20 +308,18 @@ class SRAGMap {
             }
           }
 
+          if (territoryName == '') {
+            territoryName = 'Brasil'
+          }
+
           $('#selected-territory').val(territoryName);
 
-          clickExternalTrigger(dataset, scale, year, territoryName, week);
+          clickExternalTrigger(view_name, dataset, scale, year, territoryName, week);
         }
       });
     };
 
-    var selectedTerritory = $('#selected-territory').val();
-    var territoryType = (
-      $('input[name="radType[]"]:checked').attr('id') == 'radTypeState' ?
-      'state' : 'region'
-    );
-
-    if (territoryType=='state') {
+    if (territoryTypeId==1) {
       // show geojson on the map
       this.geojsonLayer = L.geoJson(geoJsonBr, {
         onEachFeature: onEachFeature,
@@ -213,8 +329,8 @@ class SRAGMap {
           var styleProperties= {
             fillColor: '#ffffff',
             color: '#333333',
-            fillOpacity: 0.5,
-            weight: 1,
+            fillOpacity: 1,
+            weight: 1
           };
 
           var weekState = $.grep(sragData, function(n,i){
@@ -225,28 +341,32 @@ class SRAGMap {
           })[0];
 
           if (weekState != undefined) {
-            styleProperties['fillColor'] = _this.fluColors[weekState['alert']];
+            styleProperties['fillOpacity'] = 1;
+            styleProperties['fillColor'] = (
+                _this.fluColors[view_name][weekState[level_col]]
+            );
           }
 
           if (selectedTerritory==layerName) {
-            styleProperties['weight'] = 2;
+            styleProperties['weight'] = 3;
+            styleProperties['fillOpacity'] = 1;
           }
           return styleProperties;
         }
       });
-    } else {
+    } else if (territoryTypeId==2) {
       // region
       this.geojsonLayer = L.geoJson(geoJsonBr, {
         onEachFeature: onEachFeature,
         style: function(feature) {
             var layerName = feature.properties.nome;
-            var _rid = _this.regionIds[layerName];
+            var _rid = _this.regionalIds[layerName];
 
             var styleProperties= {
                 fillColor: '#fffff',
                 color: '#333333',
-                fillOpacity: 0.5,
-                weight: 1,
+                fillOpacity: 1,
+                weight: 1
             };
 
             /*var weekState = $.grep(sragData, function(n,i){
@@ -257,11 +377,45 @@ class SRAGMap {
             })[0];
 
             if (weekState != undefined) {
-              styleProperties['fillColor'] = _this.fluColors[weekState['alert']];
+              styleProperties['fillColor'] = _this.fluColors[weekState[level_col]];
             }*/
 
             if (selectedTerritory==_rid) {
-              styleProperties['weight'] = 2;
+              styleProperties['weight'] = 3;
+              styleProperties['fillOpacity'] = 1;
+            }
+            return styleProperties;
+          }
+      });
+    } else {
+      // geopolitical region
+      this.geojsonLayer = L.geoJson(geoJsonBr, {
+        onEachFeature: onEachFeature,
+        style: function(feature) {
+            var layerName = feature.properties.nome;
+            var _rid = _this.regionIds[layerName];
+
+            var styleProperties= {
+                fillColor: '#fffff',
+                color: '#333333',
+                fillOpacity: 1,
+                weight: 1
+            };
+
+            /*var weekState = $.grep(sragData, function(n,i){
+              return (
+                n.territory_name===layerName &&
+                (n.epiweek===week || week==0)
+              );
+            })[0];
+
+            if (weekState != undefined) {
+              styleProperties['fillColor'] = _this.fluColors[weekState[level_col]];
+            }*/
+
+            if (selectedTerritory==_rid) {
+              styleProperties['weight'] = 3;
+              styleProperties['fillOpacity'] = 1;
             }
             return styleProperties;
           }
@@ -285,7 +439,7 @@ class SRAGMap {
     var high_threshold = d[4] + d[3];
 
     if (high_threshold >= 5) return 4;
-    if (high_threshold > 1) return 3;
+    if (high_threshold >= 1) return 3;
     if (d[2] >= 1) return 2;
     return 1;
   }
@@ -298,17 +452,16 @@ class SRAGMap {
     var _this = this;
     var state = $('#selected-territory').val();
     var week = parseInt($('#week').val() || 0);
+    var view_name = $('input.view_name.selected').attr('id').substring(4,);
+    var level_col = 'alert';
     var styleProperties= {
       fillColor: '#ffffff',
       color: '#333333',
-      fillOpacity: 0.5,
+      fillOpacity: 1,
       weight: 1,
     };
 
-    var territoryType = (
-      $('input[name="radType[]"]:checked').attr('id') == 'radTypeState' ?
-      'state' : 'region'
-    );
+    var territoryTypeId = getTerritoryTypeId();
 
     if(week>0) {
       // when by week criteria is selected
@@ -320,15 +473,17 @@ class SRAGMap {
         var layerName = layer.feature.properties.nome;
         var territoryName = '';
 
-        if (territoryType=='state') {
+        if (territoryTypeId==1) {
           territoryName = layerName;
+        } else if (territoryTypeId==2) {
+          territoryName = _this.regionalNames[_this.regionalIds[layerName]];
         } else {
           territoryName = _this.regionNames[_this.regionIds[layerName]];
         }
 
         layer.setStyle(styleProperties);
         if (territoryName==state) {
-          layer.setStyle({'weight': 2});
+          layer.setStyle({weight: 3});
         }
 
         var df_alert_state = $.grep(df_alert, function(n,i){
@@ -337,7 +492,10 @@ class SRAGMap {
 
         if (df_alert_state != undefined) {
           layer.setStyle({
-            fillColor: _this.fluColors[df_alert_state['alert']]
+            fillOpacity: 1,
+            fillColor: (
+                _this.fluColors[view_name][df_alert_state[level_col]]
+            )
           });
         }
       });
@@ -347,35 +505,32 @@ class SRAGMap {
         var layerName = layer.feature.properties.nome;
         var territoryName = '';
 
-        if (territoryType=='state') {
+        if (territoryTypeId==1) {
           territoryName = layerName;
+        } else if (territoryTypeId==2) {
+          territoryName = _this.regionalNames[_this.regionalIds[layerName]];
         } else {
           territoryName = _this.regionNames[_this.regionIds[layerName]];
         }
 
         layer.setStyle(styleProperties);
         if (territoryName==state) {
-          layer.setStyle({'weight': 2});
+          layer.setStyle({weight: 3});
         }
-
-        var alerts = {
-          1: 0,
-          2: 0,
-          3: 0,
-          4: 0
-        };
 
         var df_alert_state = $.grep(df, function(n,i){
           return n.territory_name===territoryName;
-        });
+        })[0];
 
-        $(df_alert_state).each(function(i){
-          ++alerts[df_alert_state[i]['alert']];
-        });
+        level_col = (view_name == 'contingency') ? 'contingency' : 'season_level';
 
         layer.setStyle({
-          fillColor: _this.fluColors[_this.getAlertLevelForWholeYear(alerts)]
+          fillOpacity: 1,
+          fillColor: (
+            _this.fluColors[view_name][df_alert_state[level_col]]
+          )
         });
+
       });
     }
   }
