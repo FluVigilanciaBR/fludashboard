@@ -80,7 +80,7 @@ setup(
     long_description=readme + '\n\n' + history,
     author="Marcelo F C Gomes, Ivan Ogasawara",
     author_email='marcelo.gomes@fiocruz.br, ivan.ogasawara@gmail.com',
-    url='https://github.com/xmnlab/fludashboard',
+    url='https://github.com/FluVigilanciaBR/fludashboard',
     packages=[
         'fludashboard',
     ],
@@ -97,7 +97,7 @@ setup(
     zip_safe=False,
     keywords='fludashboard',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Natural Language :: English',
