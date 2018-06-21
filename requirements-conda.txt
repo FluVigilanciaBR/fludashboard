@@ -1,4 +1,4 @@
-pandas
+pandas>=0.21
 numpy
 flask
 unidecode
@@ -6,3 +6,5 @@ sqlalchemy
 psycopg2
 pyyaml
 cufflinks-py
+plotly==2.5.1
+ipython
