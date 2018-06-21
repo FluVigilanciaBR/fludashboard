@@ -15,7 +15,16 @@ folium
 seaborn
 ggplot
 matplotlib
-plotly
+plotly==2.5.1
 
 # test
 flake8
+
+pandas>=0.21
+numpy
+flask
+unidecode
+sqlalchemy
+psycopg2
+pyyaml
+cufflinks

@@ -4,6 +4,8 @@ import glob
 import os
 import pandas as pd
 import sqlalchemy as sqla
+import argparse
+from argparse import RawDescriptionHelpFormatter
 
 dataset_id = {
     'srag': 1,
@@ -148,10 +150,13 @@ def update_data_files(force: bool):
     command = '''cd %(path_data)s; \
     %(wget_prefix)s/br-states.json; \
     %(wget_prefix)s/clean_data_epiweek-weekly-incidence_w_situation.csv && \
+    %(wget_prefix)s/contingency_level.csv && \
     %(wget_prefix)s/current_estimated_values.csv && \
     %(wget_prefix)s/historical_estimated_values.csv && \
     %(wget_prefix)s/mem-report.csv && \
     %(wget_prefix)s/mem-typical.csv && \
+    %(wget_prefix)s/season_level.csv && \
+    %(wget_prefix)s/weekly_alert.csv && \
     %(wget_prefix)s/delay_table.csv''' % {
         'path_data': path_data,
         'wget_prefix': wget_prefix
@@ -552,5 +557,12 @@ def migrate_from_csv_to_psql():
 
 
 if __name__ == '__main__':
-    update_data_files(force=True)
-    migrate_from_csv_to_psql()
+    parser = argparse.ArgumentParser(description="Update datafiles and DB.\n",
+                                     formatter_class=RawDescriptionHelpFormatter)
+    parser.add_argument('-F', '--Force', help='Force download', action='store_true')
+    parser.add_argument('-d', '--database', help='Update database', action='store_true')
+
+    args = parser.parse_args()
+    update_data_files(force=args.Force)
+    if args.database:
+        migrate_from_csv_to_psql()

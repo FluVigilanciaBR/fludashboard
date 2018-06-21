@@ -15,7 +15,7 @@ Types of Contributions
 Report Bugs
 ~~~~~~~~~~~
 
-Report bugs at https://github.com/xmnlab/fludashboard/issues.
+Report bugs at https://github.com/FluVigilanciaBR/fludashboard/issues.
 
 If you are reporting a bug, please include:
 
@@ -65,7 +65,7 @@ Submit Feedback
 ~~~~~~~~~~~~~~~
 
 The best way to send feedback is to file an issue at
-https://github.com/xmnlab/fludashboard/issues.
+https://github.com/FluVigilanciaBR/fludashboard/issues.
 
 If you are proposing a feature:
 
