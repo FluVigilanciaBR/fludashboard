@@ -185,10 +185,9 @@ class FluDB:
         )
 
         df_by_season['epiweek'] = 0
-
         return df_by_season
 
-    def report_incidence(self, x, situation, low=None, high=None):
+    def report_incidence(self, x, situation, low=None, high=None, percentage=None, fmt='%.2f'):
         """
         original name: report_inc
 
@@ -199,11 +198,16 @@ class FluDB:
         :return:
         """
         if situation == 3:
-            y = '%.2f' % x
+            y = fmt % x
         elif situation == 2:
-            y = '%.2f [%.2f - %.2f]' % (x, low, high)
+            fmt = '%s [%s - %s]' % (fmt, fmt, fmt)
+            y = fmt % (x, low, high)
         else:
-            y = '*%.2f' % x
+            y = fmt % x
+
+        if percentage:
+            y += ' (%.1f %% do país)' % percentage
+
         return y
 
     def read_data(
@@ -455,7 +459,8 @@ class FluDB:
             incidence.mean  AS "mean",
             incidence.median AS estimated_cases, 
             incidence.ci_lower AS ci_lower, 
-            incidence.ci_upper AS ci_upper, 
+            incidence.ci_upper AS ci_upper,
+            incidence.country_percentage AS country_percentage, 
             ''',
             'where_extras': '',
             'historical_table': '''
@@ -471,7 +476,8 @@ class FluDB:
             ,mean,
             median,
             ci_lower,
-            ci_upper
+            ci_upper,
+            country_percentage
             '''
 
         }
@@ -525,7 +531,8 @@ class FluDB:
             historical.mean  AS mean,
             historical.median AS estimated_cases, 
             historical.ci_lower AS ci_lower, 
-            historical.ci_upper AS ci_upper, 
+            historical.ci_upper AS ci_upper,
+            historical.country_percentage AS country_percentage, 
             '''
             sql_param['incidence_table_select'] = ''
             sql_param['historical_table'] = '''
@@ -536,6 +543,7 @@ class FluDB:
                 median,
                 ci_lower,
                 ci_upper,
+                country_percentage,
                 low_level,
                 epidemic_level,
                 high_level,
