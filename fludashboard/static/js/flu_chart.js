@@ -161,7 +161,7 @@ class SRAGIncidenceChart{
           typical_low: 'Zona de Êxito',
           typical_median: 'Zona de Segurança',
           typical_high: 'Zona de Alerta',
-          typical_very_high: 'Zona de Surto/Epidemia',
+          typical_very_high: 'Zona de Risco',
           value: 'Casos notificados',
           pre_epidemic_threshold: 'Limiar Pré epidêmico',
           high_threshold: 'Intensidade Alta',
