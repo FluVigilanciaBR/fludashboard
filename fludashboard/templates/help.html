@@ -9,11 +9,18 @@
       type="image/png"
       href="./static/img/info_gripe_icon.ico"
 />
+<style>
+  img.max-width{
+    max-width: 100%;
+    height: auto;
+  }
+</style>
 <!-- README.HTML STYLE HERE :END-->
 
 </head>
 
 <body>
+<a name="top"></a>
 
 <div class="navbar navbar-dark bg-primary" role="navigation">
   <iframe src="./super-header" class="super-header" scrolling="no"></iframe>
@@ -60,9 +67,10 @@
               </li>
             </ul>
             <div class="section" id="funcionalidades">
-              <h5>Funcionalidades</h5>
+              <h4>Funcionalidades</h4>
               <ul class="simple">
                 <li>Nowcast de incidência semanal;</li>
+                <li>Nowcast do plano de contingência;</li>
                 <li>Limiares de atividade;</li>
                 <li>Distribuição etária dos casos notificados;</li>
                 <li>Nível de atividade por temporada;</li>
@@ -70,7 +78,7 @@
               </ul>
             </div>
             <div class="section" id="tutoriais">
-              <h5>Tutoriais</h5>
+              <h4>Tutoriais</h4>
               <ul>
                 <li><p class="first">Panorama semanal:</p>
                   <p><a class="reference external"
@@ -86,304 +94,380 @@
             <br/>
           </div>
           <div class="section" id="descricao-das-funcionalidades">
-            <h4>Descrição das funcionalidades</h4>
+            <h3>Descrição das funcionalidades</h3>
             <p>InfoGripe apresenta níveis de atividade e informação sobre a
               série temporal de incidência por semana epidemiológica (SE) e por
-              temporada.
-              Estas informações podem ser visualizadas pelo panorama <strong>Detalhado
-                (semana)</strong> e <strong>Resumido (ano)</strong>. Cada
-              panorama é composto por quatro painéis:</p>
+              temporada, além do nível do plano de contingência com base nos dados mais recentes introduzidos no
+              sistema.
+              Estas informações podem ser acessadas em três modos de visualização:</p>
             <ul class="simple">
-              <li>Mapa do país;</li>
-              <li>Curva de incidência (por 100mil habitantes);</li>
-              <li>Tabela de incidência (por 100mil habitantes);</li>
-              <li>Distribuição etária (por 100mil habitantes);</li>
+              <li><a href="#panorama-detalhado-semana"><strong>Detalhado (semana);</strong></a></li>
+              <li><a href="#panorama-resumido-ano"><strong>Resumido (ano);</strong></a></li>
+              <li><a href="#panorama-contingencia"><strong>Plano de Contingência atual.</strong></a></li>
             </ul>
-            <p>Em cada panorama, as informações podem ser visualizadas por
-              estado (UF) ou região.</p>
-            <div class="section" id="panorama-detalhado-semana">
-              <h5>Panorama Detalhado (semana):</h5>
-              <ul class="simple">
-                <li>Mapa do país (superior esquerdo)</li>
-              </ul>
-              <blockquote>
-                <p>Cada estado/região possui uma cor de acordo com o nível de
-                  atividade para a SE selecionada:</p>
-                <ul class="simple">
-                  <li>Atividade baixa (verde): incidência abaixo do limiar
-                    pré-epidêmico;
-                  </li>
-                  <li>Atividade epidêmica (amarelo): incidência acima do limiar
-                    pré-epidêmico e abaixo do limiar de atividade alta;
-                  </li>
-                  <li>Atividade alta (laranja): incidência acima do limiar de
-                    atividade alta e abaixo do de atividade muito alta;
-                  </li>
-                  <li>Atividade muito alta (vermelho): incidência acima do
-                    limiar de atividade muito alta.
-                  </li>
-                </ul>
-              </blockquote>
-              <ul class="simple">
-                <li>Curva de incidência (superior direito)</li>
-              </ul>
-              <blockquote>
-                <p>Este painel apresenta a série temporal de incidência
+            Cada uma desses modos é acessado clicando no botão correspondente na barra principal:
+            <p><img class="max-width" src="/static/img/view-mode.png" alt="view-mode-img" width="441px" height="46px">
+            <p/>
+            As particularidades de cada modo são detalhadas na seção <a href="#view-modes">Modos de visualização</a>.
+            <p>
+              Em cada um desses modos, as informações são apresentadas em seis
+              <a href="#panels-description">painéis</a>:
+            </p>
+            <ul class="simple">
+              <li><a href="#map-description">Mapa de situação</a>;</li>
+              <li><a href="#ts-description">Série temporal (curva de incidência ou número de casos)</a>;</li>
+              <li><a href="#table-description">Tabela de incidência ou número de casos</a>;</li>
+              <li><a href="#age-dist-description">Distribuição etária dos casos reportados</a>;</li>
+              <li><a href="#opportunities-description">Acompanhamento das oportunidades do sistema de informação</a>;
+              </li>
+              <li><a href="#lab-results-description">Séreis temporais relativas aos dados laboratoriais reportados no
+                sistema</a>;</li>
+            </ul>
+            <p>
+            <img class="max-width" src="/static/img/panels.png" alt="panels-img" width="470px" height="500px">
+            <p/>
+            Cada painel está descrito em detalhes na seção <a href="#panels-description">Painéis</a>.
+            <p>As informações podem ser visualizadas por estado (UF), região geopolítica ou por padrão de circulação,
+              através dos seletores da barra principal:</p>
+            <p>
+            <img class="max-width" src="/static/img/territory-type.png" alt="territory-type-img" width="203px"
+                 height="72px">
+            <p/>
+            <p>Através do menu <strong>Conjunto de dados</strong>, o(a) usuário(a) pode escolher entre visualizar os
+              dados relativos ao total de notificações de síndrome respiratória aguda grave (SRAG), SRAG causada por
+              vírus Influenza (SRAGFLU), e óbitos por Influenza (OBITOFLU). Nos últimos dois cenários, são reportados
+              tanto os casos cujo diagnóstico foi laboratorial (casos confirmados) quanto aqueles com diagnóstico
+              clínico-epidemiológico (casos prováveis).
+            </p>
+            <p>O menu <strong>Escala</strong> permite ao(à) usuário(a) visualizar os dados em termos de incidência
+              por 100 mil habitantes de cada localidade (INCIDÊNCIA) ou em termos do número casos (CASOS) </p>
+            <p>
+            <img class="max-width" src="/static/img/dataset-and-scale.png" alt="dataset-and-scale-img" width="296px"
+                 height="59px">
+            <p/>
+
+            <div class="section" id="panels-description">
+              <h4>Painéis. <a href="#top"><img src="/static/img/back-to-top.png" width="17px" height="22px"></a></h4>
+              <p>Nesta seção descreveremos em linhas gerais as informações apresentadas em cada um dos painéis. As
+                alterações provenientes do modo de visualização selecionado, serão explicitados com maiores detalhes
+                na seção <a href="#view-modes">Modos de visualização</a>.
+              </p>
+              <dl class="simple">
+                <dt id="map-description"><h5>Mapa de situação</h5></dt>
+                <dd>Cada estado/região possui uma cor de acordo com o nível de atividade naquela localidade. As
+                  classificações dependem do modo de visualização selecionado.
+                  <ul class="simple">
+                    <li><a href="#panorama-detalhado-semana">Detalhado (semana)</a>: nível de atividade
+                    semanal, com base nos limiares pré-epidêmico, de
+                      atividade alta, e de atividade muito alta;</li>
+                    <li><a href="#panorama-resumido-ano">Resumido (ano)</a>: classificação da temporada, com base no
+                      número de semanas acima dos limiares de atividade semanal;</li>
+                    <li><a href="#panorama-contingencia">Plano de Contingência atual</a>: nível de
+                      ação com base nos critérios definidos pelo GT-Influenza sa Secretaria de Vigilância em
+                      Saúde do Ministério da Saúde (SVS/MS).</li>
+                  </ul>
+                  Maiores detalhes sobre cada um desses critérios é apresentado na descrição dos respectivos
+                  <a href="#view-modes">modos de visualização</a>.
+                </dd>
+                <dt id="ts-description"><h5>Curva de incidência</h5></dt>
+                <dd>Este painel apresenta a série temporal de incidência
                   reportada (curva preta sólida) para a temporada
                   correspondente, com uma linha vertical indicando a SE
                   selecionada. Estimativas de incidência, quando disponíveis,
                   são apresentadas com curva sólida em vermelho, com o
                   intervalo de confiança de 95% representado por linhas
-                  vermelhas pontilhadas. A probabilidade de cada nível de
+                  pretas pontilhadas. A probabilidade de cada nível de
                   atividade também é apresentado em formato de texto no canto
                   superior esquerdo do gráfico. As cores do mapa correspondem
                   ao nível de maior probabilidade. Além da incidência, neste
-                  gráfico apresentamos também os limiares de atividade
-                  correspondente:</p>
-                <ul class="simple">
-                  <li>Limiar pré-epidêmico (linha azul tracejada): nível de
-                    atividade que indica, quando ultrapassado, o início da
-                    transmissão sustentada para a temporada atual. Após superar
-                    este limiar, a incidência tende a apresentar crescimento
-                    gradual até atingir o pico de incidência para aquele ano;
-                  </li>
-                  <li>Limiar de atividade alta (linha verde tracejada): nível
-                    de atividade a partir do qual a incidência é considerada
-                    alta para aquela localidade (estado/região). Calculado com
-                    base em estimativa para o percentil 90 da distribuição de
-                    incidência semanal histórica;
-                  </li>
-                  <li>Nível de atividade muito alta (linha vermelha tracejada):
-                    nível de atividade a partir da qual a incidência é
-                    considerada muito elevada para aquela localidade. Calculado
-                    com base na estimativa para o percentil 97.5 da
-                    distribuição de incidência semanal histórica;
-                  </li>
-                </ul>
-              </blockquote>
-              <ul class="simple">
-                <li>Esquema de cores do pano de fundo da curva de incidência
-                </li>
-              </ul>
-              <blockquote>
-                <p>O pano de fundo demarca os níveis de atividade típicos para
-                  cada semana. Isto é, o perfil histórica da incidência para
-                  cada semana. Isto permite indetificar o padrão sazonal típico
-                  , facilitando a identificação do período usual de atividade
-                  epidêmica.</p>
-                <ul class="simple">
-                  <li>Atividade semanal baixa (área verde): incidência abaixo
-                    do percentil 10 para cada SE;
-                  </li>
-                  <li>Atividade semanal baixa à moderada (área amarela):
-                    incidência entre os percentís 10 e 50 (mediana) para cada
-                    SE;
-                  </li>
-                  <li>Atividade semanal moderada à alta (área laranja):
-                    incidência entre os percentís 50 e 90 para cada SE;
-                  </li>
-                  <li>Atividade semanal alta (área vermelha): incidência acima
-                    do percentil 90 para cada SE.
-                  </li>
-                </ul>
-                <p>Quando a incidência em uma determinada semana está dentro da
-                  região de atividade alta (fundo vermelho), indica que para
-                  aquela SE a atividade é atípicamente alta, independentemente
-                  dos limiares de atividade. Esta informação é útil para
-                  detectar temporadas em que o período epidêmico se inicia
-                  antes do usual, por exemplo. Vê a temporada de 2016 no estado
-                  do Rio Grande do Sul para um exemplo deste comportamento.</p>
-              </blockquote>
-              <ul class="simple">
-                <li>Tabela de incidência (inferior esquerdo)</li>
-              </ul>
-              <blockquote>
-                <p>Incidência para a localidade correspondente na SE
+                  gráfico apresentamos três linhas horizontais com os limiares de atividade
+                  semanal e um esquema de cores de fundo representando os canais endêmicos.
+                  <br>
+                  <ul class="simple">
+                    <li><strong>Limiares de atividade:</strong>
+                      <ul class="simple" style="list-style-type: circle">
+                        <li>Limiar pré-epidêmico (linha verde tracejada): nível de
+                          atividade que indica, quando ultrapassado, o início da
+                          transmissão sustentada para a temporada atual. Após superar
+                          esse patamar, a incidência tende a apresentar crescimento
+                          gradual até atingir o pico de incidência para aquele ano;
+                        </li>
+                        <li>Limiar de atividade alta (linha azul tracejada): nível
+                          de atividade a partir do qual a incidência é considerada
+                          alta para aquela localidade. Calculado com
+                          base em estimativa para o percentil 90 da distribuição de
+                          incidência semanal histórica;
+                        </li>
+                        <li>Nível de atividade muito alta (linha vermelha tracejada):
+                          nível de atividade a partir da qual a incidência é
+                          considerada muito elevada para aquela localidade. Calculado
+                          com base na estimativa para o percentil 97.5 da
+                          distribuição de incidência semanal histórica;
+                        </li>
+                      </ul>
+                    </li>
+                    <img class="max-width" src="/static/img/time-series-thresholds.png" width="417px" height="359px">
+                    <li><strong>Esquema de cores do pano de fundo da curva de incidência:</strong>
+                      O pano de fundo demarca os níveis de atividade típicos para
+                      cada semana, como os <strong>canais endêmicos</strong>. Isto é, representa o perfil histórico da
+                      incidência para cada semana. Isso permite indetificar o padrão sazonal típico e volume de
+                      casos tipicamente esperados em cada SE, facilitando a identificação do período usual de atividade
+                      epidêmica e anos com tendência atípica.
+                      <ul class="simple" style="list-style-type: circle">
+                        <li>Zona de êxito (área verde: incidência abaixo
+                          do percentil 10 esperado para cada SE;
+                        </li>
+                        <li>Zona de segurança (área amarela):
+                          incidência entre os percentís 10 e 50 (mediana) esperados para cada
+                          SE;
+                        </li>
+                        <li>Zona de alerta (área laranja):
+                          incidência entre os percentís 50 e 90 esperados para cada SE;
+                        </li>
+                        <li>Zona de risco (área vermelha): incidência acima
+                          do percentil 90 esperado para cada SE.
+                        </li>
+                      </ul>
+                      Quando a incidência em uma determinada semana está dentro da região de atividade alta (fundo
+                      vermelho), indica que para aquela SE a atividade é atípicamente alta, independentemente dos
+                      limiares de atividade. Esta informação é útil para detectar temporadas em que o período
+                      epidêmico se inicia antes do usual, por exemplo. Vê as temporadas de 2016 e 2017 para exemplos
+                      deste comportamento.
+                    </li>
+                    <img class="max-width" src="/static/img/time-series-corridors.png" width="417px" height="359px">
+                  </ul>
+                </dd>
+                <dt id="table-description"><h5>Tabela de incidência</h5></dt>
+                <dd>Incidência para a localidade correspondente na SE
                   selecionada, juntamente com o intervalo de confiança de 90%
-                  quando valor for estimado. Juntamenteda incidência e nome da
-                  localidade, esta tabela apresenta a situação dos dados
-                  selecionados:</p>
-                <ul class="simple">
-                  <li>Estável: dados reportados considerados suficientemente
-                    próximos do total casos notificados. Estes dados estão
-                    sujeitos a pequenas alterações futuras;
-                  </li>
-                  <li>Estimado: dados reportados baseado em estimativa para a
-                    oportunidade de digitação. Isto é, baseado no número de
-                    notificações já digitadas no sistema (dados incompletos) e
-                    o tempo típico entre notificação na unidade de saúde e
-                    digitação desta notificação no sistema. Estes dados podem
-                    sofrer alterações futuras, tornando-se estáveis após
-                    algumas semanas;
-                  </li>
-                  <li>Incompleto: dados reportados ainda não são estáveis em
-                    função do padrão de oportunidade de digitação observado na
-                    localidade selecionada e nosso sistema não é capaz de
-                    produzir estimativas confiáveis. Estes dados podem sofrer
-                    grandes alterações futuras, tornando-se estáveis após
-                    algumas semanas.
-                  </li>
-                </ul>
-              </blockquote>
-              <ul class="simple">
-                <li>Distribuição etária e por gênero (inferior direito)</li>
-              </ul>
-              <blockquote>
-                <p>Gráfico de barras para a incidência reportada (sem uso de
-                  estimativa) por faixa etária e gênero, para a SE
-                  selecionada.</p>
-                <ul class="simple">
-                  <li>Mulheres: barra azul;</li>
-                  <li>Homens: barra laranja;</li>
-                  <li>Total: barra verde</li>
-                </ul>
-                <p>Estas distribuições estão sujeitas a alterações conforme
-                  situação reportada na tabela de incidência. Neste painel não
-                  apresentamos estimativas por faixa etária, reportando apenas
-                  as notificações já digitadas, sejam os dados estáveis ou
-                  incompletos.</p>
-              </blockquote>
+                  quando o valor reportado for estimado, e percentual dos casos do país observados em cada localidade.
+                  Juntamente da incidência e nome da localidade, esta tabela apresenta a situação dos dados
+                  selecionados:
+                  <ul class="simple">
+                    <li>Estável: dados reportados considerados suficientemente
+                      próximos do total casos notificados. Estes dados estão
+                      sujeitos a pequenas alterações futuras;
+                    </li>
+                    <li>Estimado: dados reportados com base em estimativa para a
+                      oportunidade de digitação. Isto é, baseado no número de
+                      notificações já digitadas no sistema (dados incompletos) e
+                      o tempo típico entre notificação na unidade de saúde e
+                      digitação desta notificação no sistema. Estes dados podem
+                      sofrer alterações futuras, tornando-se estáveis após
+                      algumas semanas;
+                    </li>
+                    <li>Incompleto: dados reportados ainda não são estáveis em
+                      função do padrão de oportunidade de digitação observado na
+                      localidade selecionada e nosso sistema não é capaz de
+                      produzir estimativas confiáveis. Estes dados podem sofrer
+                      grandes alterações futuras, tornando-se estáveis após
+                      algumas semanas.
+                    </li>
+                  </ul>
+                </dd>
+                <dt id="age-dist-description"><h5>Distribuição etária e por gênero</h5></dt>
+                <dd>Gráfico de barras para a incidência reportada (sem uso de
+                  estimativa) por faixa etária e gênero. No modo de visualização detalhado, os dados são para a SE
+                  selecionada. Nos demais modos (resumo e plano de contingência), os dados são para o total do ano em
+                  questão.<br>
+                  As informações serão sempre para o conjunto de dados selecionado (SRAG, SRAGFLU ou OBITOFLU), e podem
+                  ser tanto em escala de incidência (por 100 mil habitantes em cada faixa etária e gênero) quanto número
+                  de casos.
+                  <ul class="simple">
+                    <li>Mulheres: barra vermelha;</li>
+                    <li>Homens: barra azul;</li>
+                    <li>Total: barra amarela</li>
+                  </ul>
+                  <p>Estas distribuições estão sujeitas a alterações conforme
+                    situação reportada na tabela de incidência. Neste painel não
+                    apresentamos estimativas por faixa etária, reportando apenas
+                    as notificações já digitadas, sejam os dados estáveis ou
+                    incompletos.</p>
+                </dd>
+                <dt id="opportunities-description"><h5>Distribuição das oportunidades no sistema de informação</h5></dt>
+                <dd>
+                  Esse painel apresenta dados relativos às diversas oportunidades de registro no sistema de
+                  informação referente a cada notificação, em forma de boxplots (gráfico de caixas). Para cada
+                  oportunidade, a caixa tem como seu limite inferior o percentil 25 da distribuição (q1), como limite
+                  superior o percentil 75 (q2) e, no seu interior, inclui uma barra horizontal que representa a
+                  mediana (median). Posicionando o cursor sobre cada caixa, os valores de cada uma dessas grandezas é
+                  apresentado na tela.<br>
+                  Além disso, também é apresentado os valores mínimo e máximo observados. As oportunidades são todas
+                  apresentadas em termos de dias entre os eventos descritos. No caso do modo de visualização
+                  detalhado (semana), a distribuição corresponde as notificações ocorridas no ano em questão, até a
+                  semana epidemiológica selecionada. Nos demais modos (resumo e plano de contingência), representa os
+                  dados referentes a todas as notificações ocorridas no ano em questão.<br>
+                  Estas distribuições estão sujeitas a alterações conforme
+                    situação reportada na tabela de incidência. Neste painel não
+                    apresentamos estimativas, reportando apenas
+                    as notificações já digitadas, sejam os dados estáveis ou
+                    incompletos.
+                </dd>
+                <img class="max-width" src="/static/img/boxplots.png" width="527px" height="359px">
+                <dt id="lab-results-description"><h5>Dados laboratoriais</h5></dt>
+                <dd>
+                  No painel de exames laboratoriais, são apresentadas diversas séries temporais referentes as
+                  informações reportas no sistema relativas aos exames realizados com os casosnotificados, utilizando
+                  como escala temporal a data de primeiros sintomas do(a) paciente. Os dados apresentados são para o
+                  conjunto de dados selecionado (SRAG, SRAGFLU ou OBITOFLU), e são sempre apresentados em termos de
+                  número de casos.<br>
+                  São apresentados 8 gráficos neste painel:
+                  <ul class="symple">
+                    <li>Situação dos exames: apresenta, por semana epidemiológica, o total de pacientes com resultado
+                      positivo para algum dos agentes infecciosos associados à SRAG, total de testes negativos,
+                      casos sem teste laboratorial reportado, casos aguardando resultado, e casos sem informação
+                      referente a exame laboratorial;</li>
+                    <li>Influenza A: número de casos semanais com teste positivo para o vírus Influenza A;</li>
+                    <li>Inlfuenza B: número de casos semanais com teste positivo para o vírus Influenza B;</li>
+                    <li>VSR: número de casos semanais com teste positivo para o vírus sincicial respiratório;</li>
+                    <li>Adenovírus: número de casos semanais com teste positivo para Adenovírus;</li>
+                    <li>Parainfluenza 1/2/3: número de casos semanais com teste positivo o vírus Parainfluenza 1, 2
+                    e 3, respectivamente.</li>
+                  </ul>
+                  Estas distribuições estão sujeitas a alterações conforme
+                    situação reportada na tabela de incidência. Neste painel não
+                    apresentamos estimativas, reportando apenas
+                    as notificações já digitadas, sejam os dados estáveis ou
+                    incompletos.
+                </dd>
+              </dl>
             </div>
+
+            <div class="section" id="view-modes">
+              <h4>Modos de visualização. <a href="#top">
+                <img src="/static/img/back-to-top.png" width="17px" height="22px"></a></h4>
+              <p>A seguir, detalhamos as funcionalidades de cada modo de visualização.</p>
+            </div>
+            <div class="section" id="panorama-detalhado-semana">
+              <h5>Panorama Detalhado (semana):</h5>
+              <p>Neste modo de visualização, o(a) usuário(a) pode selecionar o ano e semana epidemiológica de
+                interesse. Com isso, tanto o mapa de situação, quanto a distribuição etária e a tabela de casos irão
+                apresentar os dados referentes aos casos notificados cuja semana de primeiros sintomas corresponde
+                àquela selecionada. A série temporal e os dados laboratoriais irão apresentar os dados do ano em
+                questão até a semana selecionada, com base na semana de primeiros sintomas. Finalmente, o gráfico
+                relativo às oportunidades observadas no sistema de informação serão referentes aos registros cuja
+                dada de notificação é do ano em questão, até a semana selecionada.<p/>
+              <p>
+                <img class="max-width" src="/static/img/select-year.png" alt="select-year-img" width="78px"
+                     height="54px">
+                <img class="max-width" src="/static/img/select-week.png" alt="select-year-img" width="305px"
+                     height="39px">
+              <p/>
+              <p>Por exemplo, se o(a) usuário(a) selecionar o ano de 2013 e semana epidemiológica 15, o mapa,
+                distribuição etária e tabela apresentaram a situação referente a todos os casos digitados no sistema e
+                com data de primeiros sintomas correspondente àquela semana epidemiológica. As séries temporais (tanto de
+                casos quanto exames laboratoriais) apresentarão as curvas referentes aos casos digitados cuja data
+                de primeiros sintomas seja naquele ano, até a semana epidemiológica 15. Já os dados do painel do
+                sistema de informação trará a situação das oportunidades referente aos casos digitados no sistema
+                e cuja data de notificação é daquele ano, até a semana epidemiológica 15.</p>
+              <p>O painel do mapa de situação, nesee modo de visualização, apresenta o nível de atividade semanal,
+                detalhado a seguir:</p>
+              <dl class="simple">
+                <dt><strong>Mapa de situação da atividade semanal</strong></dt>
+                <dd>Cada estado/região possui uma cor de acordo com o nível de
+                  atividade para a SE selecionada:
+                  <ul class="simple">
+                    <li>Atividade baixa: incidência abaixo do limiar
+                      pré-epidêmico;
+                    </li>
+                    <li>Atividade epidêmica: incidência acima do limiar
+                      pré-epidêmico (linha verde tracejada na série temporal) e abaixo do limiar de atividade alta
+                      (linha azul tracejada na série temporal);
+                    </li>
+                    <li>Atividade alta: incidência acima do limiar de
+                      atividade alta e abaixo do de atividade muito alta (linha vermelha tracejada na série temporal);
+                    </li>
+                    <li>Atividade muito alta: incidência acima do
+                      limiar de atividade muito alta.
+                    </li>
+                  </ul>
+                </dd>
+              </dl>
+            </div>
+
             <div class="section" id="panorama-resumido-ano">
               <h5>Panorama Resumido (ano):</h5>
-              <p>Este panorama apresenta a situação anual com base nos níveis
-                de atividade descritos no panorama detalhado.</p>
-              <ul class="simple">
-                <li>Mapa do país (superior esquerdo)</li>
-              </ul>
-              <blockquote>
-                <p>Cada localidade apresenta cor de acordo com a atividade
-                  regsitrada na temporada selecionada seguindo os seguintes
-                  critérios:</p>
-                <ul class="simple">
-                  <li>Atividade baixa (verde): incidência abaixo do limiar
-                    pré-epidêmico durante toda a temporada;
-                  </li>
-                  <li>Atividade epidêmica (amarelo): incidência superou o
-                    limiar pré-epidêmico ao menos em uma SE porém não superou o
-                    limiar de atividade alta;
-                  </li>
-                  <li>Atividade alta (laranja): incidência superou o limiar de
-                    atividade alta ou muito alta entre 1 a 4 SEs;
-                  </li>
-                  <li>Atividade muito alta (vermelho): incidência superou o
-                    limiar de atividade alta ou muito alta em ao menos 5 SEs.
-                  </li>
-                </ul>
-              </blockquote>
-              <ul class="simple">
-                <li>Curva de incidência (superior direito)</li>
-              </ul>
-              <blockquote>
-                <p>Este painel apresenta a série temporal de incidência
-                  reportada (curva preta sólida) para a temporada
-                  correspondente. Estimativas de incidência, quando
-                  disponíveis, são apresentadas com curva sólida em vermelho,
-                  com o intervalo de confiança de 95% representado por linhas
-                  vermelhas pontilhadas. A probabilidade de cada nível de
-                  atividade também é apresentado em formato de texto no canto
-                  superior esquerdo do gráfico. As cores do mapa correspondem
-                  ao nível de maior probabilidade. Além da incidência, neste
-                  gráfico apresentamos também os limiares de atividade
-                  correspondente:</p>
-                <ul class="simple">
-                  <li>Limiar pré-epidêmico (linha azul tracejada): nível de
-                    atividade que indica, quando ultrapassado, o início da
-                    transmissão sustentada para a temporada atual. Após superar
-                    este limiar, a incidência tende a apresentar crescimento
-                    gradual até atingir o pico de incidência para aquele ano;
-                  </li>
-                  <li>Limiar de atividade alta (linha verde tracejada): nível
-                    de atividade a partir do qual a incidência é considerada
-                    alta para aquela localidade (estado/região). Calculado com
-                    base em estimativa para o percentil 90 da distribuição de
-                    incidência semanal histórica;
-                  </li>
-                  <li>Nível de atividade muito alta (linha vermelha tracejada):
-                    nível de atividade a partir da qual a incidência é
-                    considerada muito elevada para aquela localidade. Calculado
-                    com base na estimativa para o percentil 97.5 da
-                    distribuição de incidência semanal histórica;
-                  </li>
-                </ul>
-              </blockquote>
-              <ul class="simple">
-                <li>Esquema de cores do pano de fundo da curva de incidência
-                </li>
-              </ul>
-              <blockquote>
-                <p>O pano de fundo demarca os níveis de atividade típicos para
-                  cada semana. Isto é, o perfil histórica da incidência para
-                  cada semana. Isto permite indetificar o padrão sazonal típico
-                  , facilitando a identificação do período usual de atividade
-                  epidêmica.</p>
-                <ul class="simple">
-                  <li>Atividade semanal baixa (área verde): incidência abaixo
-                    do percentil 10 para cada SE;
-                  </li>
-                  <li>Atividade semanal baixa à moderada (área amarela):
-                    incidência entre os percentís 10 e 50 (mediana) para cada
-                    SE;
-                  </li>
-                  <li>Atividade semanal moderada à alta (área laranja):
-                    incidência entre os percentís 50 e 90 para cada SE;
-                  </li>
-                  <li>Atividade semanal alta (área vermelha): incidência acima
-                    do percentil 90 para cada SE.
-                  </li>
-                </ul>
-                <p>Quando a incidência em uma determinada semana está dentro da
-                  região de atividade alta (fundo vermelho), indica que para
-                  aquela SE a atividade é atípicamente alta, independentemente
-                  dos limiares de atividade. Esta informação é útil para
-                  detectar temporadas em que o período epidêmico se inicia
-                  antes do usual, por exemplo. Vê a temporada de 2016 no estado
-                  do Rio Grande do Sul para um exemplo deste comportamento.</p>
-              </blockquote>
-              <ul class="simple">
-                <li>Tabela de incidência (inferior esquerdo)</li>
-              </ul>
-              <blockquote>
-                <p>Incidência para a localidade correspondente na temporada
-                  selecionada, juntamente com o intervalo de confiança de 90%
-                  quando valor for estimado. Juntamenteda incidência e nome da
-                  localidade, esta tabela apresenta a situação dos dados
-                  selecionados:</p>
-                <ul class="simple">
-                  <li>Estável: dados reportados considerados suficientemente
-                    próximos do total casos notificados. Estes dados estão
-                    sujeitos a pequenas alterações futuras;
-                  </li>
-                  <li>Incompleto: dados reportados ainda não são estáveis em
-                    função do padrão de oportunidade de digitação observado na
-                    localidade selecionada e nosso sistema não é capaz de
-                    produzir estimativas confiáveis. Estes dados podem sofrer
-                    grandes alterações futuras, tornando-se estáveis após
-                    algumas semanas.
-                  </li>
-                </ul>
-              </blockquote>
-              <ul>
-                <li><p class="first">Distribuição etária e por gênero (inferior
-                  direito)</p>
-                  <p>Gráfico de barras para incidência reportada (sem uso de
-                    estimativa) por faixa etária e gênero, para a temporada
-                    selecionada.</p>
-                </li>
-              </ul>
-              <blockquote>
-                <ul class="simple">
-                  <li>Mulheres: barra azul;</li>
-                  <li>Homens: barra laranja;</li>
-                  <li>Total: barra verde</li>
-                </ul>
-                <p>Estas distribuições estão sujeitas a alterações conforme
-                  situação reportada na tabela de incidência. Neste painel não
-                  apresentamos estimativas por faixa etária, reportando apenas
-                  as notificações já digitadas, sejam os dados estáveis ou
-                  incompletos.</p>
-              </blockquote>
+              <p>Neste modo de visualização, o(a) usuário(a) pode selecionar o ano de interesse.
+                Com isso, todos os painéis apresentaram dados serão referentes aos registros cuja data de primeiros
+                sintomas corresponde ao ano selecionado. A única exceção é o painel referente aos oportunidades no
+                sistema de informação, que apresentam dados referentes aos registros cuja data de notificação
+                corresponde ao ano selecionado.<p/>
+              <p>
+                <img class="max-width" src="/static/img/select-year.png" alt="select-year-img" width="78px"
+                     height="54px">
+              <p/>
+              <p>Por exemplo, se o(a) usuário(a) selecionar o ano de 2013, o mapa, série temporal, distribuição
+                etária, tabela e dados laboratoriais apresentarão informações referente a todos os casos digitados no
+                sistema e com data de primeiros sintomas correspondente aquele ano epidemiológica. Já os dados do
+                painel do sistema de informação trará a situação das oportunidades referente aos casos digitados no
+                sistema e cuja data de notificação é daquele ano.</p>
+              <p>O painel do mapa de situação, nesee modo de visualização, apresenta a classificação da temporada,
+                detalhado a seguir:</p>
+              <dl class="simple">
+                <dt><strong>Mapa da Temporada</strong></dt>
+                <dd>Cada estado/região possui uma cor de acordo com a classificação da temporada:
+                  <ul class="simple">
+                    <li>Baixa: incidência abaixo do limiar
+                      pré-epidêmico durante toda a temporada.;
+                    </li>
+                    <li>Epidêmica: incidência acima do limiar
+                      pré-epidêmico ao menos em uma SE porém não superior ao limiar de atividade alta em nenhuma SE;
+                    </li>
+                    <li>Elevada: incidência acima do limiar de atividade alta entre 1 a 4 SEs;
+                    </li>
+                    <li>Muito elevada: incidência acima do limiar de atividade alta por ao menos 5 SEs.
+                    </li>
+                  </ul>
+                </dd>
+              </dl>
             </div>
+
+            <div class="section" id="panorama-contingencia">
+              <h5>Panorama Plano de Contingência atual:</h5>
+              <p>Neste modo de visualização, o(a) usuário(a) irá visualizar informações referentes o ano corrente,
+                com dados agregados até a SE mais atual registrada no sistema. Com exceção do mapa, as informações
+                são estruturadas de forma similar ao panorama Resumido, porém restriatas ao ano mais recente.
+                Com isso, todos os painéis apresentaram dados serão referentes aos registros cuja data de primeiros
+                sintomas corresponde ao ano selecionado. A única exceção é o painel referente aos oportunidades no
+                sistema de informação, que apresentam dados referentes aos registros cuja data de notificação
+                corresponde ao ano selecionado.<p/>
+              <p>O painel do mapa de situação, nesee modo de visualização, apresenta o nível de ação referente ao
+                plano de contingência definido pelo GT-Influenza, da Secretaria de Vigilância em Saúde do Ministério
+                da Saúde, detalhado a seguir:</p>
+              <dl class="simple">
+                <dt><strong>Mapa do Plano de Contingência</strong></dt>
+                <dd>Cada estado/região possui uma cor de acordo com o nível de ação definida pelo plano de contingência:
+                  <ul class="simple">
+                    <li>Nível basal: quando nenhum dos critérios a seguir forem satisfeitos;
+                    </li>
+                    <li>Nível 0: casos de SRAG em ascensão por 4 semanas consecutivas <strong>e</strong>, em ao menos
+                      uma delas, na zona de alerta (região laranja no painel da série temporal) ou acima;
+                    </li>
+                    <li>Nível 1: casos de SRAG por vírus Influenza (SRAGFLU) em ascensão por 4 semanas consecutivas
+                      <strong>e</strong>, em ao menos uma delas, na zona de alerta ou acima;
+                    </li>
+                    <li>Nível 2: óbitos por vírus Influenza (OBITOFLU) em ascensão por 3 semanas consecutivas
+                      <strong>e</strong>, em ao menos uma delas, na zona de alerta ou acima;
+                    </li>
+                  </ul>
+                  Níveis superiores são ativadados assim que o critério se cumprir, independentemente do nível em que
+                  o sistema se encontrava até então. Isto é, pode passar de nível basal diretamente para nível 2, por
+                  exemplo, se as condições assim indicarem.<br>
+                  A desativação de cada nível se dará de forma progressiva, atendendo o seguinte critério:
+                  Quando a curva de incidência correspondente (SRAG para nível 0, SRAGFLU para nível 1 e OBITOFLU
+                  para nível 2) retornar a patamares da zona de segurança ou inferior por ao menos 2 semanas
+                  consecutivas, o nível de ação será rebaixado para o nível inferior mais próximo cuja curva de
+                  incidência correspondente não tiver registrado 2 semanas consecutivas na zona de segurança ou
+                  abaixo desde a SE de ativação do nível em que o sistema se encontrava.<br>
+                  Por exemplo, se o sistema ativou o nível 2 na SE 16 e, nas SEs 20 e 21 o nível registrado (ou
+                  estimado) de óbitos por Influenza estiverem na zona de segurança, e o nível registrao (ou estimado)
+                  de SRAG por Influenza também estiver em igual situação, porém o nível de SRAG não tiver apresentado
+                  duas semanas consecutivas na zona de segurança desde a SE 16, então o nível de ação passará a ser o
+                  nível 0.
+                </dd>
+              </dl>
+            </div>
+
           </div>
 
           <!-- README.HTML HERE:END -->

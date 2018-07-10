@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from setuptools import setup, Command
-from pip.req import parse_requirements
-from pip.download import PipSession
 
 import os
 
@@ -64,9 +62,12 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-install_reqs = parse_requirements('requirements.txt', session=PipSession())
+def parse_requirements(filename):
+    """ load requirements from a pip requirements file """
+    lineiter = (line.strip() for line in open(filename))
+    return [line for line in lineiter if line and not line.startswith("#")]
 
-requirements = [str(ir.req) for ir in install_reqs]
+requirements = parse_requirements('requirements.txt')
 
 test_requirements = [
     # TODO: put package test requirements here
@@ -101,7 +102,6 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Natural Language :: English',
-        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],

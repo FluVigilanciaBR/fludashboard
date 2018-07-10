@@ -327,10 +327,10 @@ def data__data_table(
         'territory_name',
         'epiweek',
         'situation_name',
-        'value'
+        'value',
     ]
 
-    if territory_name is not None:
+    if territory_name not in [None, 'Brasil']:
         territory_id = fluDB.get_territory_id_from_name(territory_name)
     else:
         territory_id = None
@@ -352,6 +352,25 @@ def data__data_table(
     # for a whole year view
     if not epiweek:
         df = fluDB.group_data_by_season(df, season=year)
+        if scale_id == 1:
+            territories = df.territory_id.unique()
+            df_cases = fluDB.get_data(
+                dataset_id=dataset_id, scale_id=2, year=year, week=epiweek,
+                territory_id=None
+            )
+            df_cases = fluDB.group_data_by_season(df_cases, season=year)
+            df_cases['country_percentage'] = 100 * df_cases['value'] / df_cases.loc[df_cases.territory_id == 0,
+                                                                                              'value'].values
+            df['country_percentage'] = df.merge(df_cases[['territory_id', 'country_percentage']], on='territory_id',
+                                                how='left').country_percentage
+        else:
+            df_cases = fluDB.get_data(
+                dataset_id=dataset_id, scale_id=2, year=year, week=epiweek,
+                territory_id=0
+            )
+            df_cases = fluDB.group_data_by_season(df_cases, season=year)
+            df['country_percentage'] = 100 * df['value'] / df_cases.loc[df_cases.territory_id == 0,
+                                                                                  'value'].values
 
     # order by type
     df = df.assign(type_unit=1)
@@ -368,20 +387,26 @@ def data__data_table(
     df.reset_index(drop=True, inplace=True)
     df.drop('type_unit', axis=1, inplace=True)
 
-    # add more information into srag field
+    if scale_id == 1:
+        fmt = '%.2f'
+    else:
+        fmt = '%.0f'
+    # add more information into srag
     if df.shape[0]:
         if epiweek:
-            k = ['estimated_cases', 'ci_lower', 'ci_upper', 'situation_id']
+            k = ['estimated_cases', 'ci_lower', 'ci_upper', 'situation_id', 'country_percentage']
             df.value = df[k].apply(
                 lambda row: fluDB.report_incidence(
                     row['estimated_cases'],
                     row['situation_id'],
-                    row['ci_lower'], row['ci_upper']
+                    row['ci_lower'], row['ci_upper'],
+                    row['country_percentage'],
+                    fmt
                 ), axis=1)
         else:
-            df.value = df[['value', 'situation_id']].apply(
+            df.value = df[['value', 'situation_id', 'country_percentage']].apply(
                 lambda row: fluDB.report_incidence(
-                    row['value'], row['situation_id']
+                    row['value'], row['situation_id'], percentage=row['country_percentage'], fmt=fmt
                 ), axis=1)
 
         # change situation value by a informative text
@@ -396,9 +421,7 @@ def data__data_table(
             lambda x: situation_dict[x] if x else ''
         )
 
-    return '{"data": %s}' % df[ks].round({
-        'value': 2
-    }).to_json(orient='records')
+    return '{"data": %s}' % df[ks].to_json(orient='records')
 
 
 @app.route(compose_data_url('year/age-distribution'))
