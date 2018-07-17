@@ -545,7 +545,7 @@ def migrate_from_csv_to_psql():
 
     dfs['territory'] = df_territory
 
-    dsn = 'postgresql://%(USER)s:%(PASSWORD)s@%(HOST)s/%(NAME)s'
+    dsn = 'postgresql://%(USER)s:%(PASSWORD)s@%(HOST)s:%(PORT)s/%(NAME)s'
     engine = sqla.create_engine(dsn % DATABASE)
 
     for k, df in dfs.items():

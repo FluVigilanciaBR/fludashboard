@@ -28,7 +28,7 @@ class FluDB:
     conn = None
 
     def __init__(self):
-        dsn = 'postgresql://%(USER)s:%(PASSWORD)s@%(HOST)s/%(NAME)s'
+        dsn = 'postgresql://%(USER)s:%(PASSWORD)s@%(HOST)s:%(PORT)s/%(NAME)s'
         self.conn = sqla.create_engine(dsn % DATABASE)
 
     def get_territory_id_from_name(self, state_name: str) -> int:
