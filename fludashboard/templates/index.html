@@ -109,7 +109,7 @@
                 <div data-role="main" class="ui-content">
                   <label for="week">Semana:</label>
                   <input type id="week-display" value="{{current_epiweek}}"
-                         style="width:35px;text-align:center;padding:1px;"
+                         style="width:40px;text-align:center;padding:1px;"
                          maxlength="2"
                   />
                   <input type="range" id="week"
@@ -125,7 +125,7 @@
 
   <div class="row my-3">
     <!-- Map -->
-    <div class="col-md-5" id="map-card">
+    <div class="col-md-6" id="map-card">
       <div class="card bg-white">
         <h5 class="card-header" id="map-incidence-case-title">
             Mapa do Plano de Contingência
@@ -165,7 +165,7 @@
     </div>
     <!-- Map -->
 
-    <div class="col-md-7" id="incidence-card">
+    <div class="col-md-6" id="incidence-card">
           <div class="card bg-white">
             <h5 class="card-header bg-light">
               <span
@@ -226,8 +226,53 @@
 
   </div>
   <div class="row my-3">
+    <!-- Opportunities -->
+    <div class="col-md-6">
+        <div class="card">
+          <h5 class="card-header">
+            Acompanhamento dos intervalos temporais
+            <span class="period-display">na semana epidemiológica</span>
+            <span class="week-display"></span>
+            <span class="territory-display"></span>
+          </h5>
+          <div class="container">
+            <button type="button" class="btn btn-link btn-sm no-print">
+              <font color="white" style="opacity:0">Salvar imagem</font></button>
+          </div>
+
+          <div class="card-body p-2 content-height" id="opportunities-chart"></div>
+          <p class="card-text"><small class="text-muted">*Com base nos dados disponíveis no sistema de informação
+          </small></p>
+        </div>
+
+    </div>
+
+    <!-- Gender/Age Distribution -->
+    <div class="col-md-6">
+      <div class="card bg-white" id="age-card">
+        <h5 class="card-header">
+          Distribuição por Gênero/Idade
+            <span class="period-display">na semana epidemiológica</span>
+            <span class="week-display"></span>
+            <span class="territory-display"></span>
+        </h5>
+        <div class="container">
+          <button type="button" class="btn btn-link btn-sm no-print" onclick="getscreenshot(3);">
+            Salvar imagem</button>
+        </div>
+        <div class="card-block p-2 content-height" id="age-chart">
+        </div>
+
+        <p class="card-text"><small class="text-muted">*Com base nos dados disponíveis no sistema de informação
+        </small></p>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="row">
     <!-- Table -->
-    <div class="col-md-5">
+    <div class="col-md-6">
       <div class="card">
         <h5 class="card-header">
             <span id="table-incidence-case-title">Incidência</span>
@@ -245,44 +290,6 @@
       </div>
     </div>
 
-    <!-- Gender/Age Distribution -->
-    <div class="col-md-7">
-      <div class="card bg-white" id="age-card">
-        <h5 class="card-header">
-          Distribui&ccedil;&atilde;o por G&ecirc;nero/Idade
-            <span class="period-display">na semana epidemiológica</span>
-            <span class="week-display"></span>
-            <span class="territory-display"></span>
-        </h5>
-        <div class="container">
-          <button type="button" class="btn btn-link btn-sm no-print" onclick="getscreenshot(3);">
-            Salvar imagem</button>
-        </div>
-        <div class="card-block content-height">
-          <div id="age-chart" class="content-height"></div>
-        </div>
-        <p class="card-text"><small class="text-muted">*Com base nos dados disponíveis no sistema de informação
-        </small></p>
-      </div>
-
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-md-6">
-        <div class="card">
-          <h5 class="card-header">
-            Acompanhamento de oportunidades
-            <span class="period-display">na semana epidemiológica</span>
-            <span class="week-display"></span>
-            <span class="territory-display"></span>
-          </h5>
-          <div class="card-body p-0" id="opportunities-chart"></div>
-          <p class="card-text"><small class="text-muted">*Com base nos dados disponíveis no sistema de informação
-          </small></p>
-        </div>
-
-    </div>
     <div class="col-md-6">
         <div class="card">
           <h5 class="card-header">
@@ -292,7 +299,9 @@
             <span class="territory-display"></span>
           </h5>
 
-          <div class="card-body" id="etiological-chart"></div>
+          <div class="card-block">
+            <div class="card-body content-height" id="etiological-chart" style="overflow-y:scroll;"></div>
+          </div>
           <p class="card-text"><small class="text-muted">*Com base nos dados disponíveis no sistema de informação
           </small></p>
         </div>

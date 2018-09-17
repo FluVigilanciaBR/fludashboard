@@ -211,7 +211,7 @@ class SRAGIncidenceChart{
           max:_this.lastWeekYears[year],
           padding: {
             left: 0,
-            right: 0,
+            right: 1,
           }
         },
         y: {
@@ -243,7 +243,7 @@ class SRAGIncidenceChart{
         show: false
       },
       legend: {
-        position: 'right'
+        position: 'bottom'
       }
     };
     if (week !== 0) {
