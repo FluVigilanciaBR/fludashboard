@@ -29,7 +29,8 @@ iframe.super-header {
     border-radius: 0;
 }
 
-@media (min-width: 768px)
+@media (min-width: 800px)
+
 .navbar-fixed {
     border-radius: 0;
 }
@@ -77,9 +78,4 @@ input.tab.selected {
 .message-box-error {
     vertical-align: middle!important;
     text-align: center!important;
-}
-
-.print-card {
-    height: 150mm;
-    width: 210mm;
 }

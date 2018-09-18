@@ -136,6 +136,8 @@ class Dashboard {
       $('#week').val(this.lastWeek);
       $('#div-week').removeClass('hidden');
       $('#div-year').removeClass('hidden');
+      $('#row2').removeClass('hidden');
+      $('#row3').removeClass('hidden');
       $('#div-dataset').removeClass('hidden');
       $('#div-scale').removeClass('hidden');
 
@@ -160,6 +162,8 @@ class Dashboard {
 
       $('#div-week').addClass('hidden');
       $('#div-year').removeClass('hidden');
+      $('#row2').removeClass('hidden');
+      $('#row3').removeClass('hidden');
       $('#div-dataset').removeClass('hidden');
       $('#div-scale').removeClass('hidden');
 
@@ -193,6 +197,8 @@ class Dashboard {
 
       $('#div-week').addClass('hidden');
       $('#div-year').addClass('hidden');
+      $('#row2').addClass('hidden');
+      $('#row3').addClass('hidden');
       $('#div-dataset').removeClass('hidden');
       $('#div-scale').removeClass('hidden');
 
