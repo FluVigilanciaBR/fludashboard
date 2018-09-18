@@ -154,8 +154,6 @@ def data__weekly_incidence_curve(
     if not year > 0:
         return '[]'
 
-    print('******** View name: %s ********\nYear: %s' % (view_name, year))
-
     ks = [
         'epiweek', 'typical_low', 'typical_median', 'typical_high',
         'value', 'pre_epidemic_threshold', 'high_threshold',
@@ -189,7 +187,6 @@ def data__weekly_incidence_curve(
     except:
         pass
 
-    print(df.columns)
     if view_name == 'resumed':
         df.loc[df.situation_id == 3, ['ci_lower', 'estimated_cases', 'ci_upper']] = None
     elif len(df[~pd.isna(df.estimated_cases)]) > 0:
@@ -205,7 +202,7 @@ def data__weekly_incidence_curve(
             'very_high_threshold', 'ci_upper', 'value', 'typical_very_high'
         ]].max().max() * 1.1
     df['typical_very_high'] = df.typical_very_high - (df.typical_high + df.typical_median + df.typical_low)
-    print(df[['ci_lower', 'estimated_cases', 'ci_upper', 'situation_name', 'situation_id']])
+
     # change keys' order
     ks.insert(ks.index('typical_high') + 1, 'typical_very_high')
 
