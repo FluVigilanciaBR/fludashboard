@@ -72,6 +72,8 @@ def index():
 
     :return:
     """
+    global epiyearmax
+    global epiweekmax
     if not APP_AVAILABLE:
         return render_template("unavailable.html")
 
@@ -85,18 +87,19 @@ def index():
     # By default should be the current or latest available
     list_of_years = list(set(df.epiyear))
 
-    epiyear = df.epiyear.max()
-    epiweek = df.epiweek[df.epiyear == epiyear].max()
+    epiyearmax = df.epiyear.max()
+    epiweekmax = df.epiweek[df.epiyear == epiyearmax].max()
 
     last_week_years = {
         y: calc_last_epiweek(y) for y in list_of_years
     }
 
+
     return render_template(
         "index.html",
-        current_epiweek=epiweek,
+        current_epiweek=epiweekmax,
         list_of_years=sorted(list_of_years, reverse=True),
-        last_year=epiyear,
+        last_year=epiyearmax,
         last_week_years=last_week_years
     )
 
@@ -151,6 +154,8 @@ def data__weekly_incidence_curve(
     if not year > 0:
         return '[]'
 
+    print('******** View name: %s ********\nYear: %s' % (view_name, year))
+
     ks = [
         'epiweek', 'typical_low', 'typical_median', 'typical_high',
         'value', 'pre_epidemic_threshold', 'high_threshold',
@@ -184,10 +189,14 @@ def data__weekly_incidence_curve(
     except:
         pass
 
-    if len(df[~pd.isna(df.estimated_cases)]) > 0:
-        est_min_week =  df.epiweek[~pd.isna(df.estimated_cases)].min()
+    print(df.columns)
+    if view_name == 'resumed':
+        df.loc[df.situation_id == 3, ['ci_lower', 'estimated_cases', 'ci_upper']] = None
+    elif len(df[~pd.isna(df.estimated_cases)]) > 0:
+        est_min_week = df.epiweek[~pd.isna(df.estimated_cases)].min()
         if est_min_week > 1:
-            df.loc[(df.epiweek == est_min_week-1), 'estimated_cases'] = df.value[df.epiweek == est_min_week-1]
+            df.loc[(df.epiweek == est_min_week-1),
+                   ['estimated_cases', 'ci_lower', 'ci_upper']] = df.value[df.epiweek == est_min_week-1]
 
     # cheating: using a new field corredor_muito_alto just for plotting
     # cheating: using a new field corredor_muito_alto just for plotting
@@ -196,6 +205,7 @@ def data__weekly_incidence_curve(
             'very_high_threshold', 'ci_upper', 'value', 'typical_very_high'
         ]].max().max() * 1.1
     df['typical_very_high'] = df.typical_very_high - (df.typical_high + df.typical_median + df.typical_low)
+    print(df[['ci_lower', 'estimated_cases', 'ci_upper', 'situation_name', 'situation_id']])
     # change keys' order
     ks.insert(ks.index('typical_high') + 1, 'typical_very_high')
 

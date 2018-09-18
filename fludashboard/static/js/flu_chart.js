@@ -129,7 +129,6 @@ class SRAGIncidenceChart{
         territoryName, 'weekly-incidence-curve'
     ].join('/'));
     var title = '';
-
     $(this.bindTo).empty();
 
     if (scale == 1) {
