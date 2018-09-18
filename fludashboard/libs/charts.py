@@ -160,5 +160,5 @@ def opportunities_boxplot(df: pd.DataFrame, week: int=None):
 
     return _plot_html(
         figure_or_data=figure, config={}, validate=True,
-        default_width='100%', default_height=500, global_requirejs=''
+        default_width='100%', default_height=450, global_requirejs=''
     )[0]
