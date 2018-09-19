@@ -79,3 +79,12 @@ input.tab.selected {
     vertical-align: middle!important;
     text-align: center!important;
 }
+
+.div-with-bg {
+   background-image: url('../img/virusbg-grey.png');
+   background-size: 100%;
+}
+
+.div-with-opacity {
+   background-color: rgba(245, 245, 245, 0.5);
+}
