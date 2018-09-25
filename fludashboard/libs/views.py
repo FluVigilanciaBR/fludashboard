@@ -189,7 +189,7 @@ def data__weekly_incidence_curve(
 
     if view_name == 'resumed':
         df.loc[df.situation_id == 3, ['ci_lower', 'estimated_cases', 'ci_upper']] = None
-    elif len(df[~pd.isna(df.estimated_cases)]) > 0:
+    if len(df[~pd.isna(df.estimated_cases)]) > 0:
         est_min_week = df.epiweek[~pd.isna(df.estimated_cases)].min()
         if est_min_week > 1:
             df.loc[(df.epiweek == est_min_week-1),

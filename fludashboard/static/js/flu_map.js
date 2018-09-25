@@ -250,7 +250,7 @@ class SRAGMap {
             _this.geojsonLayer.eachLayer(function (_layer) {
               var _rid = _this.regionalIds[_layer.feature.properties.nome];
 
-              _layer.setStyle({color: '#333333', fillOpacity: 0.7});
+              _layer.setStyle({color: '#707070', fillOpacity: 0.7});
 
               if (_rid == rid && $('#selected-territory').val() != ridName) {
                 _layer.setStyle({weight: 3, fillOpacity: 1});
@@ -282,7 +282,7 @@ class SRAGMap {
             _this.geojsonLayer.eachLayer(function (_layer) {
               var _rid = _this.regionIds[_layer.feature.properties.nome];
 
-              _layer.setStyle({color: '#333333', fillOpacity: 1});
+              _layer.setStyle({color: '#707070', fillOpacity: 1});
 
               if (_rid == rid && $('#selected-territory').val() != ridName) {
                 _layer.setStyle({weight: 3, fillOpacity: 1});
@@ -328,7 +328,7 @@ class SRAGMap {
 
           var styleProperties= {
             fillColor: '#ffffff',
-            color: '#333333',
+            color: '#707070',
             fillOpacity: 1,
             weight: 1
           };
@@ -364,7 +364,7 @@ class SRAGMap {
 
             var styleProperties= {
                 fillColor: '#fffff',
-                color: '#333333',
+                color: '#707070',
                 fillOpacity: 1,
                 weight: 1
             };
@@ -397,7 +397,7 @@ class SRAGMap {
 
             var styleProperties= {
                 fillColor: '#fffff',
-                color: '#333333',
+                color: '#707070',
                 fillOpacity: 1,
                 weight: 1
             };
@@ -456,7 +456,7 @@ class SRAGMap {
     var level_col = 'alert';
     var styleProperties= {
       fillColor: '#ffffff',
-      color: '#333333',
+      color: '#707070',
       fillOpacity: 1,
       weight: 1,
     };

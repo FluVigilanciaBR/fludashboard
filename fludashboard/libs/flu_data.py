@@ -459,7 +459,7 @@ class FluDB:
             incidence.mean  AS "mean",
             incidence.median AS estimated_cases, 
             incidence.ci_lower AS ci_lower, 
-            incidence.ci_upper AS ci_upper,
+            incidence.ci_upper_bounded AS ci_upper,
             incidence.country_percentage AS country_percentage, 
             ''',
             'where_extras': '',
@@ -476,7 +476,7 @@ class FluDB:
             ,mean,
             median,
             ci_lower,
-            ci_upper,
+            ci_upper_bounded,
             country_percentage
             '''
 
@@ -531,7 +531,7 @@ class FluDB:
             historical.mean  AS mean,
             historical.median AS estimated_cases, 
             historical.ci_lower AS ci_lower, 
-            historical.ci_upper AS ci_upper,
+            historical.ci_upper_bounded AS ci_upper,
             historical.country_percentage AS country_percentage, 
             '''
             sql_param['incidence_table_select'] = ''
@@ -542,7 +542,7 @@ class FluDB:
                 mean,
                 median,
                 ci_lower,
-                ci_upper,
+                ci_upper_bounded,
                 country_percentage,
                 low_level,
                 epidemic_level,

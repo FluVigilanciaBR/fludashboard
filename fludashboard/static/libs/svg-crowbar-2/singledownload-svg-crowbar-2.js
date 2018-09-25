@@ -69,8 +69,8 @@ function singleSVGcrowbar(myplot) {
 
         documents.forEach(function(doc) {
             var newSources = getSources(doc, emptySvgDeclarationComputed);
-            // On our system, we only need the first 4 SVG sources, not all of them:
-            for (var i = 0; i < 4; i++) {
+            // On our system, we only need the first 18 SVG sources, not all of them:
+            for (var i = 0; i < 18; i++) {
                 SVGSources.push(newSources[i]);
             }
         });
