@@ -28,12 +28,12 @@
   <iframe src="./super-header" class="super-header" scrolling="no"></iframe>
 
   <div class="container-fluid">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="./"><strong>Monitoramento de casos
+    <div class="navbar-header" style="margin:5px">
+      <a class="navbar-brand-custom" href="./"><strong>Monitoramento de casos
         reportados de síndrome respiratória aguda
         grave (SRAG) hospitalizados</strong></a>
       <a href="/help"
-         style="display:inline;font-weight:bold;color:white;cursor:pointer;"
+         style="display:inline;font-weight:bold;color:white;cursor:pointer;vertical-align:top"
       >[Ajuda]</a>
     </div>
   </div>
@@ -42,9 +42,9 @@
 
   <div class="row">
 
-    <div class="col-md-12 mt-3 mb-1">
+    <div class="col-md-12 mt-1 mb-1">
         <!-- Time Chart -->
-          <div class="card p-3">
+          <div class="card p-1 div-with-bg">
             <div class="card-block">
               <div class="criteria-box">
                 <input
@@ -109,7 +109,7 @@
                 <div data-role="main" class="ui-content">
                   <label for="week">Semana:</label>
                   <input type id="week-display" value="{{current_epiweek}}"
-                         style="width:35px;text-align:center;padding:1px;"
+                         style="width:40px;text-align:center;padding:1px;"
                          maxlength="2"
                   />
                   <input type="range" id="week"
@@ -123,17 +123,17 @@
         <!-- Time Chart -->
   </div>
 
-  <div class="row my-3">
+  <div class="row my-1">
     <!-- Map -->
-    <div class="col-md-5" id="map-card">
+    <div class="col-md-12 col-lg-6" id="map-card">
       <div class="card bg-white">
-        <h5 class="card-header" id="map-incidence-case-title">
+        <h6 class="card-header" id="map-incidence-case-title">
             Mapa do Plano de Contingência
-        </h5>
+        </h6>
             <div class="container">
-              <button type="button" class="btn btn-link btn-sm no-print" onclick="getscreenshot(0);">
+              <button type="button" class="btn btn-link btn-sm line1 no-print" onclick="getscreenshot(0);">
                 Salvar mapa</button>
-              <button type="button" class="btn btn-link btn-sm no-print" onclick="getscreenshot(1);">
+              <button type="button" class="btn btn-link btn-sm line1 no-print" onclick="getscreenshot(1);">
                 Salvar legenda do mapa</button>
             </div>
         <div class="card-block">
@@ -165,15 +165,15 @@
     </div>
     <!-- Map -->
 
-    <div class="col-md-7" id="incidence-card">
+    <div class="col-md-12 col-lg-6" id="incidence-card">
           <div class="card bg-white">
-            <h5 class="card-header bg-light">
+            <h6 class="card-header bg-light">
               <span
                   id="chart-incidence-case-title">Curva de Incidência</span>
                 <span class="territory-display"></span>
-            </h5>
+            </h6>
             <div class="container">
-              <button type="button" class="btn btn-link btn-sm no-print" onclick="getscreenshot(2);">
+              <button type="button" class="btn btn-link btn-sm line1 no-print" onclick="getscreenshot(2);">
                 Salvar imagem</button>
             </div>
             <div class="card-block chart-incidence">
@@ -225,42 +225,45 @@
     <!-- Resources Pie -->
 
   </div>
-  <div class="row my-3">
-    <!-- Table -->
-    <div class="col-md-5">
-      <div class="card">
-        <h5 class="card-header">
-            <span id="table-incidence-case-title">Incidência</span>
+  <div class="row my-1" id="row2">
+    <!-- Opportunities -->
+    <div class="col-md-12 col-lg-6">
+        <div class="card">
+          <h6 class="card-header">
+            Intervalos temporais
             <span class="period-display">na semana epidemiológica</span>
             <span class="week-display"></span>
             <span class="territory-display"></span>
-        </h5>
-        <div class="card-block p-2 content-height" id="divTable"
-             style="overflow-y:auto;">
+          </h6>
+          <div class="container">
+            <button type="button" class="btn btn-link btn-sm line1 no-print">
+              <font color="white" style="opacity:0">Salvar imagem</font></button>
+          </div>
 
+          <div class="card-body p-2 content-height" style="overflow-x: auto; overflow-y: hidden"
+               id="opportunities-chart"></div>
+          <p class="card-text"><small class="text-muted">*Com base nos dados disponíveis no sistema de informação
+          </small></p>
         </div>
-        <p class="card-text"><small class="text-muted">*Com base nos dados disponíveis no sistema de informação
-        </small></p>
 
-      </div>
     </div>
 
     <!-- Gender/Age Distribution -->
-    <div class="col-md-7">
+    <div class="col-md-12 col-lg-6">
       <div class="card bg-white" id="age-card">
-        <h5 class="card-header">
-          Distribui&ccedil;&atilde;o por G&ecirc;nero/Idade
-            <span class="period-display">na semana epidemiológica</span>
+        <h6 class="card-header">
+          Distribuição por Gênero/Idade
+            <span class="period-display-agedist">na semana epidemiológica</span>
             <span class="week-display"></span>
             <span class="territory-display"></span>
-        </h5>
+        </h6>
         <div class="container">
-          <button type="button" class="btn btn-link btn-sm no-print" onclick="getscreenshot(3);">
+          <button type="button" class="btn btn-link btn-sm line1 no-print" onclick="getscreenshot(17);">
             Salvar imagem</button>
         </div>
-        <div class="card-block content-height">
-          <div id="age-chart" class="content-height"></div>
+        <div class="card-block p-2 content-height" id="age-chart">
         </div>
+
         <p class="card-text"><small class="text-muted">*Com base nos dados disponíveis no sistema de informação
         </small></p>
       </div>
@@ -268,38 +271,43 @@
     </div>
   </div>
 
-  <div class="row">
-    <div class="col-md-6">
-        <div class="card">
-          <h5 class="card-header">
-            Acompanhamento de oportunidades
-            <span class="period-display">na semana epidemiológica</span>
-            <span class="week-display"></span>
-            <span class="territory-display"></span>
-          </h5>
-          <div class="card-body p-0" id="opportunities-chart"></div>
-          <p class="card-text"><small class="text-muted">*Com base nos dados disponíveis no sistema de informação
-          </small></p>
+  <div class="row my-1" id="row3">
+
+    <!-- Lab -->
+    <div class="col-md-12 col-lg-6">
+      <div class="card">
+        <h6 class="card-header">
+          Exames laboratoriais
+          <span class="period-display">na semana epidemiológica</span>
+          <span class="week-display"></span>
+          <span class="territory-display"></span>
+        </h6>
+
+        <div class="card-block">
+          <div class="card-body content-height" id="etiological-chart" style="overflow-y:scroll;"></div>
         </div>
-
-    </div>
-    <div class="col-md-6">
-        <div class="card">
-          <h5 class="card-header">
-            Exames laboratoriais
-            <span class="period-display">na semana epidemiológica</span>
-            <span class="week-display"></span>
-            <span class="territory-display"></span>
-          </h5>
-
-          <div class="card-body" id="etiological-chart"></div>
-          <p class="card-text"><small class="text-muted">*Com base nos dados disponíveis no sistema de informação
-          </small></p>
-        </div>
-
+        <p class="card-text"><small class="text-muted">*Com base nos dados disponíveis no sistema de informação
+        </small></p>
       </div>
     </div>
 
+    <!-- Table -->
+    <div class="col-md-12 col-lg-6">
+      <div class="card">
+        <h6 class="card-header">
+            <span id="table-incidence-case-title">Incidência</span>
+            <span class="period-display-agedist">na semana epidemiológica</span>
+            <span class="week-display"></span>
+            <span class="territory-display"></span>
+        </h6>
+        <div class="card-block p-2 content-height line1" id="divTable"
+             style="overflow-y:auto;">
+        </div>
+        <p class="card-text"><small class="text-muted">*Com base nos dados disponíveis no sistema de informação
+        </small></p>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script src="./static/libs/jquery/jquery.js"></script>
@@ -326,8 +334,8 @@
 <script src="./static/js/dashboard.js"></script>
 <script language="JavaScript" type="text/javascript">
   function getscreenshot(myplot) {
-    var plotName = ['mapa', 'mapa-legenda', 'serie-temporal', 'distribuicao-etaria'];
-    var myplotObj = {SVGid: myplot, SVGname: plotName[myplot]};
+    var plotName = ['mapa', 'mapa-legenda', 'serie-temporal', 'interavlos-temporais', 'distribuicao-etaria'];
+    var myplotObj = {SVGid: myplot, SVGname: plotName[Math.min(myplot,4)]};
 
     singleSVGcrowbar(myplotObj);
   }

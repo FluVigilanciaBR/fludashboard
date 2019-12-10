@@ -6,6 +6,7 @@ html, document, body {
     margin: 0!important;
     padding: 0!important;
     background: #dfdfdf;
+    line-height: 0.8;
 }
 
 iframe.super-header {
@@ -13,7 +14,7 @@ iframe.super-header {
   margin: 0;
   border: 0;
   width: 100%;
-  height: 140px;
+  height: 120px;
 }
 
 .navbar {
@@ -29,9 +30,15 @@ iframe.super-header {
     border-radius: 0;
 }
 
-@media (min-width: 768px)
 .navbar-fixed {
     border-radius: 0;
+}
+
+.navbar-brand-custom{
+    font-size: 1.25rem;
+    line-height: 1;
+    color: #fff;
+    font-weight: bolder;
 }
 
 .hidden {
@@ -60,10 +67,11 @@ input.tab.selected {
   display: inline-block;
   padding-right: 20px;
   vertical-align: top;
+  font-size: small;
 }
 
 .content-height {
-  height: 450px;
+  height: 460px;
 }
 
 .align-left {
@@ -79,7 +87,15 @@ input.tab.selected {
     text-align: center!important;
 }
 
-.print-card {
-    height: 150mm;
-    width: 210mm;
+.div-with-bg {
+   background-image: url('../img/virusbg-grey.png');
+   background-size: 100%;
+}
+
+.div-with-opacity {
+   background-color: rgba(245, 245, 245, 0.5);
+}
+
+.line1 {
+    line-height: 1;
 }
