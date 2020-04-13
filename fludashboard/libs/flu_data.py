@@ -498,6 +498,7 @@ class FluDB:
                 AND dataset_id = %(dataset_id)s
                 AND scale_id = %(scale_id)s
                 %(territory_id_condition)s )
+            AND epiyear =%(epiyear)s
             ''' % sql_param
             with self.conn.connect() as conn:
                 sql_param['epiweekstop'] = conn.execute('''
@@ -610,7 +611,7 @@ class FluDB:
             'clean_data_epiweek_weekly_incidence_w_situation',
             dataset_id=dataset_id, scale_id=scale_id, year=season,
             territory_id=territory_id, low_memory=False, excluded_fields=[
-                'ADNO', 'PARA1', 'PARA2', 'PARA3'
+                'ADNO', 'PARA1', 'PARA2', 'PARA3', 'SARS2'
             ]
         )
 
@@ -668,6 +669,7 @@ class FluDB:
           notification.positive_cases AS "Testes positivos",
           notification.flu_a AS "Influenza A",
           notification.flu_b AS "Influenza B",
+          notification."SARS2" AS "SARS-CoV-2",
           notification.vsr AS "VSR",
           notification."ADNO" AS "Adenovirus",
           notification."PARA1" AS "Parainfluenza 1",
@@ -688,6 +690,7 @@ class FluDB:
             positive_cases,
             flu_a,
             flu_b,
+            "SARS2",
             vsr,
             "ADNO",
             "PARA1",
@@ -769,6 +772,8 @@ class FluDB:
 
         sql = '''
         SELECT
+        delay.symptoms2hospitalization as "Primeiros sintomas à hospitalização",
+        delay.hospitalization2evolution as "Hospitalização à evolução (alta ou óbito)",
         delay.symptoms2notification as "Primeiros sintomas à notificação",
         delay.symptoms2digitalization AS "Primeiros sintomas à digitalização",
         delay.notification2digitalization AS "Notificação à digitalização",
