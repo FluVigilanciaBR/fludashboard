@@ -18,6 +18,7 @@ def ethio_ts(df=pd.DataFrame, scale_id=int, year=int):
     cols = [
         'Testes positivos',
         'Influenza A',
+        'SARS-CoV-2',
         'Influenza B',
         'VSR',
         'Adenovirus',
@@ -59,6 +60,7 @@ def ethio_ts(df=pd.DataFrame, scale_id=int, year=int):
         print_grid=False,
         subplot_titles=('Situação dos exames',
                         'Influenza A',
+                        'SARS-CoV-2',
                         'Influenza B',
                         'VSR',
                         'Adenovirus',
