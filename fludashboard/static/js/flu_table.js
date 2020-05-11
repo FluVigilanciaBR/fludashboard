@@ -97,14 +97,14 @@ class SRAGTable {
     if (scale == 1) {
         title = 'Incidência de ';
     } else {
-        if (dataset == 3) {
+        if (dataset in [3, 5, 6]) {
           title = 'Número de ';
         } else {
           title = 'Número de casos de '
         }
     }
 
-    if (dataset == 1) {
+    if (dataset in [1, 6]) {
       title = title + DATASET_TITLE[dataset];
     } else {
       title = title + DATASET_TITLE[dataset] + " (diagnóstico laboratorial ou clínico-epidemiológico)";
