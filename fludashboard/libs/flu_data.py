@@ -505,9 +505,9 @@ class FluDB:
                 SELECT MAX(epiweek) FROM current_estimated_values
                 WHERE epiyear = %(epiyear)s
                   AND "value" IS NOT NULL
-                ''' % sql_param).fetchone()[0] - 4
+                ''' % sql_param).fetchone()[0] - 2
         else:
-            sql_param['epiweekstop'] = week - 4
+            sql_param['epiweekstop'] = week - 2
             sql_param['base_epiweek_condition'] = '''
             AND base_epiweek = (
                 SELECT MAX(LEAST(base_epiweek, %(epiweek)s))

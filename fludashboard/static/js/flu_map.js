@@ -9,7 +9,10 @@
 DATASET_TITLE = {
     1: 'SRAG',
     2: 'SRAG por Influenza',
-    3: 'Óbitos por Influenza'
+    3: 'Óbitos de SRAG por Influenza',
+    4: 'SRAG por COVID-19',
+    5: 'Óbitos de COVID-19',
+    6: 'Óbitos de SRAG'
 };
 
 /**
