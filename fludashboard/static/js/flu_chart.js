@@ -9,10 +9,10 @@
 DATASET_TITLE = {
     1: 'SRAG',
     2: 'SRAG por Influenza',
-    3: 'Óbitos de SRAG por Influenza',
+    3: 'Casos de SRAG por Influenza que vieram a óbito',
     4: 'SRAG por COVID-19',
-    5: 'Óbitos de COVID-19',
-    6: 'Óbitos de SRAG'
+    5: 'Casos de COVID-19 que vieram a óbito',
+    6: 'Casos de SRAG que vieram a óbito'
 };
 
 FLU_COLORS = {
@@ -147,7 +147,7 @@ class SRAGIncidenceChart{
          y_label = y_label + DATASET_TITLE[dataset];
     }
 
-    if (dataset == 1) {
+    if (dataset == 1 || dataset == 6) {
       title = title + DATASET_TITLE[dataset];
     } else {
       title = title + DATASET_TITLE[dataset] + " (diagnóstico laboratorial ou clínico-epidemiológico)";
@@ -203,7 +203,7 @@ class SRAGIncidenceChart{
       axis: {
         x: {
           label: {
-            text: 'SE',
+            text: 'Semana Epidemiológica de primeiros sintomas',
             position: 'outer-center'
           },
           tick: {
