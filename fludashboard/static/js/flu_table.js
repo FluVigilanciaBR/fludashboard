@@ -44,7 +44,8 @@ class SRAGTable {
   }
 
   /**
-   * Builds the SRAG incidence table.
+   * Builds the SRAG incidence table
+   * @param {string} filter_type - symptoms filter (srag, sragnofever, hospdeath)
    * @param {string} view_name- view name
    * @param {string} dataset - dataset
    * @param {string} scale - data scale
@@ -52,7 +53,7 @@ class SRAGTable {
    * @param {number} week - SRAG incidence week (e.g. 2).
    * @param {string} territoryName - Federal state name (e.g. "Acre").
    */
-  makeTable(view_name, dataset, scale, year, week, territoryName) {
+  makeTable(filter_type, view_name, dataset, scale, year, week, territoryName) {
     var columns = [];
     var _tmp = '';
     var territoryTypeId = getTerritoryTypeId();
@@ -81,7 +82,7 @@ class SRAGTable {
     }
 
     var url = [
-        '.', 'data', view_name, dataset, scale, year, week, _tmp, 'data-table'
+        '.', 'data', filter_type, view_name, dataset, scale, year, week, _tmp, 'data-table'
     ].join('/');
 
     tableSettings['ajax'] = url;

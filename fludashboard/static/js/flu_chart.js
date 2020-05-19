@@ -50,15 +50,16 @@ class SRAGIncidenceChart{
 
   /**
    * Shows activity information about the criteria established on the chart.
+   * @param {string} filter_type - symptoms filter (srag, sragnofever, hospdeath)
    * @param {string} dataset - dataset
    * @param {string} scale - data scale
    * @param {number} year - SRAG incidence year (e.g. 2013).
    * @param {number} week - SRAG incidence week (e.g. 2).
    * @param {string} territoryName - Federal state name (e.g. "Acre").
    */
-  displayInfo(view_name, dataset, scale, year, week, territoryName) {
+  displayInfo(filter_type, view_name, dataset, scale, year, week, territoryName) {
     var url = [
-        '.', 'data', view_name, dataset, scale,
+        '.', 'data', filter_type, view_name, dataset, scale,
         year, week, territoryName, 'levels'
     ].join('/');
 
@@ -117,6 +118,7 @@ class SRAGIncidenceChart{
 
   /**
    * Plots SRAG incidence chart
+   * @param {string} filter_type - symptoms filter (srag, sragnofever, hospdeath)
    * @param {string} dataset - dataset
    * @param {string} scale - data scale
    * @param {number} year - SRAG incidence year (e.g. 2013).
@@ -124,11 +126,11 @@ class SRAGIncidenceChart{
    * @param {string} territoryName- Federal state name (e.g. "Acre").
    * @return {object} - Chart object.
    */
-  plot(view_name, dataset, scale, year, week, territoryName) {
+  plot(filter_type, view_name, dataset, scale, year, week, territoryName) {
     var _this = this;
     var y_label = '';
     var url = encodeURI([
-        '.', 'data', view_name, dataset, scale, year, week,
+        '.', 'data', filter_type, view_name, dataset, scale, year, week,
         territoryName, 'weekly-incidence-curve'
     ].join('/'));
     var title = '';
@@ -255,7 +257,7 @@ class SRAGIncidenceChart{
     }
     var chart = c3.generate(data2c3);
 
-    this.displayInfo(view_name, dataset, scale, year, week, territoryName);
+    this.displayInfo(filter_type, view_name, dataset, scale, year, week, territoryName);
 
     return chart;
   }
@@ -275,17 +277,18 @@ class SRAGAgeChart{
 
   /**
    * Plots SRAG incidence chart by age
+   * @param {string} filter_type - symptoms filter (srag, sragnofever, hospdeath)
    * @param {string} dataset - dataset
    * @param {string} scale - data scale
    * @param {number} year - SRAG incidence year.
    * @param {number} week - SRAG incidence week.
    * @param {string} territoryName- Federal state name (e.g. "Acre").
    */
-  plot(view_name, dataset, scale, year, week, territoryName) {
+  plot(filter_type, view_name, dataset, scale, year, week, territoryName) {
     var _this = this;
     var y_label;
     var url = encodeURI([
-        '.', 'data', view_name, dataset, scale, year, week,
+        '.', 'data', filter_type, view_name, dataset, scale, year, week,
         territoryName, 'age-distribution'
     ].join('/'));
 

@@ -164,11 +164,12 @@ class SRAGMap {
    * Builds a Brazilian map
    * @param {dict} geoJsonBr - geoJson data about Brazilian territory
    * @param {dict} sragData - SRAG data
+   * @param {string} filter_type - symptoms filter (srag, sragnofever, hospdeath)
    * @param {string} dataset - dataset
    * @param {string} scale - data scale
    */
   makeMap(
-    geoJsonBr, sragData, view_name, dataset, scale,
+    geoJsonBr, sragData, filter_type, view_name, dataset, scale,
     year, week, clickExternalTrigger
   ) {
     var _this = this;
@@ -317,7 +318,7 @@ class SRAGMap {
 
           $('#selected-territory').val(territoryName);
 
-          clickExternalTrigger(view_name, dataset, scale, year, territoryName, week);
+          clickExternalTrigger(filter_type, view_name, dataset, scale, year, territoryName, week);
         }
       });
     };
