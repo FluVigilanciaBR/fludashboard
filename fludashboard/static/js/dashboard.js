@@ -108,6 +108,11 @@ class Dashboard {
     $('#scale').change(function(){
       _this.load_graphs();
     });
+
+    // filter type
+    $('#filter_type').change(function(){
+      _this.load_graphs();
+    });
   }
 
   /**
@@ -243,6 +248,7 @@ class Dashboard {
 
     var url = [
         '.', 'data',
+        $('#filter_type option:selected').val(),
         $('input.view_name.selected').attr('id').substring(4,),
         $('#dataset option:selected').val(),
         $('#scale option:selected').val(),
@@ -263,6 +269,7 @@ class Dashboard {
   changeWeek() {
     var _this = this;
 
+    var filter_type = $('#filter_type option:selected').val();
     var dataset = $('#dataset option:selected').val();
     var scale = $('#scale option:selected').val();
     var week = parseInt($('#week').val() || 0);
@@ -279,6 +286,7 @@ class Dashboard {
 
     var etiological_url = encodeURI([
         '.', 'data',
+        filter_type,
         view_name,
         dataset,
         scale,
@@ -291,6 +299,7 @@ class Dashboard {
     // opportunities chart
     var opportunities_url = encodeURI([
         '.', 'data',
+        filter_type,
         view_name,
         dataset,
         scale,
@@ -312,13 +321,13 @@ class Dashboard {
 
     _this.sragMap.changeColorMap(_this.sragData);
     _this.sragIncidenceChart.plot(
-        view_name, dataset, scale, year, week, territoryName
+        filter_type, view_name, dataset, scale, year, week, territoryName
     );
     _this.sragAgeChart.plot(
-        view_name, dataset, scale, year, week, territoryName
+        filter_type, view_name, dataset, scale, year, week, territoryName
     );
     _this.sragTable.makeTable(
-        view_name, dataset, scale, year, week, territoryName
+        filter_type, view_name, dataset, scale, year, week, territoryName
     );
 
     $('#etiological-chart').load(etiological_url);
@@ -331,6 +340,7 @@ class Dashboard {
    */
   makeGraphs(error) {
     var territoryName = $('#selected-territory').val() || 'Brasil';
+    var filter_type = $('#filter_type option:selected').val();
     var dataset = $('#dataset option:selected').val();
     var scale = $('#scale option:selected').val();
     var week = parseInt($('#week').val() || 0);
@@ -339,23 +349,24 @@ class Dashboard {
     var _this = this;
 
     this.sragMap.makeMap(
-      this.statesBR, this.sragData, view_name, dataset, scale, year, week,
+      this.statesBR, this.sragData, filter_type, view_name, dataset, scale, year, week,
       function(
-        view_name, dataset, scale, year, territoryName, week
+        filter_type, view_name, dataset, scale, year, territoryName, week
       ) {
         _this.sragIncidenceChart.plot(
-            view_name, dataset, scale, year, week, territoryName
+            filter_type, view_name, dataset, scale, year, week, territoryName
         );
         _this.sragAgeChart.plot(
-            view_name, dataset, scale, year, week, territoryName
+            filter_type, view_name, dataset, scale, year, week, territoryName
         );
         _this.sragTable.makeTable(
-            view_name, dataset, scale, year, week, territoryName
+            filter_type, view_name, dataset, scale, year, week, territoryName
         );
 
         // etiological chart
         var etiological_url = encodeURI([
             '.', 'data',
+            filter_type,
             view_name,
             dataset,
             scale,
@@ -369,6 +380,7 @@ class Dashboard {
         // opportunities chart
         var opportunities_url = encodeURI([
             '.', 'data',
+            filter_type,
             view_name,
             dataset,
             scale,

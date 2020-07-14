@@ -302,10 +302,11 @@ class FluDB:
             return pd.read_sql(sql % sql_param, conn)
 
     def get_data(
-        self, dataset_id: int, scale_id: int, year: int,
-        territory_id: int=None, week: int=None,
-        show_historical_weeks: bool=False,
-        territory_type_id: int=None
+            self, dataset_id: int, scale_id: int, year: int,
+            territory_id: int = None, week: int = None,
+            show_historical_weeks: bool = False,
+            territory_type_id: int = None,
+            filter_type: str = 'srag'
     ):
         """
 
@@ -316,6 +317,7 @@ class FluDB:
         :param week: 0 week == all weeks
         :param show_historical_weeks:
         :param territory_type_id:
+        :param filter_type:
         :return:
         """
         sql = '''
@@ -374,7 +376,7 @@ class FluDB:
             very_high_level,
             run_date 
             %(incidence_table_select)s
-            FROM current_estimated_values
+            FROM current_estimated_values%(table_suffix)s
             WHERE dataset_id=%(dataset_id)s 
               AND scale_id=%(scale_id)s 
               AND epiyear=%(epiyear)s 
@@ -385,7 +387,7 @@ class FluDB:
           INNER JOIN situation
             ON (incidence.situation_id=situation.id)
           FULL OUTER JOIN (
-            SELECT * FROM mem_typical
+            SELECT * FROM mem_typical%(table_suffix)s
             WHERE dataset_id=%(dataset_id)s 
               AND scale_id=%(scale_id)s
               %(territory_id_condition)s 
@@ -397,7 +399,7 @@ class FluDB:
               AND incidence.epiweek=mem_typical.epiweek
             )
           LEFT JOIN (
-            SELECT * FROM weekly_alert
+            SELECT * FROM weekly_alert%(table_suffix)s
             WHERE dataset_id=%(dataset_id)s
               AND epiyear=%(epiyear)s
               %(territory_id_condition)s
@@ -413,7 +415,7 @@ class FluDB:
             ON (territory.territory_type_id=territory_type.id)
           %(historical_table)s
           FULL OUTER JOIN (
-            SELECT * FROM mem_report
+            SELECT * FROM mem_report%(table_suffix)s
             WHERE dataset_id=%(dataset_id)s 
               AND scale_id=%(scale_id)s
               %(territory_id_condition)s
@@ -425,7 +427,7 @@ class FluDB:
               AND mem_typical.year=mem_report.year
             )
           FULL OUTER JOIN (
-            SELECT * FROM contingency_level
+            SELECT * FROM contingency_level%(table_suffix)s
             WHERE epiyear=%(epiyear)s
             %(territory_id_condition)s
             ) AS contingency_level
@@ -433,7 +435,7 @@ class FluDB:
             mem_report.territory_id=contingency_level.territory_id
             )
           FULL OUTER JOIN (
-            SELECT * FROM season_level
+            SELECT * FROM season_level%(table_suffix)s
             WHERE epiyear=%(epiyear)s
             %(territory_id_condition)s
             ) AS season_level
@@ -447,7 +449,14 @@ class FluDB:
         ORDER BY epiyear, epiweek
         '''
 
+        table_suffix = {
+            'srag': '',
+            'sragnofever': '_sragnofever',
+            'hospdeath': '_hospdeath'
+        }
+
         sql_param = {
+            'table_suffix': table_suffix[filter_type],
             'dataset_id': dataset_id,
             'scale_id': scale_id,
             'territory_id': territory_id,
@@ -502,7 +511,7 @@ class FluDB:
             ''' % sql_param
             with self.conn.connect() as conn:
                 sql_param['epiweekstop'] = conn.execute('''
-                SELECT MAX(epiweek) FROM current_estimated_values
+                SELECT MAX(epiweek) FROM current_estimated_values%(table_suffix)s
                 WHERE epiyear = %(epiyear)s
                   AND "value" IS NOT NULL
                 ''' % sql_param).fetchone()[0] - 2
@@ -511,7 +520,7 @@ class FluDB:
             sql_param['base_epiweek_condition'] = '''
             AND base_epiweek = (
                 SELECT MAX(LEAST(base_epiweek, %(epiweek)s))
-                FROM historical_estimated_values
+                FROM historical_estimated_values%(table_suffix)s
                 WHERE base_epiyear=%(epiyear)s
                     AND dataset_id = %(dataset_id)s
                     AND scale_id = %(scale_id)s
@@ -523,7 +532,8 @@ class FluDB:
         # force week filter (week 0 == all weeks)
         if show_historical_weeks:
             with self.conn.connect() as conn:
-                epiyearmax = conn.execute('SELECT MAX(epiyear) FROM current_estimated_values').fetchone()[0]
+                epiyearmax = conn.execute('SELECT MAX(epiyear) FROM current_estimated_values%(table_suffix)s' %
+                                          sql_param).fetchone()[0]
             if year < epiyearmax:
                 sql_param['situation_id_condition'] = ' AND situation_id = 3'
             else:
@@ -552,7 +562,7 @@ class FluDB:
                 base_epiyear,
                 base_epiweek,
                 base_epiyearweek
-            FROM historical_estimated_values
+            FROM historical_estimated_values%(table_suffix)s
             WHERE dataset_id=%(dataset_id)s 
              AND scale_id=%(scale_id)s 
              AND territory_id=%(territory_id)s 
@@ -582,7 +592,7 @@ class FluDB:
 
     def get_data_age_sex(
         self, dataset_id: int, scale_id: int, year: int,
-        territory_id: int=0, week: int=0
+        territory_id: int=0, week: int=0, filter_type: str='srag'
     ):
         """
 
@@ -591,6 +601,7 @@ class FluDB:
         :param year:
         :param territory_id:
         :param week:
+        :param filter_type:
         :return:
 
         """
@@ -606,9 +617,15 @@ class FluDB:
             'years_30_39', 'years_40_49', 'years_50_59', 'years_60_or_more'
         ])
 
+        table_suffix = {
+            'srag': '',
+            'sragnofever': '_sragnofever',
+            'hospdeath': '_hospdeath'
+        }
+
         # data
         df_age_dist = self.read_data(
-            'clean_data_epiweek_weekly_incidence_w_situation',
+            'clean_data_epiweek_weekly_incidence_w_situation%s' % table_suffix[filter_type],
             dataset_id=dataset_id, scale_id=scale_id, year=season,
             territory_id=territory_id, low_memory=False, excluded_fields=[
                 'ADNO', 'PARA1', 'PARA2', 'PARA3', 'SARS2'
@@ -621,7 +638,7 @@ class FluDB:
         else:
             df = self.get_data(
                 dataset_id=dataset_id, scale_id=scale_id,
-                year=year, territory_id=territory_id
+                year=year, territory_id=territory_id, filter_type=filter_type
             )
             df = self.group_data_by_season(
                 df=df, df_age_dist=df_age_dist, season=season
@@ -637,7 +654,7 @@ class FluDB:
 
     def get_etiological_data(
         self, dataset_id: int, scale_id: int, year: int,
-        week: int=None, territory_id: int=None
+        week: int=None, territory_id: int=None, filter_type: str='srag'
     ) -> pd.DataFrame:
         """
         Generate timeseries for each ethiological agent and other relevant lab
@@ -648,9 +665,17 @@ class FluDB:
         :param year: epidemiological year
         :param week: epidemiological week or all (None or 0)
         :param territory_id:
+        :param filter_type:
         """
 
+        table_suffix = {
+            'srag': '',
+            'sragnofever': '_sragnofever',
+            'hospdeath': '_hospdeath'
+        }
+
         sql_param = {
+            'table_suffix': table_suffix[filter_type],
             'epiweek': week,
             'epiyear': year,
             'territory_id': territory_id,
@@ -702,7 +727,7 @@ class FluDB:
             testing_ignored,
             territory_id
           FROM
-            clean_data_epiweek_weekly_incidence_w_situation
+            clean_data_epiweek_weekly_incidence_w_situation%(table_suffix)s
           WHERE
             epiyear=%(epiyear)s
             AND dataset_id=%(dataset_id)s
@@ -723,7 +748,7 @@ class FluDB:
     def get_opportunities(
         self, dataset_id: int, scale_id: int, year: int,
         territory_type_id: int, week: int=None,
-        territory_id: int=None
+        territory_id: int=None, filter_type: str='srag'
     ) -> pd.DataFrame:
         """
         Grab data for opportunity boxplots
@@ -734,10 +759,19 @@ class FluDB:
         :param week: selected week. 0 or Nonoe for all
         :param territory_id: territory. 0 or None for whole country
         :param territory_type_id: territory type. None or 4 for whole country
+        :param filter_type:
         :return pd.DataFrame:
 
         """
+
+        table_suffix = {
+            'srag': '',
+            'sragnofever': '_sragnofever',
+            'hospdeath': '_hospdeath'
+        }
+
         sql_param = {
+            'table_suffix': table_suffix[filter_type],
             'dataset_id': dataset_id,
             'scale_id': scale_id,
             'epiweek': week,
@@ -786,7 +820,7 @@ class FluDB:
         FROM
             (SELECT * 
             FROM
-                delay_table
+                delay_table%(table_suffix)s
             WHERE
                 epiyear=%(epiyear)s
                 AND dataset_id=%(dataset_id)s
