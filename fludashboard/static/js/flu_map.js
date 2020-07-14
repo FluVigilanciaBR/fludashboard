@@ -179,7 +179,7 @@ class SRAGMap {
     var territoryTypeId = getTerritoryTypeId();
 
     if (view_name == 'contingency'){
-      title = 'Mapa do Plano de Contingência';
+      title = 'Mapa do Plano de Contingência para vírus Influenza';
     } else if (view_name == 'resumed'){
       title = 'Mapa da Temporada para ';
     } else {
