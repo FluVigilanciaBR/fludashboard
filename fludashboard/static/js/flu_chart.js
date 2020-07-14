@@ -171,6 +171,7 @@ class SRAGIncidenceChart{
           high_threshold: 'Intensidade Alta',
           very_high_threshold: 'Intensidade Muito Alta',
           estimated_cases: 'Casos estimados',
+          rolling_average: 'Média móvel',
           ci_lower: 'Intervalo de confiança inferior',
           ci_upper: 'Intervalo de confiança superior',
           incomplete_data: 'Dados Incompletos'
@@ -181,6 +182,7 @@ class SRAGIncidenceChart{
           typical_high: 'area',
           typical_very_high: 'area',
           value: 'line',
+          rolling_average: 'line',
           pre_epidemic_threshold: 'line',
           high_threshold: 'line',
           very_high_threshold: 'line'
@@ -195,6 +197,7 @@ class SRAGIncidenceChart{
           high_threshold: '#0000ff',
           very_high_threshold: '#ff0000',
           estimated_cases: '#ff0000',
+          rolling_average: '#0000ff',
           ci_lower: '#000000',
           ci_upper: '#000000',
           incomplete_data: '#ff0000',

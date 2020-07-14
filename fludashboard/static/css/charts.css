@@ -84,6 +84,10 @@ body.detailed-view .alert-very-high {
   stroke-width: 2px!important;
 }
 
+.c3-line-rolling-average {
+  stroke-width: 2px!important;
+}
+
 .c3-line-very-high-threshold,
 .c3-line-high-threshold,
 .c3-line-pre-epidemic-threshold {

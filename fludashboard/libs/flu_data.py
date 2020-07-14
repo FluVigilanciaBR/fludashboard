@@ -327,7 +327,8 @@ class FluDB:
           mem_typical.territory_id AS territory_id,
           incidence.epiyear AS epiyear,
           mem_typical.epiweek AS epiweek,
-          incidence.value, 
+          incidence.value,
+          rolling.rolling_average AS rolling_average, 
           incidence.low_level as low_level,
           incidence.epidemic_level as epidemic_level,
           incidence.high_level as high_level,
@@ -414,6 +415,20 @@ class FluDB:
           INNER JOIN territory_type
             ON (territory.territory_type_id=territory_type.id)
           %(historical_table)s
+          FULL OUTER JOIN (
+          SELECT rolling_average,
+            territory_id,
+            epiweek
+            FROM current_estimated_values%(table_suffix)s
+            WHERE dataset_id=%(dataset_id)s 
+              AND scale_id=%(scale_id)s 
+              AND epiyear=%(epiyear)s 
+              AND epiweek %(incidence_week_operator)s %(epiweek)s
+              %(territory_id_condition)s) as rolling
+              ON (
+              mem_typical.territory_id=rolling.territory_id
+              AND mem_typical.epiweek=rolling.epiweek
+              )
           FULL OUTER JOIN (
             SELECT * FROM mem_report%(table_suffix)s
             WHERE dataset_id=%(dataset_id)s 

@@ -158,7 +158,7 @@ def data__weekly_incidence_curve(
 
     ks = [
         'epiweek', 'typical_low', 'typical_median', 'typical_high',
-        'value', 'pre_epidemic_threshold', 'high_threshold',
+        'value', 'rolling_average', 'pre_epidemic_threshold', 'high_threshold',
         'very_high_threshold'
     ]
 
