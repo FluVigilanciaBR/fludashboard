@@ -52,7 +52,7 @@ To deploy FluDashboard Prototype use conda package (that will create a conda env
 
     conda config --set always_yes yes --set changeps1 no
 
-    conda config --add channels conda-forge 
+    conda config --add channels conda-forge
 
     conda update --all
 
@@ -119,7 +119,7 @@ Detalhado (weekly activity information) view:
 - Incidence chart (upper right)
 
  This panel presents the reported incidence time series (black solid line) for the corresponding season, with an horizontal marker indicating the selected epidemiological week. Incidence is reported per 100 thousand individuals. Incidence estimation, when possible, is shown as a red solid line along with 95% confidence interval as dotted red lines. The activity level probability is also presented as text on the upper left corner. Map color correspond to activity level with highest probability. Along with reported and estimated incidence, the system presents the following activity thresholds, estimated based on historical activity at each State/Region:
-  
+
  - Pre-epidemic threshold (blue dashed line): activity level which indicates, when crossed, the beginning of sustained  transmission for the current season. After crossing this threshold, incidence is expected to present steady  increase (subject to fluctuations);
  - High activity threshold (green dashed line): activity level above which incidence is considered high for that location. Calculated based on the estimated 90 percentile of historical activity distribution.
  - Very high activity threshold (red dashed line): activity level above which incidence is considered high for that region. Calculated based on the estimated 97.5 percentile of historical activity distribution.

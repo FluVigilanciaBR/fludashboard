@@ -1,47 +1,47 @@
 <html>
-<head> 
+<head>
 <meta http-equiv="content-type" content="text/html; charset=UTF8">
 
-<link 
-    rel="stylesheet" 
-    type="text/css" 
-    href="https://cdnjs.cloudflare.com/ajax/libs/dc/2.0.0-alpha.5/dc.css"/> 
-    
 <link
-    rel="stylesheet" 
-    href="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.css" 
+    rel="stylesheet"
+    type="text/css"
+    href="https://cdnjs.cloudflare.com/ajax/libs/dc/2.0.0-alpha.5/dc.css"/>
+
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.css"
 />
 
 <link
-    rel="stylesheet" 
-    href="https://rawgit.com/c3js/c3/master/c3.min.css" 
+    rel="stylesheet"
+    href="https://rawgit.com/c3js/c3/master/c3.min.css"
 />
-    
-<script 
+
+<script
     src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.13/d3.min.js"
-></script> 
-<script 
+></script>
+<script
     src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.12/crossfilter.min.js"
-></script> 
+></script>
 
-<script 
+<script
     src="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.js"
 ></script>
 
-<script 
-    src="https://code.jquery.com/jquery-2.2.4.min.js" 
-    integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" 
+<script
+    src="https://code.jquery.com/jquery-2.2.4.min.js"
+    integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
     crossorigin="anonymous"
 ></script>
 
 <script
     src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"
 ></script>
-    
+
 <script
     src="https://rawgit.com/NickQiZhu/dc.js/master/web/js/dc.js"
 ></script>
-    
+
 <script
     src="https://rawgit.com/c3js/c3/master/c3.min.js"
 ></script>
@@ -51,7 +51,7 @@
 .hidden {
     display: none;
 }
-    
+
 .chart {
     margin-left:90px;
 }
@@ -81,10 +81,10 @@ Period (week):
 <select id="week">
     <option value="0">Whole Year</option>
     {%for w in range(1, 53):%}
-    <option value="{{w}}" 
+    <option value="{{w}}"
             {{'selected="selected"' if w==current_isoweek else ''}}
             >{{w}}</option>
-    {%endfor%}  
+    {%endfor%}
 </select>
 
 <input type="hidden" id="selected_state" value=""/>
@@ -108,32 +108,32 @@ Period (week):
     <!-- Title or anything you want to add above the chart -->
     <center><h2 id="incidence-chart-title"></h2></center>
 <div id="linechart">
-    
+
 </div>
-    
+
 <script>
 console.clear();
 
 function filter_apply(filter) {
     var f=eval(filter);
-    
+
     if (typeof(f.length) != "undefined") {} else {};
-    
+
     if (typeof(f.top) != "undefined") {f=f.top(Infinity);} else {};
-    
+
     if (typeof(f.dimension) != "undefined") {
         f=f.dimension(function(d) { return "";}).top(Infinity);
     } else {};
-    
+
     return f;
 }
 
 
 function print_filter(filter){
     f = filter_apply(filter);
-    
+
     console.log(
-        filter + "(" + f.length + ") = " + 
+        filter + "(" + f.length + ") = " +
         JSON.stringify(f)
     );
 }
@@ -158,18 +158,18 @@ var flu_colors = {
 function Graph(data) {
     var map = L.map('map');
     map.setView([-16, -50.528742], 3);
-    
+
     // create the tile layer with correct attribution
     var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
     var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
     var osm = new L.TileLayer(osmUrl, {minZoom: 1, maxZoom: 12, attribution: osmAttrib});
-    
+
     function onEachFeature(feature, layer) {
         //bind click
         layer.on({
             click: function(){
                 // reset line weight
-                geojson_layer.eachLayer(function (_layer) {  
+                geojson_layer.eachLayer(function (_layer) {
                     _layer.setStyle({
                         weight: 1,
                     });
@@ -178,11 +178,11 @@ function Graph(data) {
                 layer.setStyle({
                     weight: 3,
                 });
-                
+
                 $('#selected_state').val(feature.properties.nome);
                 $('#incidence-chart-title').text(feature.properties.nome);
                 isoweek = $('#week').val();
-                
+
                 if(isoweek>0) {
                     $("#data-table").removeClass('hidden');
                     if ($('#selected_state').val() != "") {
@@ -194,9 +194,9 @@ function Graph(data) {
                     $("#data-table").addClass('hidden');
                     $("#linechart").addClass('hidden');
                 }
-                
+
                 dc.renderAll();
-                
+
                 var chart = c3.generate({
                 bindto: '#linechart',
                 data: {
@@ -225,7 +225,7 @@ function Graph(data) {
             }
         });
     }
-    
+
     /**
      * Red if the incidence was above the high threshold for at least 5 weeks;
      * Orange if above the high threshold from 1 to 4 weeks;
@@ -238,19 +238,19 @@ function Graph(data) {
         if (d[2] >= 1 || d[3] >= 1) return 2;
         return 1;
     }
-    
-    // Feed it through crossfilter  
+
+    // Feed it through crossfilter
     var ndx = crossfilter(data);
-    
+
     // for testing
     //console.log(data);
-    
+
     //define a dimension
     //Here we will group by state
     var stateDim = ndx.dimension(dc.pluck('Unidade_da_Federacao'));
     var weekDim = ndx.dimension(dc.pluck('isoweek'));
     var allDim = ndx.dimension(function(d){d});
-    
+
     var ufAlertDim = ndx.dimension(function (d) {
         //stringify() and later, parse() to get keyed objects
         return JSON.stringify({
@@ -264,45 +264,45 @@ function Graph(data) {
         //parse the json string created above
         d.key = JSON.parse(d.key);
     });
-    
+
     // start the map in South-East England
     geojson_layer = L.geoJson(br_states, {
         onEachFeature: onEachFeature,
         style: function(feature) {
             l_name = feature.properties.nome;
             isoweek = $('#week').val();
-            
+
             style_properties = {
                 fillColor: '#ffffff',
                 fillOpacity: 0.5,
                 color: '#333333',
                 weight: 1,
             };
-            
+
             weekDim.filterAll();
             df = filter_apply(weekDim.filter(isoweek));
 
-            $(df).each(function(i){ 
+            $(df).each(function(i){
                 if (l_name == df[i]['Unidade_da_Federacao']){
                     style_properties['fillColor'] = flu_colors[df[i]['alert']];
                     return;
                 }
-            });            
+            });
             return style_properties;
         }
     });
     geojson_layer.addTo(map);
     osm.addTo(map);
-    
+
     d3.select('#week')
-        .on('change', function(){ 
+        .on('change', function(){
             isoweek = $('#week').val();
-            
+
             style_properties = {
                 fillColor: '#ffffff',
                 weight: 1,
             };
-            
+
             weekDim.filterAll();
             if(isoweek>0) {
                 $("#data-table").removeClass('hidden');
@@ -311,7 +311,7 @@ function Graph(data) {
                 } else {
                     $("#linechart").addClass('hidden');
                 }
-                
+
                 df = filter_apply(
                     weekDim.filter(isoweek)
                 );
@@ -320,21 +320,21 @@ function Graph(data) {
                 $("#linechart").addClass('hidden');
                 df = filter_apply(ufAlertGroup.all());
             }
-            
+
             //print_filter(df);
-            geojson_layer.eachLayer(function (layer) {  
+            geojson_layer.eachLayer(function (layer) {
                 l_name = layer.feature.properties.nome;
-                
+
                 if (l_name == $('#selected_state').val()) {
                     style_properties['weight'] = 3;
                 } else {
                     style_properties['weight'] = 1;
                 }
-                
+
                 layer.setStyle(style_properties);
-                
+
                 if(isoweek>0) {
-                    $(df).each(function(i){ 
+                    $(df).each(function(i){
                         if (l_name == df[i]['Unidade_da_Federacao']){
                             layer.setStyle({
                                 fillColor: flu_colors[df[i]['alert']],
@@ -345,7 +345,7 @@ function Graph(data) {
                 } else {
                     alerts = {};
 
-                    $(df).each(function(i){ 
+                    $(df).each(function(i){
                         if (l_name == df[i].key['uf']){
                             alerts[df[i].key['alert']] = df[i].value;
                         }
@@ -358,13 +358,13 @@ function Graph(data) {
             });
             dc.renderAll(); // render all charts on the page
     });
-    
+
     /*
     //Lets create a row chart
     RowChart.dimension(stateDim)
         .group(stateGroup)
         .width(500);
-        
+
     RowChart.getColor = function(d, i){
         var flu_colors = {
             1: '#dfdfdf',
@@ -375,7 +375,7 @@ function Graph(data) {
         return flu_colors[d.alert];
     };
     */
-    
+
     DataTable.dimension(weekDim)
         // data table does not use crossfilter group but rather a closure
         // as a grouping function
@@ -389,14 +389,14 @@ function Graph(data) {
         .size(100)
         .sortBy(dc.pluck('Unidade_da_Federacao'))
         .order(d3.ascending);
-    
+
     dc.renderAll(); // render all charts on the page
-    
-}; // end graph function    
+
+}; // end graph function
 
 // Call function
 Graph(dataset);
 </script>
-    
+
 </body>
 </html>

@@ -1,0 +1,23 @@
+name: fludashboard
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+- python
+- pandas >=0.21
+- numpy >=1.12
+- flask
+- unidecode
+- psycopg2
+- sqlalchemy
+- pyyaml
+- cufflinks-py
+- plotly 2.5.1
+- ipython
+# development
+- pip
+- pytest
+- black
+- flake8
+- mypy
+- pre-commit

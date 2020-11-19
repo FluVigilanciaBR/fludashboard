@@ -19,7 +19,7 @@ DATABASE = {
     'USER': None,
     'PASSWORD': None,
     'HOST': None,
-    'PORT': None
+    'PORT': None,
 }
 
 # create yaml file
@@ -38,14 +38,14 @@ if not os.path.exists(settings_path):
             'USER': '<DATABASE_USER_HERE>',
             'PASSWORD': '<DATABASE_PASSWORD_HERE>',
             'HOST': '<DATABASE_HOST_HERE>',
-            'PORT': '<DATABASE_PORT_HERE>'
-        }
+            'PORT': '<DATABASE_PORT_HERE>',
+        },
     }
 
     with open(os.path.join(settings_path), 'w') as f:
         yaml.dump(settings_yaml, f, default_flow_style=False)
 
-    raise Exception('Please configure your settings file (%s)' % settings_path  )
+    raise Exception('Please configure your settings file (%s)' % settings_path)
 
 # load yaml file
 with open(os.path.join(settings_path), 'r') as f:

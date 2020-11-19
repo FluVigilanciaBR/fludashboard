@@ -15,3 +15,12 @@ jobs:
       uses: actions/checkout@v2
     - name: Setup conda
       uses: conda-incubator/setup-miniconda@v2
+      with:
+        activate-environment: fludashboard
+        environment-file: environment.yml
+    - name: List Conda packages
+      shell: bash -l {0}
+      run: conda list
+    - name: Lint with black and flake8
+      run: |
+        pre-commit-hook run --all-files

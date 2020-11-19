@@ -12,7 +12,7 @@ Tests for `fludashboard` module.
 from fludashboard.app import app
 from fludashboard.libs.migration import update_data_files
 
-import os
+# import os
 import unittest
 
 
