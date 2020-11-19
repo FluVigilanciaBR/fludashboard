@@ -11,6 +11,7 @@ PATH_ROOT = os.path.dirname(os.path.abspath(__file__))
 def get_version():
     """Obtain the version number"""
     import importlib
+
     mod = importlib.machinery.SourceFileLoader(
         'version', os.path.join('fludashboard', '__init__.py')
     ).load_module()
@@ -22,6 +23,7 @@ class MakeDoc(Command):
     MakeDoc will prepare Python and JavaScript document from code.
 
     """
+
     description = "Prepares documentation"
     user_options = []
 
@@ -46,9 +48,9 @@ class MakeDoc(Command):
         print(out)
 
         # update RST files from python javascript files
-        path_template = list(
-            sh.grep(sh.locate('jsdoc-sphinx'), 'template$')
-        )[0].replace('\n', '')
+        path_template = list(sh.grep(sh.locate('jsdoc-sphinx'), 'template$'))[
+            0
+        ].replace('\n', '')
 
         out = sh.jsdoc(
             '-t', path_template, '-d', 'jsdoc/', '../fludashboard/static/js/'
@@ -62,10 +64,12 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
+
 def parse_requirements(filename):
     """ load requirements from a pip requirements file """
     lineiter = (line.strip() for line in open(filename))
     return [line for line in lineiter if line and not line.startswith("#")]
+
 
 requirements = parse_requirements('requirements.txt')
 
@@ -85,13 +89,8 @@ setup(
     packages=[
         'fludashboard',
     ],
-    package_dir={'fludashboard':
-                 'fludashboard'},
-    entry_points={
-        'console_scripts': [
-            'fludashboard=fludashboard.cli:main'
-        ]
-    },
+    package_dir={'fludashboard': 'fludashboard'},
+    entry_points={'console_scripts': ['fludashboard=fludashboard.cli:main']},
     include_package_data=True,
     install_requires=requirements,
     license="GNU General Public License v3",
@@ -106,5 +105,5 @@ setup(
         'Programming Language :: Python :: 3.6',
     ],
     test_suite='tests',
-    tests_require=test_requirements
+    tests_require=test_requirements,
 )

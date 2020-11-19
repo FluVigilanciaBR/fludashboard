@@ -1,0 +1,21 @@
+name: flu
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+- flask
+- pandas>=0.21
+- plotly==2.5.1
+- cufflinks-py
+- psycopg2
+- sqlalchemy
+- unidecode
+- pyyaml
+- numpy
+- ipython
+# development
+- black
+- flake8
+- mypy
+- pip
+- pre-commit

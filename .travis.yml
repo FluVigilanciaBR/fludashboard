@@ -2,7 +2,7 @@
 # This file will be regenerated if you run travis_pypi_setup.py
 
 language: python
-python: 
+python:
   - 3.5
   - 3.6
 
@@ -18,7 +18,7 @@ install:
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
-  - conda config --add channels conda-forge 
+  - conda config --add channels conda-forge
   - conda update --all
 
   # Useful for debugging any issues with conda
@@ -30,4 +30,3 @@ install:
 
 # command to run tests, e.g. python setup.py test
 script: python -c "import fludashboard"
-

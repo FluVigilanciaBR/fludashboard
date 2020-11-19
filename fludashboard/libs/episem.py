@@ -9,13 +9,14 @@ Return Brazilian epidemiological week from passed date
 
 def extractweekday(x=datetime.datetime):
     # Extract weekday as [Sun-Sat] |-> [0-6]
-    w = x.isoweekday() % 7  # isoweekday() returns weekday with [Mon-Sun] as [1-7]
+    w = (
+        x.isoweekday() % 7
+    )  # isoweekday() returns weekday with [Mon-Sun] as [1-7]
     return w
 
 
 def firstepiday(year=int):
     day = datetime.datetime.strptime('%s-01-01' % year, '%Y-%m-%d')
-
 
     day_week = extractweekday(day)
 
@@ -26,14 +27,13 @@ def firstepiday(year=int):
     if day_week < 4:
         day = day - datetime.timedelta(days=day_week)
     else:
-        day = day + datetime.timedelta(days=(7-day_week))
+        day = day + datetime.timedelta(days=(7 - day_week))
 
     return day
 
 
 def lastepiday(year=int):
     day = datetime.datetime.strptime('%s-12-31' % year, '%Y-%m-%d')
-
 
     day_week = extractweekday(day)
 
@@ -42,9 +42,9 @@ def lastepiday(year=int):
     # If the last day of the year is between Sunday and Tuesday, epiweek 01 of the next year includes it.
     # Otherwise, it is still the last epiweek of the current year
     if day_week < 3:
-        day = day - datetime.timedelta(days=(day_week+1))
+        day = day - datetime.timedelta(days=(day_week + 1))
     else:
-        day = day + datetime.timedelta(days=(6-day_week))
+        day = day + datetime.timedelta(days=(6 - day_week))
 
     return day
 
@@ -63,15 +63,15 @@ def episem(x, sep='W', out='YW'):
 
     def out_format(year, week, out):
         if out == 'YW':
-            return('%sW%02d' % (year,week))
+            return '%sW%02d' % (year, week)
         if out == 'Y':
-            return('%s' % (year))
+            return '%s' % (year)
         if out == 'W':
-            return ('%02d' % week)
+            return '%02d' % week
 
-    if (type(x) != datetime.datetime):
-        if (str(x)=='' or (type(x)!=str and np.isnan(x))):
-            return(None)
+    if type(x) != datetime.datetime:
+        if str(x) == '' or (type(x) != str and np.isnan(x)):
+            return None
         x = datetime.datetime.strptime(x, '%Y-%m-%d')
 
     epiyear = x.year
@@ -79,7 +79,7 @@ def episem(x, sep='W', out='YW'):
 
     if x > epiend:
         epiyear += 1
-        return(out_format(epiyear, 1, out))
+        return out_format(epiyear, 1, out)
 
     epistart = firstepiday(epiyear)
 
@@ -88,6 +88,6 @@ def episem(x, sep='W', out='YW'):
         epiyear -= 1
         epistart = firstepiday(epiyear)
 
-    epiweek = int(((x - epistart)/7).days) + 1
+    epiweek = int(((x - epistart) / 7).days) + 1
 
-    return(out_format(epiyear, epiweek, out))
+    return out_format(epiyear, epiweek, out)

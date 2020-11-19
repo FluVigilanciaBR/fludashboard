@@ -7,7 +7,7 @@
 
  This is a result of discutions on StackOverflow:
  https://stackoverflow.com/questions/50750430/how-to-properly-generate-canvas-from-complex-svg/
- 
+
  As the original svg-crowbar-2.js, this code is under MIT License as stated on svg-crowbar project repository:
  Copyright (c) 2013 The New York Times
 
@@ -198,4 +198,3 @@ function singleSVGcrowbar(myplot) {
 
 
 };
-

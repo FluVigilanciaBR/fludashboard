@@ -33,9 +33,14 @@ class TestFluDB(unittest.TestCase):
     def test_read_data(self):
         df = self.fludb.read_data(
             table_name='current_estimated_values',
-            dataset_id=1, scale_id=1, territory_id=33,
-            year=2017, week=25, base_year=None, base_week=None,
-            historical_week=None
+            dataset_id=1,
+            scale_id=1,
+            territory_id=33,
+            year=2017,
+            week=25,
+            base_year=None,
+            base_week=None,
+            historical_week=None,
         )
 
         assert not df.empty
@@ -45,8 +50,12 @@ class TestFluDB(unittest.TestCase):
 
     def test_get_data(self):
         df = self.fludb.get_data(
-            dataset_id=1, scale_id=1, year=2017,
-            territory_id=33, week=25, show_historical_weeks=True
+            dataset_id=1,
+            scale_id=1,
+            year=2017,
+            territory_id=33,
+            week=25,
+            show_historical_weeks=True,
         )
 
         # pandas configuration

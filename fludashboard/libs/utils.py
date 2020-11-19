@@ -1,6 +1,7 @@
 from datetime import timedelta
 from flask import make_response, request, current_app
 from functools import update_wrapper
+
 # local
 from .episem import episem, extractweekday as extract_weekday
 
@@ -15,17 +16,20 @@ def calc_last_epiweek(year):
     day_week = extract_weekday(day)  # dia semana do ultimo dia
 
     if day_week < 3:
-        day = day - datetime.timedelta(days=(day_week+1))
+        day = day - datetime.timedelta(days=(day_week + 1))
     else:
-        day = day + datetime.timedelta(days=(6-day_week))
+        day = day + datetime.timedelta(days=(6 - day_week))
 
     return int(episem(day, out='W'))
 
 
 def cross_domain(
-    origin=None, methods=None, headers=None,
-    max_age=21600, attach_to_all=True,
-    automatic_options=True
+    origin=None,
+    methods=None,
+    headers=None,
+    max_age=21600,
+    attach_to_all=True,
+    automatic_options=True,
 ):
     """
 
@@ -76,6 +80,7 @@ def cross_domain(
 
         f.provide_automatic_options = False
         return update_wrapper(wrapped_function, f)
+
     return decorator
 
 
@@ -89,4 +94,3 @@ def recursive_dir_name(path: str, steps_back: int):
     for _ in range(steps_back):
         path = os.path.dirname(path)
     return path
-
