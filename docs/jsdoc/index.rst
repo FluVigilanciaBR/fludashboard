@@ -10,7 +10,7 @@ Contents
 .. toctree::
    :maxdepth: 1
 
-   
+
    Dashboard
    Dashboard
    SRAGIncidenceChart
@@ -21,4 +21,3 @@ Contents
    SRAGMap
    SRAGTable
    SRAGTable
-   

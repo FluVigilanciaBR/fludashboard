@@ -10,17 +10,17 @@ L.Control.Legend = L.Control.extend({
     onRemove: function(map) {
     this._container = null;
     },
-    
+
     onAdd: function (map) {
-        
+
         this._map = map;
         var container = this._container = L.DomUtil.create('div', 'legend-container');
-        
+
         this._initToggle();
-        
+
         return container;
     },
-    
+
     _initToggle: function() {
 
         var container = this._container;
@@ -59,7 +59,7 @@ L.Control.Legend = L.Control.extend({
             this._map.on('click', this._collapse, this);
         }
     },
-    
+
     _expand: function() {
         this._container.className = this._container.className.replace('legend-collapsed', '');
         $(".legend-toggle-icon").hide();
@@ -70,4 +70,3 @@ L.Control.Legend = L.Control.extend({
         $(".legend-toggle-icon").show();
     },
 });
-

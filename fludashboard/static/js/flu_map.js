@@ -156,7 +156,7 @@ class SRAGMap {
     });
 
     this.map.addControl(this.legend);
-      
+
     $(".legend-container").append( $("#legend") );
   }
 

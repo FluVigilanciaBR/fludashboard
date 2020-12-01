@@ -8,9 +8,7 @@ def startup():
     :return:
     """
     app.run(
-        host=settings.APP_HOST,
-        port=settings.APP_PORT,
-        debug=settings.DEBUG
+        host=settings.APP_HOST, port=settings.APP_PORT, debug=settings.DEBUG
     )
 
     return app

@@ -6,8 +6,8 @@ import sys
 
 def startup():
     try:
-        import gunicorn
-    except:
+        import gunicorn  # noqa: F401
+    except ImportError:
         raise Exception('[EE] GUNICORN NOT FOUND.')
 
     path_root = os.path.dirname(os.path.abspath(__file__))

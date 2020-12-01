@@ -11,8 +11,8 @@ Children
 
 .. toctree::
    :maxdepth: 1
-   
-   
+
+
 Description
 ===========
 
@@ -29,10 +29,10 @@ Builds a Brazilian map
 
 .. js:function:: makeMap(geoJsonBr, sragData)
 
-    
+
     :param dict geoJsonBr: geoJson data about Brazilian territory
     :param dict sragData: SRAG data
-    
+
 .. _SRAGMap.getAlertLevelForWholeYear:
 
 
@@ -49,10 +49,10 @@ Gets the alert level color using the follow criteria:
 
 .. js:function:: getAlertLevelForWholeYear(d)
 
-    
+
     :param dict d: Total number of alert occurrence
     :return number: - Alert level (1-4)
-    
+
 .. _SRAGMap.changeColorMap:
 
 
@@ -63,46 +63,42 @@ Changes the color of the map using the alerts criteria
 
 .. js:function:: changeColorMap(df)
 
-    
+
     :param dict df: Data frame object
-    
+
 
 .. _SRAGMap.fluColors:
 
-Member: ``fluColors``: 
+Member: ``fluColors``:
 
 .. _SRAGMap.map:
 
-Member: ``map``: 
+Member: ``map``:
 
 .. _SRAGMap.osm:
 
-Member: ``osm``: 
+Member: ``osm``:
 
 .. _SRAGMap.geojsonLayer:
 
-Member: ``geojsonLayer``: 
+Member: ``geojsonLayer``:
 
 .. _SRAGMap.regionIds:
 
-Member: ``regionIds``: 
+Member: ``regionIds``:
 
 .. _SRAGMap.regionNames:
 
-Member: ``regionNames``: 
+Member: ``regionNames``:
 
 .. _SRAGMap.legend:
 
-Member: ``legend``: 
+Member: ``legend``:
 
 .. _SRAGMap.geojsonLayer:
 
-Member: ``geojsonLayer``: 
+Member: ``geojsonLayer``:
 
 .. _SRAGMap.geojsonLayer:
 
-Member: ``geojsonLayer``: 
-
-
-
-
+Member: ``geojsonLayer``:

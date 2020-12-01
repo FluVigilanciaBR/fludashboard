@@ -11,8 +11,8 @@ Children
 
 .. toctree::
    :maxdepth: 1
-   
-   
+
+
 Description
 ===========
 
@@ -29,8 +29,8 @@ starts up the charts
 
 .. js:function:: init()
 
-    
-    
+
+
 .. _Dashboard.load_graphs:
 
 
@@ -41,8 +41,8 @@ load data and build charts
 
 .. js:function:: load_graphs()
 
-    
-    
+
+
 .. _Dashboard.changeWeek:
 
 
@@ -54,8 +54,8 @@ SRAG data table.
 
 .. js:function:: changeWeek()
 
-    
-    
+
+
 .. _Dashboard.makeGraphs:
 
 
@@ -66,46 +66,42 @@ Trigger the functions to create the charts and the data table.
 
 .. js:function:: makeGraphs(error)
 
-    
+
     :param object error: data about any error.
-    
+
 
 .. _Dashboard.group_by:
 
-Member: ``group_by``: 
+Member: ``group_by``:
 
 .. _Dashboard.delimitation:
 
-Member: ``delimitation``: 
+Member: ``delimitation``:
 
 .. _Dashboard.lastWeek:
 
-Member: ``lastWeek``: 
+Member: ``lastWeek``:
 
 .. _Dashboard.lastWeekYears:
 
-Member: ``lastWeekYears``: 
+Member: ``lastWeekYears``:
 
 .. _Dashboard.sragData:
 
-Member: ``sragData``: 
+Member: ``sragData``:
 
 .. _Dashboard.sragTable:
 
-Member: ``sragTable``: 
+Member: ``sragTable``:
 
 .. _Dashboard.sragMap:
 
-Member: ``sragMap``: 
+Member: ``sragMap``:
 
 .. _Dashboard.sragIncidenceChart:
 
-Member: ``sragIncidenceChart``: 
+Member: ``sragIncidenceChart``:
 
 .. _Dashboard.sragAgeChart:
 
-Member: ``sragAgeChart``: 
-
-
-
-
+Member: ``sragAgeChart``:
